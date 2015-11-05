@@ -5,4 +5,7 @@
     <string name="main_fragment">This is Main Fragment</string>
     <string name="explore_fragment">This is Explore Fragment</string>
     <string name="media_fragment">This is Media Fragment</string>
+    <string name="play_fragment">This is Play Fragment</string>
+    <string name="title_activity_audio">AudioActivity</string>
+    <string name="audio_activity">This is Audio Activity</string>
 </resources>
