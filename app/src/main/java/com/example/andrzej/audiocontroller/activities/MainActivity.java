@@ -5,36 +5,31 @@ import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.os.Bundle;
-import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
 
 import android.widget.LinearLayout;
-import android.widget.TextView;
 
 import com.example.andrzej.audiocontroller.R;
 import com.example.andrzej.audiocontroller.adapters.SectionsPagerAdapter;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
+import me.relex.circleindicator.CircleIndicator;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
 
     private SectionsPagerAdapter mSectionsPagerAdapter;
 
-    @Bind(R.id.container)
+    @Bind(R.id.mainTabsPager)
     ViewPager mViewPager;
     @Bind(R.id.toolbar)
     Toolbar toolbar;
     @Bind(R.id.bottom_toolbar)
     LinearLayout bottomToolbar;
+    @Bind(R.id.tabsIndicator)
+    CircleIndicator mCircleIndicator;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,12 +41,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         if (getSupportActionBar() != null)
             getSupportActionBar().setTitle(null);
 
+
         //Create section adapter
         mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
 
         // Set up the ViewPager with the sections adapter.
-        mViewPager = (ViewPager) findViewById(R.id.container);
         mViewPager.setAdapter(mSectionsPagerAdapter);
+        mCircleIndicator.setViewPager(mViewPager);
 
         bottomToolbar.setOnClickListener(this);
     }
