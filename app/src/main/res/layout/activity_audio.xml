@@ -4,13 +4,14 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/background_material_light"
     android:fitsSystemWindows="true"
     tools:context="com.example.andrzej.audiocontroller.activities.AudioActivity">
 
 
     <include
         android:id="@+id/toolbar"
-        layout="@layout/audio_play_toolbar"/>
+        layout="@layout/audio_play_toolbar" />
 
 
     <include

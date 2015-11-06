@@ -23,7 +23,7 @@
             android:name=".activities.AudioActivity"
             android:label="@string/title_activity_audio"
             android:screenOrientation="portrait"
-            android:theme="@style/AppTheme.NoActionBar" >
+            android:theme="@style/AppTheme.NoActionBarSlidr" >
         </activity>
     </application>
 

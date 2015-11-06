@@ -9,6 +9,7 @@ import android.view.View;
 import android.widget.TextView;
 
 import com.example.andrzej.audiocontroller.R;
+import com.r0adkll.slidr.Slidr;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
@@ -23,6 +24,7 @@ public class AudioActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_audio);
         ButterKnife.bind(this);
+        Slidr.attach(this);
 
         setSupportActionBar(toolbar);
         if (getSupportActionBar() != null)
