@@ -10,7 +10,7 @@
 
     <include
         android:id="@+id/toolbar"
-        layout="@layout/main_app_toolbar"/>
+        layout="@layout/audio_play_toolbar"/>
 
 
     <include

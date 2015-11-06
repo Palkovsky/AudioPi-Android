@@ -15,6 +15,6 @@
         android:id="@+id/toolbar_title"
         android:textColor="@android:color/white"
         android:textStyle="bold"
-        android:textSize="26sp"/>
+        android:textSize="@dimen/toolbarTitleLargeFontSize"/>
 
 </android.support.v7.widget.Toolbar>

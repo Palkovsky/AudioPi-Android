@@ -33,6 +33,7 @@
                 android:id="@+id/tabsIndicator"
                 android:layout_width="match_parent"
                 android:layout_height="40dp"
+                app:ci_drawable="@drawable/indicator_radius"
                 android:layout_centerHorizontal="true"
                 android:layout_alignParentBottom="true" />
 

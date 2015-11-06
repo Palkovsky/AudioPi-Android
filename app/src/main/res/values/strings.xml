@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Pi Audio</string>
+    <string name="app_name">Audio Pi</string>
     <string name="action_settings">Settings</string>
 
     <string name="main_fragment">This is Main Fragment</string>
@@ -8,4 +8,6 @@
     <string name="play_fragment">This is Play Fragment</string>
     <string name="title_activity_audio">AudioActivity</string>
     <string name="audio_activity">This is Audio Activity</string>
+    <string name="ipsum">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse posuere, nibh a pharetra tincidunt, est mi luctus lorem, ac vestibulum dolor tellus vel elit. Curabitur facilisis quam quis est venenatis, at rutrum nibh malesuada. Nulla mauris neque, placerat nec arcu at, pretium sagittis enim. Ut vel diam quis magna suscipit pulvinar quis id massa. Vestibulum non viverra elit, eget bibendum metus. Cras porttitor ante leo, et fringilla ipsum dictum sed. Sed vel dapibus nisl. Phasellus fringilla quis justo sed aliquet. Pellentesque ultricies quam eu mi accumsan, vulputate pellentesque lacus vehicula.</string>
+    <string name="sample_author">Sample Artist</string>
 </resources>
