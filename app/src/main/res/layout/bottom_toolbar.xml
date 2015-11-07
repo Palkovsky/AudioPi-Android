@@ -3,13 +3,92 @@
     android:layout_width="match_parent"
     android:layout_height="0dp"
     android:background="@color/colorAccent"
-    android:orientation="vertical"
-    android:gravity="center">
+    android:gravity="center"
+    android:orientation="vertical">
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="This is where current track will be displayed"
-        android:textAppearance="@android:style/TextAppearance.Medium" />
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="horizontal"
+        android:layout_margin="@dimen/bottomToolbarMargin"
+        android:weightSum="100">
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="50"
+            android:gravity="center"
+            android:orientation="horizontal">
+
+            <ImageView
+                android:id="@+id/miniCoverIv"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:src="@drawable/sample_cover" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:gravity="center_vertical"
+                android:orientation="vertical"
+                android:layout_marginLeft="@dimen/bottomToolbarMargin"
+                android:layout_marginStart="@dimen/bottomToolbarMargin">
+
+                <TextView
+                    android:id="@+id/miniTrackTitle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:ellipsize="marquee"
+                    android:singleLine="true"
+                    android:text="@string/ipsum" />
+
+                <TextView
+                    android:id="@+id/miniArtistTitle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:singleLine="true"
+                    android:text="@string/sample_author" />
+
+            </LinearLayout>
+
+
+        </LinearLayout>
+
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="50"
+            android:orientation="horizontal"
+            android:gravity="center">
+
+            <ImageButton
+                android:id="@+id/miniPrevTrackBtn"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="@dimen/bottomToolbarMargin"
+                android:layout_marginRight="@dimen/bottomToolbarMargin"
+                android:background="@drawable/image_button_background"
+                android:src="@drawable/ic_skip_previous_black_36dp" />
+
+            <ImageButton
+                android:id="@+id/miniPlayBtn"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/image_button_background"
+                android:src="@drawable/ic_play_arrow_black_48dp" />
+
+            <ImageButton
+                android:id="@+id/miniNextTrackBtn"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="@dimen/bottomToolbarMargin"
+                android:layout_marginStart="@dimen/bottomToolbarMargin"
+                android:background="@drawable/image_button_background"
+                android:src="@drawable/ic_skip_next_black_36dp" />
+
+        </LinearLayout>
+
+    </LinearLayout>
 
 </LinearLayout>

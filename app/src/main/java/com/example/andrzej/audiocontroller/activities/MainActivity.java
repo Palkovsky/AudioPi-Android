@@ -10,9 +10,12 @@ import android.os.Bundle;
 import android.view.View;
 
 import android.widget.LinearLayout;
+import android.widget.TextView;
 
 import com.example.andrzej.audiocontroller.R;
 import com.example.andrzej.audiocontroller.adapters.SectionsPagerAdapter;
+
+import org.w3c.dom.Text;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
@@ -30,6 +33,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     LinearLayout bottomToolbar;
     @Bind(R.id.tabsIndicator)
     CircleIndicator mCircleIndicator;
+    @Bind(R.id.miniTrackTitle)
+    TextView miniTrackTitle;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,6 +46,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         if (getSupportActionBar() != null)
             getSupportActionBar().setTitle(null);
 
+        miniTrackTitle.setSelected(true);
 
         //Create section adapter
         mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
