@@ -6,4 +6,5 @@
 
     <color name="indicatorColor">#40c4ff</color>
     <color name="backgroud_oval_color">#e0e0e0</color>
+    <color name="list_focused_color">#e0e0e0</color>
 </resources>
