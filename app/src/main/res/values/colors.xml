@@ -7,4 +7,18 @@
     <color name="indicatorColor">#40c4ff</color>
     <color name="backgroud_oval_color">#e0e0e0</color>
     <color name="list_focused_color">#e0e0e0</color>
+
+    <color name="black_semi_transparent">#B2000000</color>
+    <color name="background">#e5e5e5</color>
+    <color name="half_black">#808080</color>
+    <color name="white">#fafafa</color>
+    <color name="white_pressed">#f1f1f1</color>
+    <color name="pink">#e91e63</color>
+    <color name="pink_pressed">#ec407a</color>
+    <color name="purple">#9c27b0</color>
+    <color name="purple_pressed">#ab47bc</color>
+    <color name="indigo">#3f51b5</color>
+    <color name="indigo_pressed">#5c6bc0</color>
+    <color name="blue_semi_transparent">#805677fc</color>
+    <color name="blue_semi_transparent_pressed">#80738ffe</color>
 </resources>

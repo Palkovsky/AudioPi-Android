@@ -10,4 +10,6 @@
     <string name="audio_activity">This is Audio Activity</string>
     <string name="ipsum">Wish you were here</string>
     <string name="sample_author">Pink Floyd</string>
+    <string name="change_explore_view">View</string>
+    <string name="refresh">Refresh</string>
 </resources>

@@ -23,18 +23,21 @@ public class ExploreRecyclerAdapter extends RecyclerView.Adapter<ExploreRecycler
 
     private Context context;
     private List<ExploreItem> dataset;
+    private int layoutResId;
+
     private OnItemClickListener itemClickListener;
 
-    public ExploreRecyclerAdapter(Context context, List<ExploreItem> dataset) {
+    public ExploreRecyclerAdapter(Context context, List<ExploreItem> dataset, int layoutResId) {
         this.context = context;
         this.dataset = dataset;
+        this.layoutResId = layoutResId;
     }
 
     @Override
     public ExploreViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         // create a new view
         View itemLayoutView = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.explore_item_grid, null);
+                .inflate(layoutResId, null);
 
         return new ExploreViewHolder(itemLayoutView);
     }
@@ -72,8 +75,25 @@ public class ExploreRecyclerAdapter extends RecyclerView.Adapter<ExploreRecycler
         return dataset.get(position);
     }
 
-    public void addOnItemClickListener(OnItemClickListener itemClickListener) {
+    /**
+     * Remove all elements from the list.
+     */
+    public void clear() {
+        final int size = getItemCount();
+        dataset.clear();
+        notifyItemRangeRemoved(0, size);
+    }
+
+    public void setOnItemClickListener(OnItemClickListener itemClickListener) {
         this.itemClickListener = itemClickListener;
+    }
+
+    public void setLayoutResId(int layoutResId) {
+        this.layoutResId = layoutResId;
+    }
+
+    public List<ExploreItem> getDataset() {
+        return dataset;
     }
 
     // inner class to hold a reference to each item of RecyclerView
