@@ -56,6 +56,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         // Set up the ViewPager with the sections adapter.
         mViewPager.setAdapter(mSectionsPagerAdapter);
+        mViewPager.setOffscreenPageLimit(mSectionsPagerAdapter.getCount());
         mViewPager.addOnPageChangeListener(this);
         mCircleIndicator.setViewPager(mViewPager);
 

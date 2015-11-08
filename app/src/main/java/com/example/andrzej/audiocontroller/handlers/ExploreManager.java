@@ -1,7 +1,6 @@
 package com.example.andrzej.audiocontroller.handlers;
 
 import com.example.andrzej.audiocontroller.interfaces.ExploreListener;
-
 import java.util.Stack;
 
 
@@ -35,7 +34,6 @@ public class ExploreManager {
     }
 
 
-
     public void goToRoot() {
         history.clear();
         history.push(defaultPath);
@@ -47,9 +45,14 @@ public class ExploreManager {
         return history.size() >= 2;
     }
 
+    public int getDepth() {
+        return history.size();
+    }
+
     public String currentPath() {
         return history.peek();
     }
+
 
     public void setExploreListener(ExploreListener exploreListener) {
         this.exploreListener = exploreListener;

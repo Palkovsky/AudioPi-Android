@@ -14,7 +14,13 @@ public class Image {
             imageView.setBackgroundDrawable(getDrawable(context, id));
         else
             imageView.setBackground(getDrawable(context, id));
+    }
 
+    public static void clearDrawable(ImageView imageView){
+        if (android.os.Build.VERSION.SDK_INT < android.os.Build.VERSION_CODES.JELLY_BEAN)
+            imageView.setBackgroundDrawable(null);
+        else
+            imageView.setBackground(null);
     }
 
     public static Drawable getDrawable(Context context, int id) {

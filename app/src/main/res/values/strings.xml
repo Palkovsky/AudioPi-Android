@@ -13,4 +13,5 @@
     <string name="change_explore_view">View</string>
     <string name="refresh">Refresh</string>
     <string name="root">Root</string>
+    <string name="volley_error">Wystąpił błąd podczas ładowania listy</string>
 </resources>

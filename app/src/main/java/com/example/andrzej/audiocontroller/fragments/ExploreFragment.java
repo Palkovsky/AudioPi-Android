@@ -1,10 +1,12 @@
 package com.example.andrzej.audiocontroller.fragments;
 
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,24 +14,38 @@ import android.widget.HorizontalScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.StringRequest;
+import com.android.volley.toolbox.Volley;
 import com.example.andrzej.audiocontroller.R;
 import com.example.andrzej.audiocontroller.adapters.ExploreRecyclerAdapter;
 import com.example.andrzej.audiocontroller.config.Defaults;
+import com.example.andrzej.audiocontroller.config.Endpoints;
 import com.example.andrzej.audiocontroller.handlers.ExploreManager;
 import com.example.andrzej.audiocontroller.interfaces.ExploreListener;
 import com.example.andrzej.audiocontroller.interfaces.OnItemClickListener;
 import com.example.andrzej.audiocontroller.models.ExploreItem;
 import com.example.andrzej.audiocontroller.utils.Image;
+import com.example.andrzej.audiocontroller.utils.network.VolleySingleton;
 import com.example.andrzej.audiocontroller.views.BackHandledFragment;
 import com.example.andrzej.audiocontroller.views.BlankingImageButton;
 import com.getbase.floatingactionbutton.FloatingActionButton;
 import com.getbase.floatingactionbutton.FloatingActionsMenu;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
+import fr.castorflex.android.smoothprogressbar.SmoothProgressBar;
 
 /**
  * Explore fragment contains list in filesystem and it
@@ -43,6 +59,8 @@ public class ExploreFragment extends BackHandledFragment implements OnItemClickL
     private RecyclerView.LayoutManager manager;
     private ExploreRecyclerAdapter mAdapter;
     private ExploreManager exploreManager;
+    private VolleySingleton volleySingleton;
+    private RequestQueue requestQueue;
 
     //Datasets
     private List<ExploreItem> mDataset;
@@ -53,6 +71,8 @@ public class ExploreFragment extends BackHandledFragment implements OnItemClickL
     //View bindings
     @Bind(R.id.exploreRecyclerView)
     RecyclerView mRecyclerView;
+    @Bind(R.id.exploreProgressBar)
+    SmoothProgressBar progressBar;
     @Bind(R.id.expand_fab)
     FloatingActionsMenu parentFabBtn;
     @Bind(R.id.rootBtn)
@@ -83,7 +103,10 @@ public class ExploreFragment extends BackHandledFragment implements OnItemClickL
         ButterKnife.bind(this, rootView);
 
         exploreManager = new ExploreManager(Defaults.PATH);
-        mDataset = generateDataset();
+        volleySingleton = VolleySingleton.getsInstance();
+        requestQueue = volleySingleton.getRequestQueue();
+
+        mDataset = new ArrayList<>();
 
         //Config views
         updatePathToolbar();
@@ -92,6 +115,7 @@ public class ExploreFragment extends BackHandledFragment implements OnItemClickL
         mRecyclerView.setHasFixedSize(true);
         setRecyclerType(true);
 
+        queryPath(exploreManager.currentPath());
 
         //Listeners
         rootBtn.setOnClickListener(this);
@@ -106,8 +130,10 @@ public class ExploreFragment extends BackHandledFragment implements OnItemClickL
     public void onItemClick(View v, int position) {
         ExploreItem item = mDataset.get(position);
 
-        if (item.isDirectory())
+        if (item.isDirectory()) {
             exploreManager.goTo(exploreManager.currentPath() + item.getName() + "/");
+            mRecyclerView.scrollToPosition(0);
+        }
 
     }
 
@@ -130,12 +156,12 @@ public class ExploreFragment extends BackHandledFragment implements OnItemClickL
 
     @Override
     public void onDirectoryUp(String oldPath, String newPath) {
-        updatePathToolbar();
+        queryPath(newPath);
     }
 
     @Override
     public void onDirectoryDown(String oldPath, String newPath) {
-        updatePathToolbar();
+        queryPath(newPath);
     }
 
     private void updatePathToolbar() {
@@ -176,26 +202,86 @@ public class ExploreFragment extends BackHandledFragment implements OnItemClickL
             mRecyclerView.swapAdapter(mAdapter, true);
         }
 
-
         isGrid = grid;
     }
 
-    private List<ExploreItem> generateDataset() {
-        List<ExploreItem> list = new ArrayList<>();
+    private void setLoadingLayout() {
+        progressBar.setVisibility(View.VISIBLE);
+    }
 
-        String[] name = {"Folder", "Folder 2", "Folder 3", "audio", "audio2", "Audio21", "geje", "cos", "sraka", "draka", "maka", "paka", "tini", "wini", "lala", "po", "a", "b", "c", "d", "e", "adgsgasdfgasrfgadsuignadiufndasufcnaydnfryufcdanyfcnaydncfyadncfydacfndascfindycfndiycfdinacifndycdfins", "inidie cidny"};
-        String[] cover = {null, null, null, "http://neonlimelight.com/wp-content/uploads/2012/04/Maroon-5-Overexposed-Cover.jpg", "http://neonlimelight.com/wp-content/uploads/2012/04/Maroon-5-Overexposed-Cover.jpg", "http://www.smashingmagazine.com/images/music-cd-covers/27.jpg", null, null, "http://i.kinja-img.com/gawker-media/image/upload/a0gctnljoglp7mrx80us.gif", null, "http://ak-hdl.buzzfed.com/static/2013-10/enhanced/webdr06/3/17/anigif_enhanced-buzz-30164-1380836157-24.gif", null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null};
-        boolean[] directory = {true, true, true, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false};
+    private void setNoInternetLayout() {
+        progressBar.setVisibility(View.GONE);
+        mRecyclerView.setVisibility(View.GONE);
+    }
 
-        for (int i = 0; i < name.length; i++) {
-            ExploreItem item = new ExploreItem();
-            item.setName(name[i]);
-            item.setDirectory(directory[i]);
-            item.setCoverUrl(cover[i]);
-            list.add(item);
-        }
+    private void setNormalLayout() {
+        progressBar.setVisibility(View.GONE);
+        mRecyclerView.setVisibility(View.VISIBLE);
+    }
 
-        return list;
+    private void queryPath(String path) {
+
+        requestQueue.cancelAll(TAG);
+
+        setLoadingLayout();
+        String queryUrl = Endpoints.getDataUrl(path, true);
+
+        JsonObjectRequest request = new JsonObjectRequest(Request.Method.GET, queryUrl, new Response.Listener<JSONObject>() {
+            @Override
+            public void onResponse(JSONObject response) {
+                try {
+                    int code = response.getInt("code");
+
+                    List<ExploreItem> dataset = new ArrayList<>();
+                    JSONObject directory = response.getJSONObject("directory");
+                    JSONArray directories = directory.getJSONArray("directories");
+                    JSONArray tracks = directory.getJSONArray("tracks");
+
+                    for (int i = 0; i < directories.length(); i++) {
+                        JSONObject dir = directories.getJSONObject(i);
+                        ExploreItem item = new ExploreItem();
+                        item.setName(dir.getString("relative"));
+                        item.setPath(dir.getString("full"));
+                        item.setDirectory(true);
+                        dataset.add(item);
+                    }
+
+                    for (int i = 0; i < tracks.length(); i++) {
+                        JSONObject track = tracks.getJSONObject(i);
+                        JSONObject metadata = track.getJSONObject("metadata");
+                        ExploreItem item = new ExploreItem();
+                        item.setName(track.getString("relative"));
+                        item.setPath(track.getString("full"));
+                        item.setJSONMetadata(metadata);
+                        item.setDirectory(false);
+                        dataset.add(item);
+                    }
+
+                    mDataset.clear();
+                    mDataset.addAll(dataset);
+                    mAdapter.notifyDataSetChanged();
+                    setNormalLayout();
+                    updatePathToolbar();
+
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                    setNormalLayout();
+                    updatePathToolbar();
+                }
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                Toast.makeText(getActivity(), R.string.volley_error, Toast.LENGTH_SHORT).show();
+                setNormalLayout();
+                exploreManager.goUp();
+                updatePathToolbar();
+            }
+        });
+
+
+        request.setTag(TAG);
+        requestQueue.add(request);
     }
 
     @Override
@@ -207,6 +293,10 @@ public class ExploreFragment extends BackHandledFragment implements OnItemClickL
     public boolean onBackPressed() {
         if (parentFabBtn.isExpanded()) {
             parentFabBtn.collapse();
+            return true;
+        }
+        if (exploreManager.canGoUp()) {
+            exploreManager.goUp();
             return true;
         }
         return false;
