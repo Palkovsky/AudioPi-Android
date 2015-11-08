@@ -23,7 +23,7 @@ import butterknife.Bind;
 import butterknife.ButterKnife;
 import me.relex.circleindicator.CircleIndicator;
 
-public class MainActivity extends AppCompatActivity implements View.OnClickListener, BackHandledFragment.BackHandlerInterface {
+public class MainActivity extends AppCompatActivity implements View.OnClickListener, BackHandledFragment.BackHandlerInterface, ViewPager.OnPageChangeListener {
 
     private SectionsPagerAdapter mSectionsPagerAdapter;
     private BackHandledFragment selectedFragment;
@@ -56,6 +56,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         // Set up the ViewPager with the sections adapter.
         mViewPager.setAdapter(mSectionsPagerAdapter);
+        mViewPager.addOnPageChangeListener(this);
         mCircleIndicator.setViewPager(mViewPager);
 
         bottomToolbar.setOnClickListener(this);
@@ -86,5 +87,15 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         this.selectedFragment = mSectionsPagerAdapter.getItem(mViewPager.getCurrentItem());
     }
 
+
+    @Override
+    public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {}
+    @Override
+    public void onPageScrollStateChanged(int state) {}
+
+    @Override
+    public void onPageSelected(int position) {
+        setSelectedFragment(null);
+    }
 
 }
