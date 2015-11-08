@@ -14,4 +14,8 @@
     <string name="refresh">Refresh</string>
     <string name="root">Root</string>
     <string name="volley_error">Wystąpił błąd podczas ładowania listy</string>
+    <string name="no_internet_error">Brak połączenia z internetem.</string>
+    <string name="dataset_empty_error">Brak wspieranych plików w tym katalogu.</string>
+    <string name="server_error">Serwer niedostępny.\nSpróbuj później.</string>
+    <string name="invalid_path_error">Podana ścieżka nie istnieje.</string>
 </resources>

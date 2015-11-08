@@ -8,8 +8,9 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.HorizontalScrollView;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
@@ -19,6 +20,7 @@ import com.android.volley.toolbox.JsonObjectRequest;
 import com.baoyz.widget.PullRefreshLayout;
 import com.example.andrzej.audiocontroller.R;
 import com.example.andrzej.audiocontroller.adapters.ExploreRecyclerAdapter;
+import com.example.andrzej.audiocontroller.config.Codes;
 import com.example.andrzej.audiocontroller.config.Defaults;
 import com.example.andrzej.audiocontroller.config.Endpoints;
 import com.example.andrzej.audiocontroller.handlers.ExploreManager;
@@ -84,6 +86,13 @@ public class ExploreFragment extends BackHandledFragment implements OnItemClickL
     HorizontalScrollView currentPathContainer;
     @Bind(R.id.currentPathTv)
     TextView currentPathTv;
+
+    @Bind(R.id.errorContainer)
+    LinearLayout errorContainer;
+    @Bind(R.id.errorImageView)
+    ImageView errorImageView;
+    @Bind(R.id.errorTextView)
+    TextView errorTextView;
 
     public ExploreFragment() {
     }
@@ -213,13 +222,33 @@ public class ExploreFragment extends BackHandledFragment implements OnItemClickL
         progressBar.setVisibility(View.VISIBLE);
     }
 
-    private void setNoInternetLayout() {
+    private void setUpErrorLayout(int errorCode) {
         progressBar.setVisibility(View.GONE);
-        mRecyclerView.setVisibility(View.GONE);
+        errorContainer.setVisibility(View.VISIBLE);
+
+        if (errorCode != Codes.SUCCESFULL) {
+            switch (errorCode){
+                case Codes.INVALID_PATH:
+                    mDataset.clear();
+                    mAdapter.notifyDataSetChanged();
+                    errorTextView.setText(R.string.invalid_path_error);
+                    break;
+                case Codes.EMPTY_DATASET:
+                    errorTextView.setText(R.string.dataset_empty_error);
+                    break;
+            }
+        } else {
+            if (!Network.isNetworkAvailable(getActivity()))
+                errorTextView.setText(R.string.no_internet_error);
+            else
+                errorTextView.setText(R.string.server_error);
+        }
+
     }
 
     private void setNormalLayout() {
         progressBar.setVisibility(View.GONE);
+        errorContainer.setVisibility(View.GONE);
         mRecyclerView.setVisibility(View.VISIBLE);
     }
 
@@ -231,10 +260,14 @@ public class ExploreFragment extends BackHandledFragment implements OnItemClickL
         String queryUrl = Endpoints.getDataUrl(path, true);
 
         JsonObjectRequest request = new JsonObjectRequest(Request.Method.GET, queryUrl, new Response.Listener<JSONObject>() {
+
             @Override
             public void onResponse(JSONObject response) {
+
+                int code = Codes.SUCCESFULL;
+
                 try {
-                    int code = response.getInt("code");
+                    code = response.getInt("code");
 
                     List<ExploreItem> dataset = new ArrayList<>();
                     JSONObject directory = response.getJSONObject("directory");
@@ -264,22 +297,24 @@ public class ExploreFragment extends BackHandledFragment implements OnItemClickL
                     mDataset.clear();
                     mDataset.addAll(dataset);
                     mAdapter.notifyDataSetChanged();
-                    setNormalLayout();
+                    if (mDataset.size() == 0)
+                        setUpErrorLayout(Codes.EMPTY_DATASET);
+                    else
+                        setNormalLayout();
                     updatePathToolbar();
 
                 } catch (JSONException e) {
                     e.printStackTrace();
-                    setNormalLayout();
+                    setUpErrorLayout(code);
                     updatePathToolbar();
                 }
             }
         }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
-                Toast.makeText(getActivity(), R.string.volley_error, Toast.LENGTH_SHORT).show();
                 mDataset.clear();
                 mAdapter.notifyDataSetChanged();
-                setNormalLayout();
+                setUpErrorLayout(Codes.SUCCESFULL);
                 updatePathToolbar();
             }
         });
