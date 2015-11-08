@@ -1,12 +1,9 @@
 package com.example.andrzej.audiocontroller.fragments;
 
 import android.os.Bundle;
-import android.os.Handler;
-import android.support.v4.app.Fragment;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -19,8 +16,7 @@ import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
-import com.android.volley.toolbox.StringRequest;
-import com.android.volley.toolbox.Volley;
+import com.baoyz.widget.PullRefreshLayout;
 import com.example.andrzej.audiocontroller.R;
 import com.example.andrzej.audiocontroller.adapters.ExploreRecyclerAdapter;
 import com.example.andrzej.audiocontroller.config.Defaults;
@@ -30,6 +26,7 @@ import com.example.andrzej.audiocontroller.interfaces.ExploreListener;
 import com.example.andrzej.audiocontroller.interfaces.OnItemClickListener;
 import com.example.andrzej.audiocontroller.models.ExploreItem;
 import com.example.andrzej.audiocontroller.utils.Image;
+import com.example.andrzej.audiocontroller.utils.network.Network;
 import com.example.andrzej.audiocontroller.utils.network.VolleySingleton;
 import com.example.andrzej.audiocontroller.views.BackHandledFragment;
 import com.example.andrzej.audiocontroller.views.BlankingImageButton;
@@ -51,7 +48,7 @@ import fr.castorflex.android.smoothprogressbar.SmoothProgressBar;
  * Explore fragment contains list in filesystem and it
  * lets you to explore it and import playlists and tracks etc.
  */
-public class ExploreFragment extends BackHandledFragment implements OnItemClickListener, View.OnClickListener, ExploreListener {
+public class ExploreFragment extends BackHandledFragment implements OnItemClickListener, View.OnClickListener, ExploreListener, PullRefreshLayout.OnRefreshListener {
 
     public static final String TAG = "EXPLORE_FRAGMENT";
 
@@ -69,6 +66,8 @@ public class ExploreFragment extends BackHandledFragment implements OnItemClickL
     private boolean isGrid = true;
 
     //View bindings
+    @Bind(R.id.swipeRefreshLayout)
+    PullRefreshLayout swipeRefreshLayout;
     @Bind(R.id.exploreRecyclerView)
     RecyclerView mRecyclerView;
     @Bind(R.id.exploreProgressBar)
@@ -122,6 +121,7 @@ public class ExploreFragment extends BackHandledFragment implements OnItemClickL
         changeViewBtn.setOnClickListener(this);
         backBtn.setOnClickListener(this);
         exploreManager.setExploreListener(this);
+        swipeRefreshLayout.setOnRefreshListener(this);
 
         return rootView;
     }
@@ -156,11 +156,13 @@ public class ExploreFragment extends BackHandledFragment implements OnItemClickL
 
     @Override
     public void onDirectoryUp(String oldPath, String newPath) {
+        mRecyclerView.scrollToPosition(0);
         queryPath(newPath);
     }
 
     @Override
     public void onDirectoryDown(String oldPath, String newPath) {
+        mRecyclerView.scrollToPosition(0);
         queryPath(newPath);
     }
 
@@ -177,6 +179,8 @@ public class ExploreFragment extends BackHandledFragment implements OnItemClickL
                 currentPathContainer.fullScroll(HorizontalScrollView.FOCUS_RIGHT);
             }
         }, 100);
+
+        swipeRefreshLayout.setRefreshing(false);
     }
 
     private void setRecyclerType(boolean grid) {
@@ -273,8 +277,9 @@ public class ExploreFragment extends BackHandledFragment implements OnItemClickL
             @Override
             public void onErrorResponse(VolleyError error) {
                 Toast.makeText(getActivity(), R.string.volley_error, Toast.LENGTH_SHORT).show();
+                mDataset.clear();
+                mAdapter.notifyDataSetChanged();
                 setNormalLayout();
-                exploreManager.goUp();
                 updatePathToolbar();
             }
         });
@@ -300,5 +305,10 @@ public class ExploreFragment extends BackHandledFragment implements OnItemClickL
             return true;
         }
         return false;
+    }
+
+    @Override
+    public void onRefresh() {
+        queryPath(exploreManager.currentPath());
     }
 }

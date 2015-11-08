@@ -66,11 +66,19 @@
 
     </RelativeLayout>
 
-    <android.support.v7.widget.RecyclerView
-        android:id="@+id/exploreRecyclerView"
+    <com.baoyz.widget.PullRefreshLayout
+        android:id="@+id/swipeRefreshLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/navigation_container" />
+        android:layout_below="@+id/navigation_container"
+        app:refreshColors="@array/gplus_colors"
+        app:refreshType="ring">
+
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/exploreRecyclerView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+    </com.baoyz.widget.PullRefreshLayout>
 
 
     <com.getbase.floatingactionbutton.FloatingActionsMenu
