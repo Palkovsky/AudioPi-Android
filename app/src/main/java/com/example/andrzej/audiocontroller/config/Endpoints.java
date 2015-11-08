@@ -5,7 +5,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 
 public class Endpoints {
-    public static final String DOMAIN = "http://192.168.1.103:5000";
+    public static final String DOMAIN = "http://192.168.1.104:5000";
 
     public static final String URL_CHAR_QUESTION = "?";
     public static final String URL_CHAR_AMEPERSAND = "&";

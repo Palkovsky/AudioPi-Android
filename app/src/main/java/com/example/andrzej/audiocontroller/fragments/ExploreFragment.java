@@ -11,6 +11,7 @@ import android.widget.HorizontalScrollView;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
@@ -66,6 +67,7 @@ public class ExploreFragment extends BackHandledFragment implements OnItemClickL
 
     //Vitals
     private boolean isGrid = true;
+    private boolean isLoading = false;
 
     //View bindings
     @Bind(R.id.swipeRefreshLayout)
@@ -78,6 +80,8 @@ public class ExploreFragment extends BackHandledFragment implements OnItemClickL
     FloatingActionsMenu parentFabBtn;
     @Bind(R.id.rootBtn)
     FloatingActionButton rootBtn;
+    @Bind(R.id.sortBtn)
+    FloatingActionButton sortBtn;
     @Bind(R.id.changeViewBtn)
     FloatingActionButton changeViewBtn;
     @Bind(R.id.backBtn)
@@ -128,6 +132,7 @@ public class ExploreFragment extends BackHandledFragment implements OnItemClickL
         //Listeners
         rootBtn.setOnClickListener(this);
         changeViewBtn.setOnClickListener(this);
+        sortBtn.setOnClickListener(this);
         backBtn.setOnClickListener(this);
         exploreManager.setExploreListener(this);
         swipeRefreshLayout.setOnRefreshListener(this);
@@ -139,7 +144,7 @@ public class ExploreFragment extends BackHandledFragment implements OnItemClickL
     public void onItemClick(View v, int position) {
         ExploreItem item = mDataset.get(position);
 
-        if (item.isDirectory()) {
+        if (item.isDirectory() && !isLoading) {
             exploreManager.goTo(exploreManager.currentPath() + item.getName() + "/");
             mRecyclerView.scrollToPosition(0);
         }
@@ -157,6 +162,9 @@ public class ExploreFragment extends BackHandledFragment implements OnItemClickL
                 setRecyclerType(!isGrid);
                 parentFabBtn.collapse();
                 break;
+            case R.id.sortBtn:
+                Toast.makeText(getActivity(), "Sorting activities", Toast.LENGTH_SHORT).show();
+                break;
             case R.id.backBtn:
                 exploreManager.goUp();
                 break;
@@ -165,14 +173,18 @@ public class ExploreFragment extends BackHandledFragment implements OnItemClickL
 
     @Override
     public void onDirectoryUp(String oldPath, String newPath) {
-        mRecyclerView.scrollToPosition(0);
-        queryPath(newPath);
+        if (!isLoading) {
+            mRecyclerView.scrollToPosition(0);
+            queryPath(newPath);
+        }
     }
 
     @Override
     public void onDirectoryDown(String oldPath, String newPath) {
-        mRecyclerView.scrollToPosition(0);
-        queryPath(newPath);
+        if (!isLoading) {
+            mRecyclerView.scrollToPosition(0);
+            queryPath(newPath);
+        }
     }
 
     private void updatePathToolbar() {
@@ -227,7 +239,7 @@ public class ExploreFragment extends BackHandledFragment implements OnItemClickL
         errorContainer.setVisibility(View.VISIBLE);
 
         if (errorCode != Codes.SUCCESFULL) {
-            switch (errorCode){
+            switch (errorCode) {
                 case Codes.INVALID_PATH:
                     mDataset.clear();
                     mAdapter.notifyDataSetChanged();
@@ -254,74 +266,80 @@ public class ExploreFragment extends BackHandledFragment implements OnItemClickL
 
     private void queryPath(String path) {
 
-        requestQueue.cancelAll(TAG);
+        if (!isLoading) {
+            isLoading = true;
+            requestQueue.cancelAll(TAG);
 
-        setLoadingLayout();
-        String queryUrl = Endpoints.getDataUrl(path, true);
+            setLoadingLayout();
+            String queryUrl = Endpoints.getDataUrl(path, true);
 
-        JsonObjectRequest request = new JsonObjectRequest(Request.Method.GET, queryUrl, new Response.Listener<JSONObject>() {
+            JsonObjectRequest request = new JsonObjectRequest(Request.Method.GET, queryUrl, new Response.Listener<JSONObject>() {
 
-            @Override
-            public void onResponse(JSONObject response) {
+                @Override
+                public void onResponse(JSONObject response) {
 
-                int code = Codes.SUCCESFULL;
+                    int code = Codes.SUCCESFULL;
 
-                try {
-                    code = response.getInt("code");
+                    try {
+                        code = response.getInt("code");
 
-                    List<ExploreItem> dataset = new ArrayList<>();
-                    JSONObject directory = response.getJSONObject("directory");
-                    JSONArray directories = directory.getJSONArray("directories");
-                    JSONArray tracks = directory.getJSONArray("tracks");
+                        List<ExploreItem> dataset = new ArrayList<>();
+                        JSONObject directory = response.getJSONObject("directory");
+                        JSONArray directories = directory.getJSONArray("directories");
+                        JSONArray tracks = directory.getJSONArray("tracks");
 
-                    for (int i = 0; i < directories.length(); i++) {
-                        JSONObject dir = directories.getJSONObject(i);
-                        ExploreItem item = new ExploreItem();
-                        item.setName(dir.getString("relative"));
-                        item.setPath(dir.getString("full"));
-                        item.setDirectory(true);
-                        dataset.add(item);
+                        for (int i = 0; i < directories.length(); i++) {
+                            JSONObject dir = directories.getJSONObject(i);
+                            ExploreItem item = new ExploreItem();
+                            item.setName(dir.getString("relative"));
+                            item.setPath(dir.getString("full"));
+                            item.setDirectory(true);
+                            dataset.add(item);
+                        }
+
+                        for (int i = 0; i < tracks.length(); i++) {
+                            JSONObject track = tracks.getJSONObject(i);
+                            JSONObject metadata = track.getJSONObject("metadata");
+                            ExploreItem item = new ExploreItem();
+                            item.setName(track.getString("relative"));
+                            item.setPath(track.getString("full"));
+                            item.setJSONMetadata(metadata);
+                            item.setDirectory(false);
+                            dataset.add(item);
+                        }
+
+                        mDataset.clear();
+                        mDataset.addAll(dataset);
+                        mAdapter.notifyDataSetChanged();
+                        if (mDataset.size() == 0)
+                            setUpErrorLayout(Codes.EMPTY_DATASET);
+                        else
+                            setNormalLayout();
+                        updatePathToolbar();
+
+                        isLoading = false;
+
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                        setUpErrorLayout(code);
+                        updatePathToolbar();
+                        isLoading = false;
                     }
-
-                    for (int i = 0; i < tracks.length(); i++) {
-                        JSONObject track = tracks.getJSONObject(i);
-                        JSONObject metadata = track.getJSONObject("metadata");
-                        ExploreItem item = new ExploreItem();
-                        item.setName(track.getString("relative"));
-                        item.setPath(track.getString("full"));
-                        item.setJSONMetadata(metadata);
-                        item.setDirectory(false);
-                        dataset.add(item);
-                    }
-
-                    mDataset.clear();
-                    mDataset.addAll(dataset);
-                    mAdapter.notifyDataSetChanged();
-                    if (mDataset.size() == 0)
-                        setUpErrorLayout(Codes.EMPTY_DATASET);
-                    else
-                        setNormalLayout();
-                    updatePathToolbar();
-
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                    setUpErrorLayout(code);
-                    updatePathToolbar();
                 }
-            }
-        }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
-                mDataset.clear();
-                mAdapter.notifyDataSetChanged();
-                setUpErrorLayout(Codes.SUCCESFULL);
-                updatePathToolbar();
-            }
-        });
+            }, new Response.ErrorListener() {
+                @Override
+                public void onErrorResponse(VolleyError error) {
+                    mDataset.clear();
+                    mAdapter.notifyDataSetChanged();
+                    setUpErrorLayout(Codes.SUCCESFULL);
+                    updatePathToolbar();
+                    isLoading = false;
+                }
+            });
 
-
-        request.setTag(TAG);
-        requestQueue.add(request);
+            request.setTag(TAG);
+            requestQueue.add(request);
+        }
     }
 
     @Override
@@ -336,7 +354,8 @@ public class ExploreFragment extends BackHandledFragment implements OnItemClickL
             return true;
         }
         if (exploreManager.canGoUp()) {
-            exploreManager.goUp();
+            if (!isLoading)
+                exploreManager.goUp();
             return true;
         }
         return false;
