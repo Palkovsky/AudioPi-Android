@@ -8,13 +8,19 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.HorizontalScrollView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.andrzej.audiocontroller.R;
 import com.example.andrzej.audiocontroller.adapters.ExploreRecyclerAdapter;
+import com.example.andrzej.audiocontroller.config.Defaults;
+import com.example.andrzej.audiocontroller.handlers.ExploreManager;
+import com.example.andrzej.audiocontroller.interfaces.ExploreListener;
 import com.example.andrzej.audiocontroller.interfaces.OnItemClickListener;
 import com.example.andrzej.audiocontroller.models.ExploreItem;
 import com.example.andrzej.audiocontroller.utils.Image;
+import com.example.andrzej.audiocontroller.views.BlankingImageButton;
 import com.getbase.floatingactionbutton.FloatingActionButton;
 import com.getbase.floatingactionbutton.FloatingActionsMenu;
 
@@ -28,12 +34,14 @@ import butterknife.ButterKnife;
  * Explore fragment contains list in filesystem and it
  * lets you to explore it and import playlists and tracks etc.
  */
-public class ExploreFragment extends Fragment implements OnItemClickListener, View.OnClickListener {
+public class ExploreFragment extends Fragment implements OnItemClickListener, View.OnClickListener, ExploreListener {
 
     //Objects
     private RecyclerView.LayoutManager manager;
     private ExploreRecyclerAdapter mAdapter;
+    private ExploreManager exploreManager;
 
+    //Datasets
     private List<ExploreItem> mDataset;
 
     //Vitals
@@ -44,10 +52,16 @@ public class ExploreFragment extends Fragment implements OnItemClickListener, Vi
     RecyclerView mRecyclerView;
     @Bind(R.id.expand_fab)
     FloatingActionsMenu parentFabBtn;
-    @Bind(R.id.refreshBtn)
-    FloatingActionButton refreshBtn;
+    @Bind(R.id.rootBtn)
+    FloatingActionButton rootBtn;
     @Bind(R.id.changeViewBtn)
     FloatingActionButton changeViewBtn;
+    @Bind(R.id.backBtn)
+    BlankingImageButton backBtn;
+    @Bind(R.id.currentPathHorizontalScrollView)
+    HorizontalScrollView currentPathContainer;
+    @Bind(R.id.currentPathTv)
+    TextView currentPathTv;
 
     public ExploreFragment() {
     }
@@ -64,7 +78,11 @@ public class ExploreFragment extends Fragment implements OnItemClickListener, Vi
         View rootView = inflater.inflate(R.layout.fragment_explore, container, false);
         ButterKnife.bind(this, rootView);
 
+        exploreManager = new ExploreManager(Defaults.PATH);
         mDataset = generateDataset();
+
+        //Config views
+        updatePathToolbar();
 
         //Configure recycler view
         mRecyclerView.setHasFixedSize(true);
@@ -72,17 +90,64 @@ public class ExploreFragment extends Fragment implements OnItemClickListener, Vi
 
 
         //Listeners
-        refreshBtn.setOnClickListener(this);
+        rootBtn.setOnClickListener(this);
         changeViewBtn.setOnClickListener(this);
+        backBtn.setOnClickListener(this);
+        exploreManager.setExploreListener(this);
 
         return rootView;
     }
 
     @Override
     public void onItemClick(View v, int position) {
-        Toast.makeText(getActivity(), mAdapter.getItem(position).getName(), Toast.LENGTH_SHORT).show();
+        ExploreItem item = mDataset.get(position);
+
+        if (item.isDirectory())
+            exploreManager.goTo(exploreManager.currentPath() + item.getName() + "/");
+
     }
 
+    @Override
+    public void onClick(View v) {
+        switch (v.getId()) {
+            case R.id.rootBtn:
+                exploreManager.goToRoot();
+                parentFabBtn.collapse();
+                break;
+            case R.id.changeViewBtn:
+                setRecyclerType(!isGrid);
+                parentFabBtn.collapse();
+                break;
+            case R.id.backBtn:
+                exploreManager.goUp();
+                break;
+        }
+    }
+
+    @Override
+    public void onDirectoryUp(String oldPath, String newPath) {
+        updatePathToolbar();
+    }
+
+    @Override
+    public void onDirectoryDown(String oldPath, String newPath) {
+        updatePathToolbar();
+    }
+
+    private void updatePathToolbar() {
+        if (exploreManager.canGoUp())
+            backBtn.setEnabled(true);
+        else
+            backBtn.setEnabled(false);
+
+        currentPathTv.setText(exploreManager.currentPath());
+        currentPathContainer.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                currentPathContainer.fullScroll(HorizontalScrollView.FOCUS_RIGHT);
+            }
+        },100);
+    }
 
     private void setRecyclerType(boolean grid) {
 
@@ -128,18 +193,4 @@ public class ExploreFragment extends Fragment implements OnItemClickListener, Vi
 
         return list;
     }
-
-    @Override
-    public void onClick(View v) {
-        switch (v.getId()) {
-            case R.id.refreshBtn:
-                Toast.makeText(getActivity(), R.string.refresh, Toast.LENGTH_SHORT).show();
-                break;
-            case R.id.changeViewBtn:
-                setRecyclerType(!isGrid);
-                parentFabBtn.collapse();
-                break;
-        }
-    }
-
 }

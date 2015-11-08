@@ -55,6 +55,7 @@ public class ExploreRecyclerAdapter extends RecyclerView.Adapter<ExploreRecycler
         holder.nameTv.setText(item.getName());
 
         holder.iconIv.setImageBitmap(null);
+        holder.iconIv.setImageDrawable(null);
 
         if (item.isDirectory())
             Image.setDrawable(context, holder.iconIv, R.drawable.ic_folder_black_48dp);
@@ -88,13 +89,6 @@ public class ExploreRecyclerAdapter extends RecyclerView.Adapter<ExploreRecycler
         this.itemClickListener = itemClickListener;
     }
 
-    public void setLayoutResId(int layoutResId) {
-        this.layoutResId = layoutResId;
-    }
-
-    public List<ExploreItem> getDataset() {
-        return dataset;
-    }
 
     // inner class to hold a reference to each item of RecyclerView
     public class ExploreViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {

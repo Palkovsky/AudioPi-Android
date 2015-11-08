@@ -12,4 +12,5 @@
     <string name="sample_author">Pink Floyd</string>
     <string name="change_explore_view">View</string>
     <string name="refresh">Refresh</string>
+    <string name="root">Root</string>
 </resources>
