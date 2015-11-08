@@ -12,11 +12,14 @@
     <string name="sample_author">Pink Floyd</string>
     <string name="change_explore_view">View</string>
     <string name="refresh">Refresh</string>
-    <string name="root">Root</string>
-    <string name="sort">Sort</string>
+    <string name="root">Home</string>
+    <string name="sort">Sortowanie</string>
     <string name="volley_error">Wystąpił błąd podczas ładowania listy</string>
     <string name="no_internet_error">Brak połączenia z internetem.</string>
     <string name="dataset_empty_error">Brak wspieranych plików w tym katalogu.</string>
     <string name="server_error">Serwer niedostępny.\nSpróbuj później.</string>
     <string name="invalid_path_error">Podana ścieżka nie istnieje.</string>
+    <string name="no_sorting">Brak</string>
+    <string name="fromAtoZsorting">Alfabetycznie</string>
+    <string name="fromZtoAsorting">Alfabetycznie od końca</string>
 </resources>

@@ -117,6 +117,14 @@
         fab:fab_addButtonPlusIconColor="@color/white"
         fab:fab_labelStyle="@style/menu_labels_style">
 
+        <com.getbase.floatingactionbutton.FloatingActionButton
+            android:id="@+id/sortBtn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            fab:fab_colorNormal="@color/purple"
+            fab:fab_colorPressed="@color/purple_pressed"
+            fab:fab_icon="@drawable/ic_sort_white_36dp"
+            fab:fab_title="@string/sort" />
 
         <com.getbase.floatingactionbutton.FloatingActionButton
             android:id="@+id/rootBtn"
@@ -128,14 +136,6 @@
             fab:fab_title="@string/root" />
 
 
-        <com.getbase.floatingactionbutton.FloatingActionButton
-            android:id="@+id/sortBtn"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            fab:fab_colorNormal="@color/purple"
-            fab:fab_colorPressed="@color/purple_pressed"
-            fab:fab_icon="@drawable/ic_sort_white_36dp"
-            fab:fab_title="@string/sort" />
 
         <com.getbase.floatingactionbutton.FloatingActionButton
             android:id="@+id/changeViewBtn"

@@ -1,17 +1,21 @@
 package com.example.andrzej.audiocontroller.fragments;
 
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.HorizontalScrollView;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.PopupMenu;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
@@ -24,6 +28,8 @@ import com.example.andrzej.audiocontroller.adapters.ExploreRecyclerAdapter;
 import com.example.andrzej.audiocontroller.config.Codes;
 import com.example.andrzej.audiocontroller.config.Defaults;
 import com.example.andrzej.audiocontroller.config.Endpoints;
+import com.example.andrzej.audiocontroller.config.PrefKeys;
+import com.example.andrzej.audiocontroller.config.Sort;
 import com.example.andrzej.audiocontroller.handlers.ExploreManager;
 import com.example.andrzej.audiocontroller.interfaces.ExploreListener;
 import com.example.andrzej.audiocontroller.interfaces.OnItemClickListener;
@@ -51,7 +57,7 @@ import fr.castorflex.android.smoothprogressbar.SmoothProgressBar;
  * Explore fragment contains list in filesystem and it
  * lets you to explore it and import playlists and tracks etc.
  */
-public class ExploreFragment extends BackHandledFragment implements OnItemClickListener, View.OnClickListener, ExploreListener, PullRefreshLayout.OnRefreshListener {
+public class ExploreFragment extends BackHandledFragment implements OnItemClickListener, View.OnClickListener, ExploreListener, PullRefreshLayout.OnRefreshListener, PopupMenu.OnMenuItemClickListener {
 
     public static final String TAG = "EXPLORE_FRAGMENT";
 
@@ -61,6 +67,7 @@ public class ExploreFragment extends BackHandledFragment implements OnItemClickL
     private ExploreManager exploreManager;
     private VolleySingleton volleySingleton;
     private RequestQueue requestQueue;
+    private SharedPreferences prefs;
 
     //Datasets
     private List<ExploreItem> mDataset;
@@ -68,6 +75,7 @@ public class ExploreFragment extends BackHandledFragment implements OnItemClickL
     //Vitals
     private boolean isGrid = true;
     private boolean isLoading = false;
+    private int sortingMethod;
 
     //View bindings
     @Bind(R.id.swipeRefreshLayout)
@@ -117,6 +125,10 @@ public class ExploreFragment extends BackHandledFragment implements OnItemClickL
         exploreManager = new ExploreManager(Defaults.PATH);
         volleySingleton = VolleySingleton.getsInstance();
         requestQueue = volleySingleton.getRequestQueue();
+        prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
+
+        isGrid = prefs.getBoolean(PrefKeys.KEY_EXPLORE_VIEW, true);
+        sortingMethod = prefs.getInt(PrefKeys.KEY_EXPLORE_SORT, Sort.NONE);
 
         mDataset = new ArrayList<>();
 
@@ -125,7 +137,7 @@ public class ExploreFragment extends BackHandledFragment implements OnItemClickL
 
         //Configure recycler view
         mRecyclerView.setHasFixedSize(true);
-        setRecyclerType(true);
+        setRecyclerType(isGrid);
 
         queryPath(exploreManager.currentPath());
 
@@ -163,10 +175,36 @@ public class ExploreFragment extends BackHandledFragment implements OnItemClickL
                 parentFabBtn.collapse();
                 break;
             case R.id.sortBtn:
-                Toast.makeText(getActivity(), "Sorting activities", Toast.LENGTH_SHORT).show();
+                PopupMenu popupMenu = new PopupMenu(getActivity(), v);
+                popupMenu.inflate(R.menu.sort_popup);
+                Menu menu = popupMenu.getMenu();
+
+                //Remove current sorting method from popup menu
+                switch (prefs.getInt(PrefKeys.KEY_EXPLORE_SORT, Sort.NONE)) {
+
+                    case Sort.NONE:
+                        menu.findItem(R.id.item_noSort).setEnabled(false);
+                        menu.findItem(R.id.item_AZ).setEnabled(true);
+                        menu.findItem(R.id.item_ZA).setEnabled(true);
+                        break;
+                    case Sort.ALPHABETICALLY_ASC:
+                        menu.findItem(R.id.item_noSort).setEnabled(true);
+                        menu.findItem(R.id.item_AZ).setEnabled(false);
+                        menu.findItem(R.id.item_ZA).setEnabled(true);
+                        break;
+                    case Sort.ALPHABETICALLY_DESC:
+                        menu.findItem(R.id.item_noSort).setEnabled(true);
+                        menu.findItem(R.id.item_AZ).setEnabled(true);
+                        menu.findItem(R.id.item_ZA).setEnabled(false);
+                        break;
+                }
+
+                popupMenu.setOnMenuItemClickListener(this);
+                popupMenu.show();
                 break;
             case R.id.backBtn:
-                exploreManager.goUp();
+                if (!isLoading)
+                    exploreManager.goUp();
                 break;
         }
     }
@@ -204,6 +242,7 @@ public class ExploreFragment extends BackHandledFragment implements OnItemClickL
         swipeRefreshLayout.setRefreshing(false);
     }
 
+
     private void setRecyclerType(boolean grid) {
 
         mRecyclerView.swapAdapter(null, true);
@@ -228,6 +267,9 @@ public class ExploreFragment extends BackHandledFragment implements OnItemClickL
         }
 
         isGrid = grid;
+        SharedPreferences.Editor editor = prefs.edit();
+        editor.putBoolean(PrefKeys.KEY_EXPLORE_VIEW, isGrid);
+        editor.apply();
     }
 
     private void setLoadingLayout() {
@@ -365,4 +407,27 @@ public class ExploreFragment extends BackHandledFragment implements OnItemClickL
     public void onRefresh() {
         queryPath(exploreManager.currentPath());
     }
+
+    //This handles every popup menu in this fragment(currently and probably finally)
+    @Override
+    public boolean onMenuItemClick(MenuItem item) {
+        SharedPreferences.Editor editor = prefs.edit();
+        switch (item.getItemId()) {
+            case R.id.item_noSort:
+                editor.putInt(PrefKeys.KEY_EXPLORE_SORT, Sort.NONE);
+                parentFabBtn.collapse();
+                break;
+            case R.id.item_AZ:
+                editor.putInt(PrefKeys.KEY_EXPLORE_SORT, Sort.ALPHABETICALLY_ASC);
+                parentFabBtn.collapse();
+                break;
+            case R.id.item_ZA:
+                editor.putInt(PrefKeys.KEY_EXPLORE_SORT, Sort.ALPHABETICALLY_DESC);
+                parentFabBtn.collapse();
+                break;
+        }
+        editor.apply();
+        return false;
+    }
+
 }
