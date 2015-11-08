@@ -8,6 +8,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.example.andrzej.audiocontroller.R;
+import com.example.andrzej.audiocontroller.views.BackHandledFragment;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
@@ -16,7 +17,9 @@ import butterknife.ButterKnife;
  * A main fragment containing most navigation icons
  * like playlists, tracks, exploring filesystem etc.
  */
-public class MainFragment extends Fragment {
+public class MainFragment extends BackHandledFragment {
+
+    public static final String TAG = "MAIN_FRAGMENT";
 
     public MainFragment() {}
 
@@ -28,5 +31,15 @@ public class MainFragment extends Fragment {
 
 
         return rootView;
+    }
+
+    @Override
+    public String getTagText() {
+        return TAG;
+    }
+
+    @Override
+    public boolean onBackPressed() {
+        return false;
     }
 }

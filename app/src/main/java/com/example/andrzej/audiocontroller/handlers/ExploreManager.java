@@ -7,6 +7,7 @@ import java.util.Stack;
 
 public class ExploreManager {
 
+
     private String defaultPath;
     private Stack<String> history = new Stack<>();
 

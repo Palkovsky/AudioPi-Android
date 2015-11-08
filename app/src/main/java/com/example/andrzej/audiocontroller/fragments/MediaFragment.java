@@ -7,6 +7,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.example.andrzej.audiocontroller.R;
+import com.example.andrzej.audiocontroller.views.BackHandledFragment;
 
 import butterknife.ButterKnife;
 
@@ -15,9 +16,13 @@ import butterknife.ButterKnife;
  * and content of playlists(tracks). This last functionality maybe will be
  * outsorced somewhere else.
  */
-public class MediaFragment extends Fragment {
+public class MediaFragment extends BackHandledFragment {
 
-    public MediaFragment() {}
+    public static final String TAG = "MEDIA_FRAGMENT";
+
+    public MediaFragment() {
+    }
+
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -32,5 +37,15 @@ public class MediaFragment extends Fragment {
         ButterKnife.bind(this, rootView);
 
         return rootView;
+    }
+
+    @Override
+    public String getTagText() {
+        return TAG;
+    }
+
+    @Override
+    public boolean onBackPressed() {
+        return false;
     }
 }

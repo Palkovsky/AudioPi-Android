@@ -20,6 +20,7 @@ import com.example.andrzej.audiocontroller.interfaces.ExploreListener;
 import com.example.andrzej.audiocontroller.interfaces.OnItemClickListener;
 import com.example.andrzej.audiocontroller.models.ExploreItem;
 import com.example.andrzej.audiocontroller.utils.Image;
+import com.example.andrzej.audiocontroller.views.BackHandledFragment;
 import com.example.andrzej.audiocontroller.views.BlankingImageButton;
 import com.getbase.floatingactionbutton.FloatingActionButton;
 import com.getbase.floatingactionbutton.FloatingActionsMenu;
@@ -34,7 +35,9 @@ import butterknife.ButterKnife;
  * Explore fragment contains list in filesystem and it
  * lets you to explore it and import playlists and tracks etc.
  */
-public class ExploreFragment extends Fragment implements OnItemClickListener, View.OnClickListener, ExploreListener {
+public class ExploreFragment extends BackHandledFragment implements OnItemClickListener, View.OnClickListener, ExploreListener {
+
+    public static final String TAG = "EXPLORE_FRAGMENT";
 
     //Objects
     private RecyclerView.LayoutManager manager;
@@ -65,6 +68,7 @@ public class ExploreFragment extends Fragment implements OnItemClickListener, Vi
 
     public ExploreFragment() {
     }
+
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -146,7 +150,7 @@ public class ExploreFragment extends Fragment implements OnItemClickListener, Vi
             public void run() {
                 currentPathContainer.fullScroll(HorizontalScrollView.FOCUS_RIGHT);
             }
-        },100);
+        }, 100);
     }
 
     private void setRecyclerType(boolean grid) {
@@ -192,5 +196,19 @@ public class ExploreFragment extends Fragment implements OnItemClickListener, Vi
         }
 
         return list;
+    }
+
+    @Override
+    public String getTagText() {
+        return TAG;
+    }
+
+    @Override
+    public boolean onBackPressed() {
+        if (parentFabBtn.isExpanded()) {
+            parentFabBtn.collapse();
+            return true;
+        }
+        return false;
     }
 }

@@ -11,9 +11,11 @@ import android.view.View;
 
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.andrzej.audiocontroller.R;
 import com.example.andrzej.audiocontroller.adapters.SectionsPagerAdapter;
+import com.example.andrzej.audiocontroller.views.BackHandledFragment;
 
 import org.w3c.dom.Text;
 
@@ -21,9 +23,10 @@ import butterknife.Bind;
 import butterknife.ButterKnife;
 import me.relex.circleindicator.CircleIndicator;
 
-public class MainActivity extends AppCompatActivity implements View.OnClickListener {
+public class MainActivity extends AppCompatActivity implements View.OnClickListener, BackHandledFragment.BackHandlerInterface {
 
     private SectionsPagerAdapter mSectionsPagerAdapter;
+    private BackHandledFragment selectedFragment;
 
     @Bind(R.id.mainTabsPager)
     ViewPager mViewPager;
@@ -66,4 +69,22 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 startActivity(intent);
         }
     }
+
+    @Override
+    public void onBackPressed() {
+        if(selectedFragment == null || !selectedFragment.onBackPressed()){
+            if(mViewPager.getCurrentItem() != 0)
+                mViewPager.setCurrentItem(0, true);
+            else
+                super.onBackPressed();
+        }
+
+    }
+
+    @Override
+    public void setSelectedFragment(BackHandledFragment backHandledFragment) {
+        this.selectedFragment = mSectionsPagerAdapter.getItem(mViewPager.getCurrentItem());
+    }
+
+
 }
