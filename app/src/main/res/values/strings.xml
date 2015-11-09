@@ -22,4 +22,5 @@
     <string name="no_sorting">Brak</string>
     <string name="fromAtoZsorting">Alfabetycznie</string>
     <string name="fromZtoAsorting">Alfabetycznie od końca</string>
+    <string name="fetching_from_cache">Can\'t connect to server. Fetching from cache.</string>
 </resources>

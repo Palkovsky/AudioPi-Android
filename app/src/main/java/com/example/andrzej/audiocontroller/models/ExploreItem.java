@@ -76,6 +76,7 @@ public class ExploreItem {
             metadata.setGenre(json.getString("genre"));
             metadata.setAlbum(json.getString("album"));
             metadata.setLength(json.getInt("length"));
+            metadata.setFilesize(json.getDouble("filesize"));
             String coverUrl = json.getString("cover");
             if (coverUrl != null && !coverUrl.equals("null"))
                 metadata.setCoverUrl(Endpoints.getCoverUrl(coverUrl));

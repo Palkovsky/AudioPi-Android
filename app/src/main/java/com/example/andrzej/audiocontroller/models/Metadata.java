@@ -11,6 +11,7 @@ public class Metadata {
     private String genre;
     private String coverUrl;
     private int length;
+    private double filesize;
 
     public String getArtist() {
         return artist;
@@ -50,5 +51,13 @@ public class Metadata {
 
     public void setCoverUrl(String coverUrl) {
         this.coverUrl = coverUrl;
+    }
+
+    public double getFilesize() {
+        return filesize;
+    }
+
+    public void setFilesize(double filesize) {
+        this.filesize = filesize;
     }
 }

@@ -110,7 +110,6 @@ public class ExploreFragment extends BackHandledFragment implements OnItemClickL
     public ExploreFragment() {
     }
 
-
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -293,10 +292,12 @@ public class ExploreFragment extends BackHandledFragment implements OnItemClickL
                     break;
             }
         } else {
+
             if (!Network.isNetworkAvailable(getActivity()))
                 errorTextView.setText(R.string.no_internet_error);
             else
                 errorTextView.setText(R.string.server_error);
+
         }
 
     }
@@ -356,8 +357,10 @@ public class ExploreFragment extends BackHandledFragment implements OnItemClickL
                         mAdapter.notifyDataSetChanged();
                         if (mDataset.size() == 0)
                             setUpErrorLayout(Codes.EMPTY_DATASET);
-                        else
+                        else {
+                            exploreManager.currentDirectory().setItems(mDataset);
                             setNormalLayout();
+                        }
                         updatePathToolbar();
 
                         isLoading = false;
@@ -431,7 +434,7 @@ public class ExploreFragment extends BackHandledFragment implements OnItemClickL
                 break;
         }
 
-        if(!isLoading && Network.isNetworkAvailable(getActivity()))
+        if (!isLoading && Network.isNetworkAvailable(getActivity()))
             queryPath(exploreManager.currentPath());
 
         editor.apply();

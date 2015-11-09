@@ -54,6 +54,15 @@ public class ExploreRecyclerAdapter extends RecyclerView.Adapter<ExploreRecycler
 
         holder.nameTv.setText(item.getName());
 
+        if(layoutResId != R.layout.explore_item_grid) {
+            if (item.isDirectory())
+                holder.filesizeTv.setVisibility(View.INVISIBLE);
+            else {
+                holder.filesizeTv.setText(item.getMetadata().getFilesize() + " MB");
+                holder.filesizeTv.setVisibility(View.VISIBLE);
+            }
+        }
+
         holder.iconIv.setImageBitmap(null);
         holder.iconIv.setImageDrawable(null);
         Image.clearDrawable(holder.iconIv);
@@ -95,11 +104,13 @@ public class ExploreRecyclerAdapter extends RecyclerView.Adapter<ExploreRecycler
         public RelativeLayout rootLayout;
         public ImageView iconIv;
         public TextView nameTv;
+        public TextView filesizeTv;
 
         public ExploreViewHolder(View itemLayoutView) {
             super(itemLayoutView);
             rootLayout = (RelativeLayout) itemLayoutView.findViewById(R.id.rootLayout);
             nameTv = (TextView) itemLayoutView.findViewById(R.id.nameTv);
+            filesizeTv = (TextView) itemLayoutView.findViewById(R.id.sizeTv);
             iconIv = (ImageView) itemLayoutView.findViewById(R.id.iconIv);
 
             rootLayout.setOnClickListener(this);
