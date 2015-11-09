@@ -16,17 +16,20 @@ public class Endpoints {
     //Query Params
     public static final String Q_PATH = "path=";
     public static final String Q_METADATA = "meta=";
+    public static final String Q_SORT = "sort=";
 
     //Config
     public static final String CHARSET = "UTF-8";
 
-    public static String getDataUrl(String path, boolean withMetadata) {
+    public static String getDataUrl(String path, boolean withMetadata, int sort) {
         String encodedPath = encodeString(path);
         return URL_DATA +
                 URL_CHAR_QUESTION +
                 Q_PATH + encodedPath +
                 URL_CHAR_AMEPERSAND +
-                Q_METADATA + String.valueOf(withMetadata);
+                Q_METADATA + String.valueOf(withMetadata) +
+                URL_CHAR_AMEPERSAND +
+                Q_SORT + String.valueOf(sort);
     }
 
     public static String getCoverUrl(String localPath) {

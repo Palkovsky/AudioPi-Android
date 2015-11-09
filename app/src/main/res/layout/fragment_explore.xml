@@ -123,8 +123,7 @@
             android:layout_height="wrap_content"
             fab:fab_colorNormal="@color/purple"
             fab:fab_colorPressed="@color/purple_pressed"
-            fab:fab_icon="@drawable/ic_sort_white_36dp"
-            fab:fab_title="@string/sort" />
+            fab:fab_icon="@drawable/ic_sort_white_36dp" />
 
         <com.getbase.floatingactionbutton.FloatingActionButton
             android:id="@+id/rootBtn"
@@ -132,8 +131,7 @@
             android:layout_height="wrap_content"
             fab:fab_colorNormal="@color/purple"
             fab:fab_colorPressed="@color/purple_pressed"
-            fab:fab_icon="@drawable/ic_home_white_36dp"
-            fab:fab_title="@string/root" />
+            fab:fab_icon="@drawable/ic_home_white_36dp" />
 
 
 
@@ -142,8 +140,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             fab:fab_colorNormal="@color/purple"
-            fab:fab_colorPressed="@color/purple_pressed"
-            fab:fab_title="@string/change_explore_view" />
+            fab:fab_colorPressed="@color/purple_pressed" />
 
     </com.getbase.floatingactionbutton.FloatingActionsMenu>
 

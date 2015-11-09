@@ -16,6 +16,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.PopupMenu;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
@@ -313,7 +314,7 @@ public class ExploreFragment extends BackHandledFragment implements OnItemClickL
             requestQueue.cancelAll(TAG);
 
             setLoadingLayout();
-            String queryUrl = Endpoints.getDataUrl(path, true);
+            String queryUrl = Endpoints.getDataUrl(path, true, sortingMethod);
 
             JsonObjectRequest request = new JsonObjectRequest(Request.Method.GET, queryUrl, new Response.Listener<JSONObject>() {
 
@@ -415,19 +416,25 @@ public class ExploreFragment extends BackHandledFragment implements OnItemClickL
         switch (item.getItemId()) {
             case R.id.item_noSort:
                 editor.putInt(PrefKeys.KEY_EXPLORE_SORT, Sort.NONE);
+                sortingMethod = Sort.NONE;
                 parentFabBtn.collapse();
                 break;
             case R.id.item_AZ:
                 editor.putInt(PrefKeys.KEY_EXPLORE_SORT, Sort.ALPHABETICALLY_ASC);
+                sortingMethod = Sort.ALPHABETICALLY_ASC;
                 parentFabBtn.collapse();
                 break;
             case R.id.item_ZA:
                 editor.putInt(PrefKeys.KEY_EXPLORE_SORT, Sort.ALPHABETICALLY_DESC);
+                sortingMethod = Sort.ALPHABETICALLY_DESC;
                 parentFabBtn.collapse();
                 break;
         }
+
+        if(!isLoading && Network.isNetworkAvailable(getActivity()))
+            queryPath(exploreManager.currentPath());
+
         editor.apply();
         return false;
     }
-
 }
