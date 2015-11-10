@@ -23,4 +23,6 @@
     <string name="fromAtoZsorting">Alfabetycznie</string>
     <string name="fromZtoAsorting">Alfabetycznie od końca</string>
     <string name="fetching_from_cache">Can\'t connect to server. Fetching from cache.</string>
+
+    <string name="filesize_format">%1$s MB</string>
 </resources>

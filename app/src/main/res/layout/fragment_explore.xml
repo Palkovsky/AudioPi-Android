@@ -6,10 +6,6 @@
     android:layout_height="match_parent"
     tools:context="com.example.andrzej.audiocontroller.fragments.ExploreFragment">
 
-    <RelativeLayout
-        android:id="@+id/navigation_container"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content">
 
         <LinearLayout
             android:id="@+id/pathToolbar"
@@ -56,21 +52,13 @@
 
         </LinearLayout>
 
-        <fr.castorflex.android.smoothprogressbar.SmoothProgressBar
-            android:id="@+id/exploreProgressBar"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_below="@+id/pathToolbar"
-            android:indeterminate="true"
-            android:visibility="gone" />
 
-    </RelativeLayout>
 
     <com.baoyz.widget.PullRefreshLayout
         android:id="@+id/swipeRefreshLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/navigation_container"
+        android:layout_below="@+id/pathToolbar"
         app:refreshColors="@array/gplus_colors"
         app:refreshType="material">
 
@@ -79,6 +67,14 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
     </com.baoyz.widget.PullRefreshLayout>
+
+    <fr.castorflex.android.smoothprogressbar.SmoothProgressBar
+        android:id="@+id/exploreProgressBar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/pathToolbar"
+        android:indeterminate="true"
+        android:visibility="gone" />
 
     <LinearLayout
         android:id="@+id/errorContainer"

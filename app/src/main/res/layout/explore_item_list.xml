@@ -26,8 +26,8 @@
             android:id="@+id/nameTv"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="@dimen/explore_grid_horizontal_margin"
-            android:layout_marginStart="@dimen/explore_grid_horizontal_margin"
+            android:layout_marginRight="@dimen/explore_grid_horizontal_margin"
+            android:layout_marginEnd="@dimen/explore_grid_horizontal_margin"
             android:layout_marginTop="@dimen/activity_vertical_margin"
             android:textSize="16sp"
             android:textAppearance="@android:style/TextAppearance.Medium" />
@@ -37,8 +37,6 @@
             android:id="@+id/sizeTv"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="@dimen/explore_grid_horizontal_margin"
-            android:layout_marginStart="@dimen/explore_grid_horizontal_margin"
             android:textSize="12sp"
             android:textAppearance="@android:style/TextAppearance.Small"/>
 

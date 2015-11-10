@@ -58,7 +58,7 @@ public class ExploreRecyclerAdapter extends RecyclerView.Adapter<ExploreRecycler
             if (item.isDirectory())
                 holder.filesizeTv.setVisibility(View.INVISIBLE);
             else {
-                holder.filesizeTv.setText(item.getMetadata().getFilesize() + " MB");
+                holder.filesizeTv.setText(String.format(context.getResources().getString(R.string.filesize_format), String.valueOf(item.getMetadata().getFilesize())));
                 holder.filesizeTv.setVisibility(View.VISIBLE);
             }
         }
@@ -84,14 +84,6 @@ public class ExploreRecyclerAdapter extends RecyclerView.Adapter<ExploreRecycler
         return dataset.get(position);
     }
 
-    /**
-     * Remove all elements from the list.
-     */
-    public void clear() {
-        final int size = getItemCount();
-        dataset.clear();
-        notifyItemRangeRemoved(0, size);
-    }
 
     public void setOnItemClickListener(OnItemClickListener itemClickListener) {
         this.itemClickListener = itemClickListener;

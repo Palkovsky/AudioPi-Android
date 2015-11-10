@@ -157,8 +157,9 @@ public class ExploreFragment extends BackHandledFragment implements OnItemClickL
         ExploreItem item = mDataset.get(position);
 
         if (item.isDirectory() && !isLoading) {
+            exploreManager.currentDirectory().setSavedState(mRecyclerView.getLayoutManager().onSaveInstanceState());
+            exploreManager.currentDirectory().setItems(mDataset);
             exploreManager.goTo(exploreManager.currentPath() + item.getName() + "/");
-            mRecyclerView.scrollToPosition(0);
         }
 
     }
@@ -211,16 +212,14 @@ public class ExploreFragment extends BackHandledFragment implements OnItemClickL
 
     @Override
     public void onDirectoryUp(String oldPath, String newPath) {
-        if (!isLoading) {
-            mRecyclerView.scrollToPosition(0);
+        if (!isLoading)
             queryPath(newPath);
-        }
+
     }
 
     @Override
     public void onDirectoryDown(String oldPath, String newPath) {
         if (!isLoading) {
-            mRecyclerView.scrollToPosition(0);
             queryPath(newPath);
         }
     }
@@ -298,6 +297,7 @@ public class ExploreFragment extends BackHandledFragment implements OnItemClickL
             else
                 errorTextView.setText(R.string.server_error);
 
+
         }
 
     }
@@ -362,6 +362,10 @@ public class ExploreFragment extends BackHandledFragment implements OnItemClickL
                             setNormalLayout();
                         }
                         updatePathToolbar();
+
+                        mRecyclerView.scrollToPosition(0);
+                        if (exploreManager.currentDirectory().getSavedState() != null)
+                            mRecyclerView.getLayoutManager().onRestoreInstanceState(exploreManager.currentDirectory().getSavedState());
 
                         isLoading = false;
 
