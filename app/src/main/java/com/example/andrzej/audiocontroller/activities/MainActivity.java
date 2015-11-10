@@ -15,8 +15,10 @@ import android.widget.Toast;
 
 import com.example.andrzej.audiocontroller.R;
 import com.example.andrzej.audiocontroller.adapters.SectionsPagerAdapter;
+import com.example.andrzej.audiocontroller.interfaces.ExploreFragmentCommunicator;
 import com.example.andrzej.audiocontroller.views.BackHandledFragment;
 
+import org.json.JSONObject;
 import org.w3c.dom.Text;
 
 import butterknife.Bind;
@@ -60,8 +62,32 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         mViewPager.addOnPageChangeListener(this);
         mCircleIndicator.setViewPager(mViewPager);
 
+        mSectionsPagerAdapter.registerExploreCommunicator(new ExploreFragmentCommunicator() {
+            @Override
+            public void onQueryStart(String url) {
+                handleExploreQueryStart(url);
+            }
+
+            @Override
+            public void onQuerySuccess(String url, JSONObject response) {
+                handleExploreQuerySuccess(url, response);
+            }
+
+            @Override
+            public void onQueryError(String url, int code) {
+                handleExploreQueryError(url, code);
+            }
+        });
+
         bottomToolbar.setOnClickListener(this);
     }
+
+    private void handleExploreQueryStart(String url){}
+
+    private void handleExploreQuerySuccess(String url, JSONObject obj){}
+
+
+    private void handleExploreQueryError(String url, int error_code){}
 
     @Override
     public void onClick(View v) {
@@ -95,8 +121,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     public void onPageScrollStateChanged(int state) {}
 
     @Override
-    public void onPageSelected(int position) {
-        setSelectedFragment(null);
-    }
+    public void onPageSelected(int position) {setSelectedFragment(null);}
 
 }

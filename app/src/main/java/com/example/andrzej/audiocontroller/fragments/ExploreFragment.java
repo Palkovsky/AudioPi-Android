@@ -16,7 +16,6 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.PopupMenu;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
@@ -32,6 +31,7 @@ import com.example.andrzej.audiocontroller.config.Endpoints;
 import com.example.andrzej.audiocontroller.config.PrefKeys;
 import com.example.andrzej.audiocontroller.config.Sort;
 import com.example.andrzej.audiocontroller.handlers.ExploreManager;
+import com.example.andrzej.audiocontroller.interfaces.ExploreFragmentCommunicator;
 import com.example.andrzej.audiocontroller.interfaces.ExploreListener;
 import com.example.andrzej.audiocontroller.interfaces.OnItemClickListener;
 import com.example.andrzej.audiocontroller.models.ExploreItem;
@@ -69,6 +69,9 @@ public class ExploreFragment extends BackHandledFragment implements OnItemClickL
     private VolleySingleton volleySingleton;
     private RequestQueue requestQueue;
     private SharedPreferences prefs;
+
+    //Communicator interface
+    private ExploreFragmentCommunicator communicator;
 
     //Datasets
     private List<ExploreItem> mDataset;
@@ -315,7 +318,7 @@ public class ExploreFragment extends BackHandledFragment implements OnItemClickL
             requestQueue.cancelAll(TAG);
 
             setLoadingLayout();
-            String queryUrl = Endpoints.getDataUrl(path, true, sortingMethod);
+            final String queryUrl = Endpoints.getDataUrl(path, true, sortingMethod);
 
             JsonObjectRequest request = new JsonObjectRequest(Request.Method.GET, queryUrl, new Response.Listener<JSONObject>() {
 
@@ -355,11 +358,15 @@ public class ExploreFragment extends BackHandledFragment implements OnItemClickL
                         mDataset.clear();
                         mDataset.addAll(dataset);
                         mAdapter.notifyDataSetChanged();
-                        if (mDataset.size() == 0)
+                        if (mDataset.size() == 0) {
                             setUpErrorLayout(Codes.EMPTY_DATASET);
-                        else {
+                            if (communicator != null)
+                                communicator.onQueryError(queryUrl, Codes.EMPTY_DATASET);
+                        }else {
                             exploreManager.currentDirectory().setItems(mDataset);
                             setNormalLayout();
+                            if(communicator != null)
+                                communicator.onQuerySuccess(queryUrl, response);
                         }
                         updatePathToolbar();
 
@@ -372,6 +379,8 @@ public class ExploreFragment extends BackHandledFragment implements OnItemClickL
                     } catch (JSONException e) {
                         e.printStackTrace();
                         setUpErrorLayout(code);
+                        if(communicator != null)
+                            communicator.onQueryError(queryUrl, code);
                         updatePathToolbar();
                         isLoading = false;
                     }
@@ -383,9 +392,14 @@ public class ExploreFragment extends BackHandledFragment implements OnItemClickL
                     mAdapter.notifyDataSetChanged();
                     setUpErrorLayout(Codes.SUCCESFULL);
                     updatePathToolbar();
+                    if(communicator != null)
+                        communicator.onQueryError(queryUrl, Codes.SUCCESFULL);
                     isLoading = false;
                 }
             });
+
+            if(communicator != null)
+                communicator.onQueryStart(queryUrl);
 
             request.setTag(TAG);
             requestQueue.add(request);
@@ -443,5 +457,9 @@ public class ExploreFragment extends BackHandledFragment implements OnItemClickL
 
         editor.apply();
         return false;
+    }
+
+    public void registerCommunicator(ExploreFragmentCommunicator communicator) {
+        this.communicator = communicator;
     }
 }
