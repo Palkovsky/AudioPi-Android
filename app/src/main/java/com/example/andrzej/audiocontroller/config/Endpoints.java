@@ -11,7 +11,7 @@ public class Endpoints {
     public static final String URL_CHAR_AMEPERSAND = "&";
 
     public static final String URL_DATA = DOMAIN + "/data";
-    public static final String URL_COVER = DOMAIN + "/cover";
+    public static final String URL_COVER = DOMAIN + "/file";
 
     //Query Params
     public static final String Q_PATH = "path=";
