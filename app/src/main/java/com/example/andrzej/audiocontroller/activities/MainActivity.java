@@ -83,10 +83,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     private void handleExploreQueryStart(String url){}
-
     private void handleExploreQuerySuccess(String url, JSONObject obj){}
-
-
     private void handleExploreQueryError(String url, int error_code){}
 
     @Override
@@ -119,7 +116,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {}
     @Override
     public void onPageScrollStateChanged(int state) {}
-
     @Override
     public void onPageSelected(int position) {setSelectedFragment(null);}
 

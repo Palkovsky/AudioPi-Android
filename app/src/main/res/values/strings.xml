@@ -25,4 +25,7 @@
     <string name="fetching_from_cache">Can\'t connect to server. Fetching from cache.</string>
 
     <string name="filesize_format">%1$s MB</string>
+    <string name="playlist_count_format">%1$s utworów</string>
+    <string name="artist_album_format">%1$s - %2$s</string>
+    <string name="unknown"><![CDATA[<nieznany>]]></string>
 </resources>

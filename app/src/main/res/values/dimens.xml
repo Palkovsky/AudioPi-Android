@@ -13,4 +13,6 @@
     <dimen name="explore_list_horizontal_margin">10dp</dimen>
     <dimen name="explore_grid_image_size">80dp</dimen>
     <dimen name="explore_list_image_size">72dp</dimen>
+    <dimen name="cover_parent_size">60dp</dimen>
+    <dimen name="cover_child_size">50dp</dimen>
 </resources>
