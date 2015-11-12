@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/rootLayout"
+    android:weightSum="100"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:background="@drawable/explore_item_background"
@@ -12,15 +13,19 @@
     android:orientation="horizontal">
 
     <ImageView
+        android:layout_weight="5"
         android:id="@+id/coverIv"
         android:layout_width="@dimen/cover_child_size"
         android:layout_height="@dimen/cover_child_size" />
 
     <LinearLayout
-        android:layout_width="match_parent"
+        android:layout_weight="94"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="@dimen/explore_grid_horizontal_margin"
         android:layout_marginLeft="@dimen/explore_grid_horizontal_margin"
+        android:layout_marginRight="@dimen/explore_grid_horizontal_margin"
+        android:layout_marginEnd="@dimen/explore_grid_horizontal_margin"
         android:orientation="vertical">
 
         <TextView
@@ -36,5 +41,14 @@
             android:layout_height="wrap_content" />
 
     </LinearLayout>
+
+
+    <ImageButton
+        android:id="@+id/moreBtn"
+        android:layout_weight="1"
+        android:background="@drawable/image_button_background"
+        android:src="@drawable/ic_more_vert_black_24dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
 
 </LinearLayout>

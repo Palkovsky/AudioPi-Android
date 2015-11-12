@@ -5,23 +5,37 @@ import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageButton;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 
 import com.bignerdranch.expandablerecyclerview.Adapter.ExpandableRecyclerAdapter;
 import com.bignerdranch.expandablerecyclerview.Model.ParentListItem;
+import com.bignerdranch.expandablerecyclerview.ViewHolder.ChildViewHolder;
+import com.bignerdranch.expandablerecyclerview.ViewHolder.ParentViewHolder;
 import com.example.andrzej.audiocontroller.R;
+import com.example.andrzej.audiocontroller.interfaces.OnChildItemClickListener;
+import com.example.andrzej.audiocontroller.interfaces.OnChildItemLongClickListener;
+import com.example.andrzej.audiocontroller.interfaces.OnItemClickListener;
+import com.example.andrzej.audiocontroller.interfaces.OnLongItemClickListener;
+import com.example.andrzej.audiocontroller.interfaces.OnMoreChildItemClickListener;
+import com.example.andrzej.audiocontroller.interfaces.OnMoreItemClickListener;
 import com.example.andrzej.audiocontroller.models.ExploreItem;
 import com.example.andrzej.audiocontroller.models.Playlist;
 import com.example.andrzej.audiocontroller.utils.Image;
-import com.example.andrzej.audiocontroller.views.PlaylistViewHolder;
-import com.example.andrzej.audiocontroller.views.TrackViewHolder;
 import com.squareup.picasso.Picasso;
 
 import java.util.List;
 
-public class MediaRecyclerAdapter extends ExpandableRecyclerAdapter<PlaylistViewHolder, TrackViewHolder> {
+public class MediaRecyclerAdapter extends ExpandableRecyclerAdapter<MediaRecyclerAdapter.PlaylistViewHolder, MediaRecyclerAdapter.TrackViewHolder> {
 
     private LayoutInflater mInflater;
     private Context context;
+
+    private OnChildItemClickListener onTrackClickListener;
+    private OnChildItemLongClickListener onTrackLongClickListener;
+    private OnMoreChildItemClickListener onMoreTrackItemClickListener;
 
     public MediaRecyclerAdapter(Context context, List<Playlist> parentItemList) {
         super(parentItemList);
@@ -42,8 +56,11 @@ public class MediaRecyclerAdapter extends ExpandableRecyclerAdapter<PlaylistView
     }
 
     @Override
-    public void onBindParentViewHolder(PlaylistViewHolder playlistViewHolder, int position, ParentListItem parentListItem) {
+    public void onBindParentViewHolder(PlaylistViewHolder playlistViewHolder, final int position, ParentListItem parentListItem) {
         Playlist playlist = (Playlist) parentListItem;
+
+        //Listeners
+
 
         playlistViewHolder.coverIv.setImageBitmap(null);
         playlistViewHolder.coverIv.setImageDrawable(null);
@@ -58,12 +75,39 @@ public class MediaRecyclerAdapter extends ExpandableRecyclerAdapter<PlaylistView
         playlistViewHolder.nameTv.setText(playlist.getName());
         playlistViewHolder.tracksCountTv.setText((String.format(context.getResources().getString(R.string.playlist_count_format),
                 String.valueOf(playlist.getTracks().size()))));
+
     }
 
     @Override
-    public void onBindChildViewHolder(TrackViewHolder trackViewHolder, int position, Object childListItem) {
+    public void onBindChildViewHolder(TrackViewHolder trackViewHolder, final int position, final Object childListItem) {
         ExploreItem track = (ExploreItem) childListItem;
         if (!track.isDirectory()) {
+
+            //Listeners
+            trackViewHolder.rootLayout.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if(onTrackClickListener != null)
+                        onTrackClickListener.onChildItemClick(v, position, childListItem);
+                }
+            });
+
+            trackViewHolder.rootLayout.setOnLongClickListener(new View.OnLongClickListener() {
+                @Override
+                public boolean onLongClick(View v) {
+                    if(onTrackLongClickListener != null)
+                        onTrackLongClickListener.onChildLongClickListener(v, position, childListItem);
+                    return true;
+                }
+            });
+
+            trackViewHolder.moreBtn.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if(onMoreTrackItemClickListener != null)
+                        onMoreTrackItemClickListener.onMoreChildItemClick(v, position, childListItem);
+                }
+            });
 
             trackViewHolder.coverIv.setImageBitmap(null);
             trackViewHolder.coverIv.setImageDrawable(null);
@@ -78,11 +122,11 @@ public class MediaRecyclerAdapter extends ExpandableRecyclerAdapter<PlaylistView
 
 
             String artist, album;
-            if(track.getMetadata().getArtist() == null)
+            if (track.getMetadata().getArtist() == null)
                 artist = context.getString(R.string.unknown);
             else
                 artist = track.getMetadata().getArtist();
-            if(track.getMetadata().getAlbum() == null)
+            if (track.getMetadata().getAlbum() == null)
                 album = context.getString(R.string.unknown);
             else
                 album = track.getMetadata().getAlbum();
@@ -92,7 +136,61 @@ public class MediaRecyclerAdapter extends ExpandableRecyclerAdapter<PlaylistView
 
 
             trackViewHolder.nameTv.setText(track.getName());
-            trackViewHolder.albumArtistTv.setText(formattedArtistAlbum);
+            if (artist.equals(context.getString(R.string.unknown)) && album.equals(context.getString(R.string.unknown)))
+                trackViewHolder.albumArtistTv.setVisibility(View.GONE);
+            else {
+                trackViewHolder.albumArtistTv.setVisibility(View.VISIBLE);
+                trackViewHolder.albumArtistTv.setText(formattedArtistAlbum);
+            }
+        }
+    }
+
+    public void setOnTrackClickListener(OnChildItemClickListener onTrackClickListener) {
+        this.onTrackClickListener = onTrackClickListener;
+    }
+
+    public void setOnTrackLongClickListener(OnChildItemLongClickListener onTrackLongClickListener) {
+        this.onTrackLongClickListener = onTrackLongClickListener;
+    }
+
+    public void setOnMoreTrackItemClickListener(OnMoreChildItemClickListener onMoreTrackItemClickListener) {
+        this.onMoreTrackItemClickListener = onMoreTrackItemClickListener;
+    }
+
+    public class PlaylistViewHolder extends ParentViewHolder {
+
+        public LinearLayout rootLayout;
+        public ImageView coverIv;
+        public TextView nameTv;
+        public TextView tracksCountTv;
+
+
+        public PlaylistViewHolder(View itemView) {
+            super(itemView);
+
+            rootLayout = (LinearLayout) itemView.findViewById(R.id.rootLayout);
+            coverIv = (ImageView) itemView.findViewById(R.id.coverIv);
+            nameTv = (TextView) itemView.findViewById(R.id.playlistNameTv);
+            tracksCountTv = (TextView) itemView.findViewById(R.id.playlistTrackCountTv);
+        }
+    }
+
+    public class TrackViewHolder extends ChildViewHolder {
+
+        public LinearLayout rootLayout;
+        public ImageView coverIv;
+        public TextView nameTv;
+        public TextView albumArtistTv;
+        public ImageButton moreBtn;
+
+        public TrackViewHolder(View itemView) {
+            super(itemView);
+
+            rootLayout = (LinearLayout) itemView.findViewById(R.id.rootLayout);
+            coverIv = (ImageView) itemView.findViewById(R.id.coverIv);
+            nameTv = (TextView) itemView.findViewById(R.id.trackTitleTv);
+            albumArtistTv = (TextView) itemView.findViewById(R.id.trackAlbumArtistTv);
+            moreBtn = (ImageButton) itemView.findViewById(R.id.moreBtn);
         }
     }
 }

@@ -7,9 +7,16 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import com.example.andrzej.audiocontroller.R;
 import com.example.andrzej.audiocontroller.adapters.MediaRecyclerAdapter;
+import com.example.andrzej.audiocontroller.interfaces.OnChildItemClickListener;
+import com.example.andrzej.audiocontroller.interfaces.OnChildItemLongClickListener;
+import com.example.andrzej.audiocontroller.interfaces.OnItemClickListener;
+import com.example.andrzej.audiocontroller.interfaces.OnLongItemClickListener;
+import com.example.andrzej.audiocontroller.interfaces.OnMoreChildItemClickListener;
+import com.example.andrzej.audiocontroller.interfaces.OnMoreItemClickListener;
 import com.example.andrzej.audiocontroller.models.ExploreItem;
 import com.example.andrzej.audiocontroller.models.Playlist;
 import com.example.andrzej.audiocontroller.views.BackHandledFragment;
@@ -54,6 +61,32 @@ public class MediaFragment extends BackHandledFragment {
 
         //Objects init
         mAdapter = new MediaRecyclerAdapter(getActivity(), generateDataset());
+
+
+        //Listener
+        mAdapter.setOnTrackClickListener(new OnChildItemClickListener() {
+            @Override
+            public void onChildItemClick(View v, int position, Object obj) {
+                ExploreItem item = (ExploreItem) obj;
+                Toast.makeText(getActivity(), "POS: " + position + " - " + item.getName(), Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        mAdapter.setOnTrackLongClickListener(new OnChildItemLongClickListener() {
+            @Override
+            public void onChildLongClickListener(View v, int position, Object obj) {
+                ExploreItem item = (ExploreItem) obj;
+                Toast.makeText(getActivity(), "POKAZ MENIU | POS: " + position + " - " + item.getName(), Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        mAdapter.setOnMoreTrackItemClickListener(new OnMoreChildItemClickListener() {
+            @Override
+            public void onMoreChildItemClick(View v, int position, Object obj) {
+                ExploreItem item = (ExploreItem) obj;
+                Toast.makeText(getActivity(), "POKAZ MENIU | POS: " + position + " - " + item.getName(), Toast.LENGTH_SHORT).show();
+            }
+        });
 
         //Recycler config
         mRecyclerView.setAdapter(mAdapter);
@@ -104,4 +137,5 @@ public class MediaFragment extends BackHandledFragment {
     public boolean onBackPressed() {
         return false;
     }
+
 }
