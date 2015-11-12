@@ -37,6 +37,12 @@ public class ExploreManager {
             exploreListener.onDirectoryUp(oldDir.getPath(), history.peek().getPath());
     }
 
+    public void goUp(boolean callbacks) {
+        Directory oldDir = history.pop();
+        if (callbacks && exploreListener != null)
+            exploreListener.onDirectoryUp(oldDir.getPath(), history.peek().getPath());
+    }
+
 
     public void goToRoot() {
         String oldPath = history.peek().getPath();

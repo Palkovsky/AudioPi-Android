@@ -137,5 +137,4 @@ public class MediaFragment extends BackHandledFragment {
     public boolean onBackPressed() {
         return false;
     }
-
 }

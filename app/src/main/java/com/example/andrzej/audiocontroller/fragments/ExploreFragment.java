@@ -16,6 +16,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.PopupMenu;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
@@ -25,6 +26,7 @@ import com.android.volley.toolbox.JsonObjectRequest;
 import com.baoyz.widget.PullRefreshLayout;
 import com.example.andrzej.audiocontroller.R;
 import com.example.andrzej.audiocontroller.adapters.ExploreRecyclerAdapter;
+import com.example.andrzej.audiocontroller.adapters.NavigationRecyclerView;
 import com.example.andrzej.audiocontroller.config.Codes;
 import com.example.andrzej.audiocontroller.config.Defaults;
 import com.example.andrzej.audiocontroller.config.Endpoints;
@@ -47,7 +49,9 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import butterknife.Bind;
@@ -65,6 +69,7 @@ public class ExploreFragment extends BackHandledFragment implements OnItemClickL
     //Objects
     private RecyclerView.LayoutManager manager;
     private ExploreRecyclerAdapter mAdapter;
+    private NavigationRecyclerView navigationAdapter;
     private ExploreManager exploreManager;
     private VolleySingleton volleySingleton;
     private RequestQueue requestQueue;
@@ -75,6 +80,7 @@ public class ExploreFragment extends BackHandledFragment implements OnItemClickL
 
     //Datasets
     private List<ExploreItem> mDataset;
+    private List<String> navigationDataset;
 
     //Vitals
     private boolean isGrid = true;
@@ -96,12 +102,8 @@ public class ExploreFragment extends BackHandledFragment implements OnItemClickL
     FloatingActionButton sortBtn;
     @Bind(R.id.changeViewBtn)
     FloatingActionButton changeViewBtn;
-    @Bind(R.id.backBtn)
-    BlankingImageButton backBtn;
-    @Bind(R.id.currentPathHorizontalScrollView)
-    HorizontalScrollView currentPathContainer;
-    @Bind(R.id.currentPathTv)
-    TextView currentPathTv;
+    @Bind(R.id.directoryNavigationRecycler)
+    RecyclerView navigationRecyclerView;
 
     @Bind(R.id.errorContainer)
     LinearLayout errorContainer;
@@ -134,8 +136,27 @@ public class ExploreFragment extends BackHandledFragment implements OnItemClickL
         sortingMethod = prefs.getInt(PrefKeys.KEY_EXPLORE_SORT, Sort.NONE);
 
         mDataset = new ArrayList<>();
+        navigationDataset = new ArrayList<>();
 
-        //Config views
+        //Configure navigation recycler view
+        navigationRecyclerView.setHasFixedSize(true);
+        navigationRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity(), LinearLayoutManager.HORIZONTAL, false));
+        navigationAdapter = new NavigationRecyclerView(navigationDataset);
+        navigationAdapter.setOnItemClickListener(new OnItemClickListener() {
+            @Override
+            public void onItemClick(View v, int position) {
+                int currentPos = exploreManager.getDepth();
+
+                while (currentPos > position && exploreManager.canGoUp()){
+                    exploreManager.goUp(false);
+                    currentPos = exploreManager.getDepth();
+                }
+
+                if (!isLoading)
+                    queryPath(exploreManager.currentPath());
+            }
+        });
+        navigationRecyclerView.setAdapter(navigationAdapter);
         updatePathToolbar();
 
         //Configure recycler view
@@ -148,7 +169,7 @@ public class ExploreFragment extends BackHandledFragment implements OnItemClickL
         rootBtn.setOnClickListener(this);
         changeViewBtn.setOnClickListener(this);
         sortBtn.setOnClickListener(this);
-        backBtn.setOnClickListener(this);
+        //backBtn.setOnClickListener(this);
         exploreManager.setExploreListener(this);
         swipeRefreshLayout.setOnRefreshListener(this);
 
@@ -206,10 +227,6 @@ public class ExploreFragment extends BackHandledFragment implements OnItemClickL
                 popupMenu.setOnMenuItemClickListener(this);
                 popupMenu.show();
                 break;
-            case R.id.backBtn:
-                if (!isLoading)
-                    exploreManager.goUp();
-                break;
         }
     }
 
@@ -228,20 +245,18 @@ public class ExploreFragment extends BackHandledFragment implements OnItemClickL
     }
 
     private void updatePathToolbar() {
-        if (exploreManager.canGoUp())
-            backBtn.setEnabled(true);
-        else
-            backBtn.setEnabled(false);
 
-        currentPathTv.setText(exploreManager.currentPath());
-        currentPathContainer.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                currentPathContainer.fullScroll(HorizontalScrollView.FOCUS_RIGHT);
-            }
-        }, 100);
+        String currentPath = exploreManager.currentPath();
+        List<String> parts = Arrays.asList(currentPath.substring(1).split("/"));
 
-        swipeRefreshLayout.setRefreshing(false);
+        for (int i = 0; i < parts.size(); i++)
+            parts.set(i, parts.get(i).toUpperCase());
+
+
+        navigationDataset.clear();
+        navigationDataset.addAll(parts);
+        navigationAdapter.notifyDataSetChanged();
+        navigationRecyclerView.scrollToPosition(parts.size() - 1);
     }
 
 
@@ -362,13 +377,15 @@ public class ExploreFragment extends BackHandledFragment implements OnItemClickL
                             setUpErrorLayout(Codes.EMPTY_DATASET);
                             if (communicator != null)
                                 communicator.onQueryError(queryUrl, Codes.EMPTY_DATASET);
-                        }else {
+                        } else {
                             exploreManager.currentDirectory().setItems(mDataset);
                             setNormalLayout();
-                            if(communicator != null)
+                            if (communicator != null)
                                 communicator.onQuerySuccess(queryUrl, response);
                         }
                         updatePathToolbar();
+
+                        swipeRefreshLayout.setRefreshing(false);
 
                         mRecyclerView.scrollToPosition(0);
                         if (exploreManager.currentDirectory().getSavedState() != null)
@@ -379,9 +396,10 @@ public class ExploreFragment extends BackHandledFragment implements OnItemClickL
                     } catch (JSONException e) {
                         e.printStackTrace();
                         setUpErrorLayout(code);
-                        if(communicator != null)
+                        if (communicator != null)
                             communicator.onQueryError(queryUrl, code);
                         updatePathToolbar();
+                        swipeRefreshLayout.setRefreshing(false);
                         isLoading = false;
                     }
                 }
@@ -392,13 +410,14 @@ public class ExploreFragment extends BackHandledFragment implements OnItemClickL
                     mAdapter.notifyDataSetChanged();
                     setUpErrorLayout(Codes.SUCCESFULL);
                     updatePathToolbar();
-                    if(communicator != null)
+                    if (communicator != null)
                         communicator.onQueryError(queryUrl, Codes.SUCCESFULL);
+                    swipeRefreshLayout.setRefreshing(false);
                     isLoading = false;
                 }
             });
 
-            if(communicator != null)
+            if (communicator != null)
                 communicator.onQueryStart(queryUrl);
 
             request.setTag(TAG);
