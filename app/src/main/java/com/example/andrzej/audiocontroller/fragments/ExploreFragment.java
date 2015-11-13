@@ -55,7 +55,6 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedList;
@@ -525,7 +524,7 @@ public class ExploreFragment extends BackHandledFragment implements OnItemClickL
                                 Downloader.downloadFile(getActivity(), item);
                                 break; //Add to playlist
                             case 1:
-                                //Here I'll show current local playlists
+                                //Here I'll show current local playlists list
                                 break;
                             case 2: //Add to metadata
                                 Dialog.showMetadataDialog(getActivity(), item);

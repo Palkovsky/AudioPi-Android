@@ -19,7 +19,6 @@ public class SectionsPagerAdapter extends FragmentPagerAdapter {
     private ExploreFragment exploreFragment;
     private MediaFragment mediaFragment;
 
-    private ExploreFragmentCommunicator exploreCommunicator;
 
     public SectionsPagerAdapter(FragmentManager fm) {
         super(fm);
@@ -31,18 +30,15 @@ public class SectionsPagerAdapter extends FragmentPagerAdapter {
         exploreFragment.registerCommunicator(new ExploreFragmentCommunicator() {
             @Override
             public void onQueryStart(String url) {
-                if(exploreFragment!=null)
-                    exploreCommunicator.onQueryStart(url);
+
             }
             @Override
             public void onQuerySuccess(String url, JSONObject response) {
-                if(exploreFragment!=null)
-                    exploreCommunicator.onQuerySuccess(url, response);
+
             }
             @Override
             public void onQueryError(String url, int code) {
-                if(exploreFragment!=null)
-                    exploreCommunicator.onQueryError(url, code);
+
             }
         });
     }
@@ -68,9 +64,5 @@ public class SectionsPagerAdapter extends FragmentPagerAdapter {
     @Override
     public CharSequence getPageTitle(int position) {
         return null;
-    }
-
-    public void registerExploreCommunicator(ExploreFragmentCommunicator exploreCommunicator) {
-        this.exploreCommunicator = exploreCommunicator;
     }
 }

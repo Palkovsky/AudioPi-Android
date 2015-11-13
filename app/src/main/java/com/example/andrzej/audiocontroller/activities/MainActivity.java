@@ -62,29 +62,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         mViewPager.addOnPageChangeListener(this);
         mCircleIndicator.setViewPager(mViewPager);
 
-        mSectionsPagerAdapter.registerExploreCommunicator(new ExploreFragmentCommunicator() {
-            @Override
-            public void onQueryStart(String url) {
-                handleExploreQueryStart(url);
-            }
-
-            @Override
-            public void onQuerySuccess(String url, JSONObject response) {
-                handleExploreQuerySuccess(url, response);
-            }
-
-            @Override
-            public void onQueryError(String url, int code) {
-                handleExploreQueryError(url, code);
-            }
-        });
-
         bottomToolbar.setOnClickListener(this);
     }
 
-    private void handleExploreQueryStart(String url){}
-    private void handleExploreQuerySuccess(String url, JSONObject obj){}
-    private void handleExploreQueryError(String url, int error_code){}
+
 
     @Override
     public void onClick(View v) {
