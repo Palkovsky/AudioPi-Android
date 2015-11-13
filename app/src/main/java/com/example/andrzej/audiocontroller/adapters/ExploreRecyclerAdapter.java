@@ -5,12 +5,15 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.example.andrzej.audiocontroller.R;
 import com.example.andrzej.audiocontroller.interfaces.OnItemClickListener;
+import com.example.andrzej.audiocontroller.interfaces.OnLongItemClickListener;
+import com.example.andrzej.audiocontroller.interfaces.OnMoreItemClickListener;
 import com.example.andrzej.audiocontroller.models.ExploreItem;
 import com.example.andrzej.audiocontroller.utils.Image;
 import com.squareup.picasso.Picasso;
@@ -26,6 +29,8 @@ public class ExploreRecyclerAdapter extends RecyclerView.Adapter<ExploreRecycler
     private int layoutResId;
 
     private OnItemClickListener itemClickListener;
+    private OnLongItemClickListener longItemClickListener;
+    private OnMoreItemClickListener moreItemClickListener;
 
     public ExploreRecyclerAdapter(Context context, List<ExploreItem> dataset, int layoutResId) {
         this.context = context;
@@ -54,12 +59,14 @@ public class ExploreRecyclerAdapter extends RecyclerView.Adapter<ExploreRecycler
 
         holder.nameTv.setText(item.getName());
 
-        if(layoutResId != R.layout.explore_item_grid) {
-            if (item.isDirectory())
+        if (layoutResId != R.layout.explore_item_grid) {
+            if (item.isDirectory()) {
                 holder.filesizeTv.setVisibility(View.INVISIBLE);
-            else {
+                holder.moreBtn.setVisibility(View.INVISIBLE);
+            }else {
                 holder.filesizeTv.setText(String.format(context.getResources().getString(R.string.filesize_format), String.valueOf(item.getMetadata().getFilesize())));
                 holder.filesizeTv.setVisibility(View.VISIBLE);
+                holder.moreBtn.setVisibility(View.VISIBLE);
             }
         }
 
@@ -89,14 +96,22 @@ public class ExploreRecyclerAdapter extends RecyclerView.Adapter<ExploreRecycler
         this.itemClickListener = itemClickListener;
     }
 
+    public void setOnLongItemClickListener(OnLongItemClickListener longItemClickListener) {
+        this.longItemClickListener = longItemClickListener;
+    }
+
+    public void setOnMoreItemClickListener(OnMoreItemClickListener moreItemClickListener) {
+        this.moreItemClickListener = moreItemClickListener;
+    }
 
     // inner class to hold a reference to each item of RecyclerView
-    public class ExploreViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
+    public class ExploreViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener, View.OnLongClickListener {
 
         public RelativeLayout rootLayout;
         public ImageView iconIv;
         public TextView nameTv;
         public TextView filesizeTv;
+        public ImageButton moreBtn;
 
         public ExploreViewHolder(View itemLayoutView) {
             super(itemLayoutView);
@@ -104,14 +119,32 @@ public class ExploreRecyclerAdapter extends RecyclerView.Adapter<ExploreRecycler
             nameTv = (TextView) itemLayoutView.findViewById(R.id.nameTv);
             filesizeTv = (TextView) itemLayoutView.findViewById(R.id.sizeTv);
             iconIv = (ImageView) itemLayoutView.findViewById(R.id.iconIv);
+            moreBtn = (ImageButton) itemLayoutView.findViewById(R.id.moreBtn);
 
             rootLayout.setOnClickListener(this);
+            moreBtn.setOnClickListener(this);
+            rootLayout.setOnLongClickListener(this);
         }
 
         @Override
         public void onClick(View v) {
-            if (itemClickListener != null)
-                itemClickListener.onItemClick(v, getAdapterPosition());
+            switch (v.getId()) {
+                case R.id.rootLayout:
+                    if (itemClickListener != null)
+                        itemClickListener.onItemClick(v, getAdapterPosition());
+                    break;
+                case R.id.moreBtn:
+                    if (moreItemClickListener != null)
+                        moreItemClickListener.onMoreClick(v, getAdapterPosition());
+                    break;
+            }
+        }
+
+        @Override
+        public boolean onLongClick(View v) {
+            if (longItemClickListener != null)
+                longItemClickListener.onLongItemClick(v, getAdapterPosition());
+            return true;
         }
     }
 }

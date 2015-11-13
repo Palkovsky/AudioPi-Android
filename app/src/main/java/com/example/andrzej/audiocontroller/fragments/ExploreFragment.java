@@ -18,6 +18,7 @@ import android.widget.PopupMenu;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.afollestad.materialdialogs.MaterialDialog;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
@@ -36,8 +37,13 @@ import com.example.andrzej.audiocontroller.handlers.ExploreManager;
 import com.example.andrzej.audiocontroller.interfaces.ExploreFragmentCommunicator;
 import com.example.andrzej.audiocontroller.interfaces.ExploreListener;
 import com.example.andrzej.audiocontroller.interfaces.OnItemClickListener;
+import com.example.andrzej.audiocontroller.interfaces.OnLongItemClickListener;
+import com.example.andrzej.audiocontroller.interfaces.OnMoreItemClickListener;
 import com.example.andrzej.audiocontroller.models.ExploreItem;
+import com.example.andrzej.audiocontroller.models.Metadata;
+import com.example.andrzej.audiocontroller.utils.Dialog;
 import com.example.andrzej.audiocontroller.utils.Image;
+import com.example.andrzej.audiocontroller.utils.network.Downloader;
 import com.example.andrzej.audiocontroller.utils.network.Network;
 import com.example.andrzej.audiocontroller.utils.network.VolleySingleton;
 import com.example.andrzej.audiocontroller.views.BackHandledFragment;
@@ -52,6 +58,7 @@ import org.json.JSONObject;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.LinkedList;
 import java.util.List;
 
 import butterknife.Bind;
@@ -62,7 +69,7 @@ import fr.castorflex.android.smoothprogressbar.SmoothProgressBar;
  * Explore fragment contains list in filesystem and it
  * lets you to explore it and import playlists and tracks etc.
  */
-public class ExploreFragment extends BackHandledFragment implements OnItemClickListener, View.OnClickListener, ExploreListener, PullRefreshLayout.OnRefreshListener, PopupMenu.OnMenuItemClickListener {
+public class ExploreFragment extends BackHandledFragment implements OnItemClickListener, View.OnClickListener, ExploreListener, PullRefreshLayout.OnRefreshListener, PopupMenu.OnMenuItemClickListener, OnLongItemClickListener, OnMoreItemClickListener {
 
     public static final String TAG = "EXPLORE_FRAGMENT";
 
@@ -147,7 +154,7 @@ public class ExploreFragment extends BackHandledFragment implements OnItemClickL
             public void onItemClick(View v, int position) {
                 int currentPos = exploreManager.getDepth();
 
-                while (currentPos > position && exploreManager.canGoUp()){
+                while (currentPos - 1 > position && exploreManager.canGoUp()) {
                     exploreManager.goUp(false);
                     currentPos = exploreManager.getDepth();
                 }
@@ -169,7 +176,6 @@ public class ExploreFragment extends BackHandledFragment implements OnItemClickL
         rootBtn.setOnClickListener(this);
         changeViewBtn.setOnClickListener(this);
         sortBtn.setOnClickListener(this);
-        //backBtn.setOnClickListener(this);
         exploreManager.setExploreListener(this);
         swipeRefreshLayout.setOnRefreshListener(this);
 
@@ -185,7 +191,21 @@ public class ExploreFragment extends BackHandledFragment implements OnItemClickL
             exploreManager.currentDirectory().setItems(mDataset);
             exploreManager.goTo(exploreManager.currentPath() + item.getName() + "/");
         }
+    }
 
+    @Override
+    public void onLongItemClick(View v, int position) {
+        ExploreItem item = mDataset.get(position);
+
+        if (!item.isDirectory())
+            showFileDialog(item);
+    }
+
+    @Override
+    public void onMoreClick(View v, int position) {
+        ExploreItem item = mDataset.get(position);
+        if (!item.isDirectory())
+            showFileDialog(item);
     }
 
     @Override
@@ -247,7 +267,12 @@ public class ExploreFragment extends BackHandledFragment implements OnItemClickL
     private void updatePathToolbar() {
 
         String currentPath = exploreManager.currentPath();
-        List<String> parts = Arrays.asList(currentPath.substring(1).split("/"));
+        List<String> parts = new LinkedList<>(Arrays.asList(currentPath.substring(1).split("/")));
+
+        parts.remove(0);
+        parts.remove(0);
+        parts.add(0, getActivity().getString(R.string.root));
+
 
         for (int i = 0; i < parts.size(); i++)
             parts.set(i, parts.get(i).toUpperCase());
@@ -268,11 +293,14 @@ public class ExploreFragment extends BackHandledFragment implements OnItemClickL
             manager = new GridLayoutManager(getActivity(), 3);
             mAdapter = new ExploreRecyclerAdapter(getActivity(), mDataset, R.layout.explore_item_grid);
             mAdapter.setOnItemClickListener(this);
+            mAdapter.setOnLongItemClickListener(this);
             changeViewBtn.setIconDrawable(Image.getDrawable(getActivity(), R.drawable.ic_grid_off_white_36dp));
         } else {
             manager = new LinearLayoutManager(getActivity());
             mAdapter = new ExploreRecyclerAdapter(getActivity(), mDataset, R.layout.explore_item_list);
             mAdapter.setOnItemClickListener(this);
+            mAdapter.setOnLongItemClickListener(this);
+            mAdapter.setOnMoreItemClickListener(this);
             changeViewBtn.setIconDrawable(Image.getDrawable(getActivity(), R.drawable.ic_grid_on_white_36dp));
         }
 
@@ -446,6 +474,7 @@ public class ExploreFragment extends BackHandledFragment implements OnItemClickL
 
     @Override
     public void onRefresh() {
+        exploreManager.currentDirectory().setSavedState(null);
         queryPath(exploreManager.currentPath());
     }
 
@@ -481,4 +510,30 @@ public class ExploreFragment extends BackHandledFragment implements OnItemClickL
     public void registerCommunicator(ExploreFragmentCommunicator communicator) {
         this.communicator = communicator;
     }
+
+    private void showFileDialog(final ExploreItem item) {
+        new MaterialDialog.Builder(getActivity())
+                .title(item.getName())
+                .items(R.array.explore_file_dialog_items)
+                .negativeText(R.string.back)
+                .itemsCallback(new MaterialDialog.ListCallback() {
+                    @Override
+                    public void onSelection(MaterialDialog materialDialog, View view, int i, CharSequence charSequence) {
+
+                        switch (i) {
+                            case 0: //Download
+                                Downloader.downloadFile(getActivity(), item);
+                                break; //Add to playlist
+                            case 1:
+                                //Here I'll show current local playlists
+                                break;
+                            case 2: //Add to metadata
+                                Dialog.showMetadataDialog(getActivity(), item);
+                                break;
+                        }
+                    }
+                }).show();
+    }
+
+
 }

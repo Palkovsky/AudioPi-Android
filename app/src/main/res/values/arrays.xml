@@ -6,4 +6,10 @@
         <item>@color/gplus_color_3</item>
         <item>@color/gplus_color_4</item>
     </integer-array>
+    <string-array name="explore_file_dialog_items">
+        <item>@string/download</item>
+        <item>@string/addToPlaylist</item>
+        <item>@string/songDetalis</item>
+    </string-array>
+
 </resources>

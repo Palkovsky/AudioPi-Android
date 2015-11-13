@@ -1,10 +1,5 @@
 package com.example.andrzej.audiocontroller.models;
 
-import org.json.JSONObject;
-
-/**
- * Created by andrzej on 08.11.15.
- */
 public class Metadata {
     private String artist;
     private String album;
@@ -41,6 +36,19 @@ public class Metadata {
         return length;
     }
 
+    public String gerFormattedLength() {
+        if (length < 0)
+            return "";
+
+        final int min = length / 60;
+        final int sec = length - (min * 60);
+
+        final String strMin = placeZeroIfNeeded(min);
+        final String strSec = placeZeroIfNeeded(sec);
+        return String.format("%s:%s", strMin, strSec);
+    }
+
+
     public void setLength(int length) {
         this.length = length;
     }
@@ -59,5 +67,12 @@ public class Metadata {
 
     public void setFilesize(double filesize) {
         this.filesize = filesize;
+    }
+
+    private String placeZeroIfNeeded(int number) {
+        if (number < 10 && number > 0)
+            return "0" + String.valueOf(number);
+        else
+            return String.valueOf(number);
     }
 }

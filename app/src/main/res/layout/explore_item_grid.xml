@@ -3,8 +3,8 @@
     android:id="@+id/rootLayout"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:background="@drawable/explore_item_background"
-    android:layout_centerInParent="true">
+    android:layout_centerInParent="true"
+    android:background="@drawable/explore_item_background">
 
     <ImageView
         android:id="@+id/iconIv"
@@ -14,21 +14,29 @@
 
     <TextView
         android:id="@+id/nameTv"
-        android:layout_marginTop="@dimen/activity_vertical_margin"
-        android:singleLine="true"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:layout_below="@+id/iconIv"
         android:layout_centerHorizontal="true"
-        android:layout_marginStart="@dimen/explore_grid_horizontal_margin"
+        android:layout_marginEnd="@dimen/explore_grid_horizontal_margin"
         android:layout_marginLeft="@dimen/explore_grid_horizontal_margin"
         android:layout_marginRight="@dimen/explore_grid_horizontal_margin"
-        android:layout_marginEnd="@dimen/explore_grid_horizontal_margin"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
+        android:layout_marginStart="@dimen/explore_grid_horizontal_margin"
+        android:layout_marginTop="@dimen/activity_vertical_margin"
+        android:singleLine="true" />
 
     <TextView
         android:id="@+id/sizeTv"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:visibility="gone"/>
+        android:visibility="gone" />
+
+    <ImageButton
+        android:id="@+id/moreBtn"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:background="@drawable/image_button_background"
+        android:src="@drawable/ic_more_vert_black_24dp"
+        android:visibility="gone" />
 
 </RelativeLayout>

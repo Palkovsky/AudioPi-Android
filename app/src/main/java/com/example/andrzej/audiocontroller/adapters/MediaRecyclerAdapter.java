@@ -17,10 +17,7 @@ import com.bignerdranch.expandablerecyclerview.ViewHolder.ParentViewHolder;
 import com.example.andrzej.audiocontroller.R;
 import com.example.andrzej.audiocontroller.interfaces.OnChildItemClickListener;
 import com.example.andrzej.audiocontroller.interfaces.OnChildItemLongClickListener;
-import com.example.andrzej.audiocontroller.interfaces.OnItemClickListener;
-import com.example.andrzej.audiocontroller.interfaces.OnLongItemClickListener;
 import com.example.andrzej.audiocontroller.interfaces.OnMoreChildItemClickListener;
-import com.example.andrzej.audiocontroller.interfaces.OnMoreItemClickListener;
 import com.example.andrzej.audiocontroller.models.ExploreItem;
 import com.example.andrzej.audiocontroller.models.Playlist;
 import com.example.andrzej.audiocontroller.utils.Image;
@@ -51,7 +48,7 @@ public class MediaRecyclerAdapter extends ExpandableRecyclerAdapter<MediaRecycle
 
     @Override
     public TrackViewHolder onCreateChildViewHolder(ViewGroup childViewGroup) {
-        View view = mInflater.inflate(R.layout.track_list_item, childViewGroup, false);
+        View view = mInflater.inflate(R.layout.track_item_list, childViewGroup, false);
         return new TrackViewHolder(view);
     }
 

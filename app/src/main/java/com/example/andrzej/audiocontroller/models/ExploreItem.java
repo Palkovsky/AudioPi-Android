@@ -1,11 +1,9 @@
 package com.example.andrzej.audiocontroller.models;
 
 
-import android.util.Log;
-import android.widget.Toast;
-
 import com.example.andrzej.audiocontroller.config.Endpoints;
 
+import org.apache.commons.io.FilenameUtils;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -29,12 +27,7 @@ public class ExploreItem {
     }
 
     public String getFormattedName() {
-
-        int i = name.lastIndexOf('.');
-        if (i > 0)
-            return name.substring(0, i - 1);
-
-        return name;
+        return FilenameUtils.removeExtension(name);
     }
 
     public void setName(String name) {
@@ -79,7 +72,7 @@ public class ExploreItem {
             metadata.setFilesize(json.getDouble("filesize"));
             String coverUrl = json.getString("cover");
             if (coverUrl != null && !coverUrl.equals("null"))
-                metadata.setCoverUrl(Endpoints.getCoverUrl(coverUrl));
+                metadata.setCoverUrl(Endpoints.getFileUrl(coverUrl));
 
         } catch (JSONException e) {
             e.printStackTrace();
