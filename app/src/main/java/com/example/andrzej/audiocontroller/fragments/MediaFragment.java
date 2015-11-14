@@ -22,6 +22,7 @@ import com.example.andrzej.audiocontroller.adapters.MediaRecyclerAdapter;
 import com.example.andrzej.audiocontroller.config.Codes;
 import com.example.andrzej.audiocontroller.config.Endpoints;
 import com.example.andrzej.audiocontroller.config.Sort;
+import com.example.andrzej.audiocontroller.interfaces.MediaCommunicator;
 import com.example.andrzej.audiocontroller.interfaces.OnChildItemClickListener;
 import com.example.andrzej.audiocontroller.interfaces.OnChildItemLongClickListener;
 import com.example.andrzej.audiocontroller.interfaces.OnMoreChildItemClickListener;
@@ -62,6 +63,9 @@ public class MediaFragment extends BackHandledFragment implements PullRefreshLay
     //Data
     private boolean isLoading;
     private String currentPath = "";
+
+    //Interfaces
+    private MediaCommunicator mediaCommunicator;
 
     //View bindings
     @Bind(R.id.mediaRecyclerView)
@@ -166,9 +170,9 @@ public class MediaFragment extends BackHandledFragment implements PullRefreshLay
         mRecyclerView.swapAdapter(mAdapter, true);
         mAdapter.setOnTrackClickListener(new OnChildItemClickListener() {
             @Override
-            public void onChildItemClick(View v, int position, Object obj) {
-                ExploreItem item = (ExploreItem) obj;
-                Toast.makeText(getActivity(), "POS: " + position + " - " + item.getName(), Toast.LENGTH_SHORT).show();
+            public void onChildItemClick(View v, int position, int internalPos, Object obj) {
+                if (mediaCommunicator != null && !isLoading)
+                    mediaCommunicator.onPlaylistStart((Playlist) obj, internalPos);
             }
         });
         mAdapter.setOnTrackLongClickListener(new OnChildItemLongClickListener() {
@@ -219,6 +223,7 @@ public class MediaFragment extends BackHandledFragment implements PullRefreshLay
                             Playlist item = new Playlist();
                             item.setCoverUrl(Endpoints.getFileUrl(playlist.getString("cover")));
                             item.setName(playlist.getString("name"));
+                            item.setType(playlist.getString("type"));
 
                             JSONArray jsonTracks = playlist.getJSONArray("tracks");
                             List<ExploreItem> tracks = new ArrayList<>();
@@ -267,5 +272,9 @@ public class MediaFragment extends BackHandledFragment implements PullRefreshLay
             request.setTag(TAG);
             requestQueue.add(request);
         }
+    }
+
+    public void registerMediaCommunicator(MediaCommunicator mediaCommunicator) {
+        this.mediaCommunicator = mediaCommunicator;
     }
 }

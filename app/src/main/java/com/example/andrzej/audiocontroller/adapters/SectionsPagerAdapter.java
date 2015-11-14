@@ -7,6 +7,9 @@ import com.example.andrzej.audiocontroller.fragments.ExploreFragment;
 import com.example.andrzej.audiocontroller.fragments.MainFragment;
 import com.example.andrzej.audiocontroller.fragments.MediaFragment;
 import com.example.andrzej.audiocontroller.interfaces.ExploreFragmentCommunicator;
+import com.example.andrzej.audiocontroller.interfaces.MediaCommunicator;
+import com.example.andrzej.audiocontroller.models.ExploreItem;
+import com.example.andrzej.audiocontroller.models.Playlist;
 import com.example.andrzej.audiocontroller.views.BackHandledFragment;
 
 import org.json.JSONObject;
@@ -19,6 +22,8 @@ public class SectionsPagerAdapter extends FragmentPagerAdapter {
     private ExploreFragment exploreFragment;
     private MediaFragment mediaFragment;
 
+    //Interfaces which must be wired with activity
+    private MediaCommunicator mediaCommunicator;
 
     public SectionsPagerAdapter(FragmentManager fm) {
         super(fm);
@@ -39,6 +44,34 @@ public class SectionsPagerAdapter extends FragmentPagerAdapter {
             @Override
             public void onQueryError(String url, int code) {
                 mediaFragment.setUpErrorLayout(code);
+            }
+        });
+
+        exploreFragment.registerMediaCommunicator(new MediaCommunicator() {
+            @Override
+            public void onPlaylistStart(Playlist playlist, int position) {
+                if (mediaCommunicator != null)
+                    mediaCommunicator.onPlaylistStart(playlist, position);
+            }
+
+            @Override
+            public void onTrackStart(ExploreItem track) {
+                if (mediaCommunicator != null)
+                    mediaCommunicator.onTrackStart(track);
+            }
+        });
+
+        mediaFragment.registerMediaCommunicator(new MediaCommunicator() {
+            @Override
+            public void onPlaylistStart(Playlist playlist, int position) {
+                if(mediaCommunicator != null)
+                    mediaCommunicator.onPlaylistStart(playlist, position);
+            }
+
+            @Override
+            public void onTrackStart(ExploreItem track) {
+                if(mediaCommunicator != null)
+                    mediaCommunicator.onTrackStart(track);
             }
         });
     }
@@ -64,5 +97,9 @@ public class SectionsPagerAdapter extends FragmentPagerAdapter {
     @Override
     public CharSequence getPageTitle(int position) {
         return null;
+    }
+
+    public void registerMediaCommunicator(MediaCommunicator mediaCommunicator) {
+        this.mediaCommunicator = mediaCommunicator;
     }
 }

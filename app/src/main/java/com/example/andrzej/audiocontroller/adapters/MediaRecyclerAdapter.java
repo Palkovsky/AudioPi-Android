@@ -2,6 +2,7 @@ package com.example.andrzej.audiocontroller.adapters;
 
 
 import android.content.Context;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -9,6 +10,7 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.bignerdranch.expandablerecyclerview.Adapter.ExpandableRecyclerAdapter;
 import com.bignerdranch.expandablerecyclerview.Model.ParentListItem;
@@ -23,6 +25,7 @@ import com.example.andrzej.audiocontroller.models.Playlist;
 import com.example.andrzej.audiocontroller.utils.Image;
 import com.squareup.picasso.Picasso;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class MediaRecyclerAdapter extends ExpandableRecyclerAdapter<MediaRecyclerAdapter.PlaylistViewHolder, MediaRecyclerAdapter.TrackViewHolder> {
@@ -34,7 +37,7 @@ public class MediaRecyclerAdapter extends ExpandableRecyclerAdapter<MediaRecycle
     private OnChildItemLongClickListener onTrackLongClickListener;
     private OnMoreChildItemClickListener onMoreTrackItemClickListener;
 
-    public MediaRecyclerAdapter(Context context, List<Playlist> parentItemList) {
+    public MediaRecyclerAdapter(final Context context, final List<Playlist> parentItemList) {
         super(parentItemList);
         this.context = context;
         mInflater = LayoutInflater.from(context);
@@ -77,15 +80,16 @@ public class MediaRecyclerAdapter extends ExpandableRecyclerAdapter<MediaRecycle
 
     @Override
     public void onBindChildViewHolder(TrackViewHolder trackViewHolder, final int position, final Object childListItem) {
-        ExploreItem track = (ExploreItem) childListItem;
+        final ExploreItem track = (ExploreItem) childListItem;
         if (!track.isDirectory()) {
 
             //Listeners
             trackViewHolder.rootLayout.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
+                    int internalPos = calculateInternalPosition(track.getPlaylist(), track);
                     if (onTrackClickListener != null)
-                        onTrackClickListener.onChildItemClick(v, position, childListItem);
+                        onTrackClickListener.onChildItemClick(v, position, internalPos, track.getPlaylist());
                 }
             });
 
@@ -141,6 +145,18 @@ public class MediaRecyclerAdapter extends ExpandableRecyclerAdapter<MediaRecycle
                 trackViewHolder.albumArtistTv.setText(formattedArtistAlbum);
             }
         }
+    }
+
+    private int calculateInternalPosition(Playlist item, ExploreItem track) {
+        int internalPos = 0;
+
+        for (ExploreItem exploreItem : item.getTracks()) {
+            if (exploreItem.equals(track))
+                return internalPos;
+            internalPos++;
+        }
+
+        return internalPos;
     }
 
 

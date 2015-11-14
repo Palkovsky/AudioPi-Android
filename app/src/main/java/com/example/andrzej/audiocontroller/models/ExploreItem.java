@@ -11,8 +11,15 @@ public class ExploreItem {
     private String path;
     private String name;
     private String type;
+    private Playlist playlist;
     private Metadata metadata = new Metadata();
     private boolean directory;
+
+    public ExploreItem(){}
+
+    public ExploreItem(Playlist playlist) {
+        this.playlist = playlist;
+    }
 
     public String getPath() {
         return path;
@@ -77,5 +84,13 @@ public class ExploreItem {
         } catch (JSONException e) {
             e.printStackTrace();
         }
+    }
+
+    public Playlist getPlaylist() {
+        return playlist;
+    }
+
+    public void setPlaylist(Playlist playlist) {
+        this.playlist = playlist;
     }
 }

@@ -16,6 +16,9 @@ import android.widget.Toast;
 import com.example.andrzej.audiocontroller.R;
 import com.example.andrzej.audiocontroller.adapters.SectionsPagerAdapter;
 import com.example.andrzej.audiocontroller.interfaces.ExploreFragmentCommunicator;
+import com.example.andrzej.audiocontroller.interfaces.MediaCommunicator;
+import com.example.andrzej.audiocontroller.models.ExploreItem;
+import com.example.andrzej.audiocontroller.models.Playlist;
 import com.example.andrzej.audiocontroller.views.BackHandledFragment;
 
 import org.json.JSONObject;
@@ -25,7 +28,7 @@ import butterknife.Bind;
 import butterknife.ButterKnife;
 import me.relex.circleindicator.CircleIndicator;
 
-public class MainActivity extends AppCompatActivity implements View.OnClickListener, BackHandledFragment.BackHandlerInterface, ViewPager.OnPageChangeListener {
+public class MainActivity extends AppCompatActivity implements View.OnClickListener, BackHandledFragment.BackHandlerInterface, ViewPager.OnPageChangeListener, MediaCommunicator {
 
     private SectionsPagerAdapter mSectionsPagerAdapter;
     private BackHandledFragment selectedFragment;
@@ -55,6 +58,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         //Create section adapter
         mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
+
+        //Adapter listeners(actions from fragments)
+        mSectionsPagerAdapter.registerMediaCommunicator(this);
 
         // Set up the ViewPager with the sections adapter.
         mViewPager.setAdapter(mSectionsPagerAdapter);
@@ -107,4 +113,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         setSelectedFragment(null);
     }
 
+    @Override
+    public void onPlaylistStart(Playlist playlist, int position) {
+        Toast.makeText(this, "Startujemy: " + playlist.getName() + " POS: " + position, Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void onTrackStart(ExploreItem track) {
+        Toast.makeText(this, "Uruchomiono: " + track.getName(), Toast.LENGTH_SHORT).show();
+    }
 }

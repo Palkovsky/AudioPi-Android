@@ -1,13 +1,17 @@
 package com.example.andrzej.audiocontroller.models;
 
+import android.content.Context;
+
 import com.bignerdranch.expandablerecyclerview.Model.ParentListItem;
+import com.example.andrzej.audiocontroller.R;
 
 import java.util.List;
 
-public class Playlist implements ParentListItem{
+public class Playlist implements ParentListItem {
 
     private String name;
     private String coverUrl;
+    private String type;
     private int position;
     private List<ExploreItem> tracks;
 
@@ -41,7 +45,24 @@ public class Playlist implements ParentListItem{
     }
 
     public void setTracks(List<ExploreItem> tracks) {
+        for (ExploreItem track : tracks)
+            track.setPlaylist(this);
         this.tracks = tracks;
+    }
+
+    public String getType(Context context) {
+        if (type.equals("artist"))
+            return context.getString(R.string.artistSimple);
+        else if (type.equals("album"))
+            return context.getString(R.string.albumSimple);
+        else if (type.equals("genre"))
+            return context.getString(R.string.genreSimple);
+        else
+            return null;
+    }
+
+    public void setType(String type) {
+        this.type = type;
     }
 
     @Override
@@ -52,5 +73,9 @@ public class Playlist implements ParentListItem{
     @Override
     public boolean isInitiallyExpanded() {
         return false;
+    }
+
+    public String getType() {
+        return type;
     }
 }

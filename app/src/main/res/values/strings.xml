@@ -42,6 +42,9 @@
     <string name="time">Długość:</string>
     <string name="size">Waga:</string>
     <string name="path">Ścieżka:</string>
+    <string name="genreSimple">Gatunek</string>
+    <string name="albumSimple">Płyta</string>
+    <string name="artistSimple">Artysta</string>
     <string name="download_in_progress">Pobieranie</string>
     <string name="download_beg">Rozpoczęto pobieranie...</string>
     <string name="download_error">Wystąpił błąd podczas pobierania</string>

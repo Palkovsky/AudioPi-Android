@@ -36,6 +36,7 @@ import com.example.andrzej.audiocontroller.config.Sort;
 import com.example.andrzej.audiocontroller.handlers.ExploreManager;
 import com.example.andrzej.audiocontroller.interfaces.ExploreFragmentCommunicator;
 import com.example.andrzej.audiocontroller.interfaces.ExploreListener;
+import com.example.andrzej.audiocontroller.interfaces.MediaCommunicator;
 import com.example.andrzej.audiocontroller.interfaces.OnItemClickListener;
 import com.example.andrzej.audiocontroller.interfaces.OnLongItemClickListener;
 import com.example.andrzej.audiocontroller.interfaces.OnMoreItemClickListener;
@@ -83,6 +84,7 @@ public class ExploreFragment extends BackHandledFragment implements OnItemClickL
 
     //Communicator interface
     private ExploreFragmentCommunicator communicator;
+    private MediaCommunicator mediaCommunicator;
 
     //Datasets
     private List<ExploreItem> mDataset;
@@ -185,10 +187,15 @@ public class ExploreFragment extends BackHandledFragment implements OnItemClickL
     public void onItemClick(View v, int position) {
         ExploreItem item = mDataset.get(position);
 
-        if (item.isDirectory() && !isLoading) {
-            exploreManager.currentDirectory().setSavedState(mRecyclerView.getLayoutManager().onSaveInstanceState());
-            exploreManager.currentDirectory().setItems(mDataset);
-            exploreManager.goTo(exploreManager.currentPath() + item.getName() + "/");
+        if(!isLoading) {
+            if (item.isDirectory()) {
+                exploreManager.currentDirectory().setSavedState(mRecyclerView.getLayoutManager().onSaveInstanceState());
+                exploreManager.currentDirectory().setItems(mDataset);
+                exploreManager.goTo(exploreManager.currentPath() + item.getName() + "/");
+            }else{
+                if(mediaCommunicator != null)
+                    mediaCommunicator.onTrackStart(item);
+            }
         }
     }
 
@@ -507,6 +514,10 @@ public class ExploreFragment extends BackHandledFragment implements OnItemClickL
 
     public void registerCommunicator(ExploreFragmentCommunicator communicator) {
         this.communicator = communicator;
+    }
+
+    public void registerMediaCommunicator(MediaCommunicator mediaCommunicator) {
+        this.mediaCommunicator = mediaCommunicator;
     }
 
     private void showFileDialog(final ExploreItem item) {
