@@ -353,7 +353,7 @@ public class ExploreFragment extends BackHandledFragment implements OnItemClickL
         mRecyclerView.setVisibility(View.VISIBLE);
     }
 
-    private void queryPath(String path) {
+    private void queryPath(final String path) {
 
         if (!isLoading) {
             isLoading = true;
@@ -408,7 +408,7 @@ public class ExploreFragment extends BackHandledFragment implements OnItemClickL
                             exploreManager.currentDirectory().setItems(mDataset);
                             setNormalLayout();
                             if (communicator != null)
-                                communicator.onQuerySuccess(queryUrl, response);
+                                communicator.onQuerySuccess(queryUrl, path, response);
                         }
                         updatePathToolbar();
 
@@ -445,7 +445,7 @@ public class ExploreFragment extends BackHandledFragment implements OnItemClickL
             });
 
             if (communicator != null)
-                communicator.onQueryStart(queryUrl);
+                communicator.onQueryStart(queryUrl, path);
 
             request.setTag(TAG);
             requestQueue.add(request);

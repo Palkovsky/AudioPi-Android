@@ -12,11 +12,13 @@ public class Endpoints {
 
     public static final String URL_DATA = DOMAIN + "/data";
     public static final String URL_COVER = DOMAIN + "/file";
+    public static final String URL_PLAYLISTS = DOMAIN + "/all_playlists";
 
     //Query Params
     public static final String Q_PATH = "path=";
     public static final String Q_METADATA = "meta=";
     public static final String Q_SORT = "sort=";
+    public static final String Q_LOCAL = "local=";
 
     //Config
     public static final String CHARSET = "UTF-8";
@@ -37,6 +39,17 @@ public class Endpoints {
         return URL_COVER +
                 URL_CHAR_QUESTION +
                 Q_PATH + encodedPath;
+    }
+
+    public static String getPlaylistsUrl(String localPath, boolean local, int sort) {
+        String encodedPath = encodeString(localPath);
+        return URL_PLAYLISTS +
+                URL_CHAR_QUESTION +
+                Q_PATH + encodedPath +
+                URL_CHAR_AMEPERSAND +
+                Q_LOCAL + String.valueOf(local) +
+                URL_CHAR_AMEPERSAND +
+                Q_SORT + String.valueOf(sort);
     }
 
     public static String encodeString(String path) {

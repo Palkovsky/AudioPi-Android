@@ -66,7 +66,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
 
-
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
@@ -78,8 +77,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     @Override
     public void onBackPressed() {
-        if(selectedFragment == null || !selectedFragment.onBackPressed()){
-            if(mViewPager.getCurrentItem() != 0)
+        if (selectedFragment == null || !selectedFragment.onBackPressed()) {
+            if (mViewPager.getCurrentItem() == 2)
+                mViewPager.setCurrentItem(1, true);
+            else if (mViewPager.getCurrentItem() == 1)
                 mViewPager.setCurrentItem(0, true);
             else
                 super.onBackPressed();
@@ -94,10 +95,16 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
 
     @Override
-    public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {}
+    public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+    }
+
     @Override
-    public void onPageScrollStateChanged(int state) {}
+    public void onPageScrollStateChanged(int state) {
+    }
+
     @Override
-    public void onPageSelected(int position) {setSelectedFragment(null);}
+    public void onPageSelected(int position) {
+        setSelectedFragment(null);
+    }
 
 }

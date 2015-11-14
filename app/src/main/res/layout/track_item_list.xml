@@ -13,6 +13,7 @@
     android:orientation="horizontal">
 
     <ImageView
+        android:padding="4dp"
         android:layout_weight="5"
         android:id="@+id/coverIv"
         android:layout_width="@dimen/cover_child_size"

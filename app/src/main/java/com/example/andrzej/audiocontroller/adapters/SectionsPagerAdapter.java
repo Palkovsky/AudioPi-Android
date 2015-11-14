@@ -29,12 +29,12 @@ public class SectionsPagerAdapter extends FragmentPagerAdapter {
 
         exploreFragment.registerCommunicator(new ExploreFragmentCommunicator() {
             @Override
-            public void onQueryStart(String url) {
+            public void onQueryStart(String url, String path) {
 
             }
             @Override
-            public void onQuerySuccess(String url, JSONObject response) {
-
+            public void onQuerySuccess(String url, String path, JSONObject response) {
+                mediaFragment.queryPath(path);
             }
             @Override
             public void onQueryError(String url, int code) {

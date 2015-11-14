@@ -84,7 +84,7 @@ public class MediaRecyclerAdapter extends ExpandableRecyclerAdapter<MediaRecycle
             trackViewHolder.rootLayout.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    if(onTrackClickListener != null)
+                    if (onTrackClickListener != null)
                         onTrackClickListener.onChildItemClick(v, position, childListItem);
                 }
             });
@@ -92,7 +92,7 @@ public class MediaRecyclerAdapter extends ExpandableRecyclerAdapter<MediaRecycle
             trackViewHolder.rootLayout.setOnLongClickListener(new View.OnLongClickListener() {
                 @Override
                 public boolean onLongClick(View v) {
-                    if(onTrackLongClickListener != null)
+                    if (onTrackLongClickListener != null)
                         onTrackLongClickListener.onChildLongClickListener(v, position, childListItem);
                     return true;
                 }
@@ -101,7 +101,7 @@ public class MediaRecyclerAdapter extends ExpandableRecyclerAdapter<MediaRecycle
             trackViewHolder.moreBtn.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    if(onMoreTrackItemClickListener != null)
+                    if (onMoreTrackItemClickListener != null)
                         onMoreTrackItemClickListener.onMoreChildItemClick(v, position, childListItem);
                 }
             });
@@ -133,7 +133,8 @@ public class MediaRecyclerAdapter extends ExpandableRecyclerAdapter<MediaRecycle
 
 
             trackViewHolder.nameTv.setText(track.getName());
-            if (artist.equals(context.getString(R.string.unknown)) && album.equals(context.getString(R.string.unknown)))
+            if ((artist.equals(context.getString(R.string.unknown)) && album.equals(context.getString(R.string.unknown))) ||
+                    (artist.equals("null") && album.equals("null")))
                 trackViewHolder.albumArtistTv.setVisibility(View.GONE);
             else {
                 trackViewHolder.albumArtistTv.setVisibility(View.VISIBLE);
@@ -141,6 +142,7 @@ public class MediaRecyclerAdapter extends ExpandableRecyclerAdapter<MediaRecycle
             }
         }
     }
+
 
     public void setOnTrackClickListener(OnChildItemClickListener onTrackClickListener) {
         this.onTrackClickListener = onTrackClickListener;
