@@ -32,6 +32,7 @@
     <string name="filesize_format">%1$s MB</string>
     <string name="playlist_count_format">%1$s utworów</string>
     <string name="artist_album_format">%1$s - %2$s</string>
+
     <string name="unknown"><![CDATA[<nieznany>]]></string>
     <string name="back">Back</string>
     <string name="song">Song:</string>
@@ -45,4 +46,5 @@
     <string name="download_beg">Rozpoczęto pobieranie...</string>
     <string name="download_error">Wystąpił błąd podczas pobierania</string>
     <string name="file_downloaded">Pobieranie zakończone</string>
+    <string name="no_playlists_error">No playlists in current directory.</string>
 </resources>

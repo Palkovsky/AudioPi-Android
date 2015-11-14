@@ -342,7 +342,6 @@ public class ExploreFragment extends BackHandledFragment implements OnItemClickL
             else
                 errorTextView.setText(R.string.server_error);
 
-
         }
 
     }

@@ -27,6 +27,7 @@ import com.example.andrzej.audiocontroller.interfaces.OnChildItemLongClickListen
 import com.example.andrzej.audiocontroller.interfaces.OnMoreChildItemClickListener;
 import com.example.andrzej.audiocontroller.models.ExploreItem;
 import com.example.andrzej.audiocontroller.models.Playlist;
+import com.example.andrzej.audiocontroller.utils.network.Network;
 import com.example.andrzej.audiocontroller.utils.network.VolleySingleton;
 import com.example.andrzej.audiocontroller.views.BackHandledFragment;
 
@@ -120,10 +121,31 @@ public class MediaFragment extends BackHandledFragment implements PullRefreshLay
         return false;
     }
 
-    private void setUpErrorLayout(int code) {
+    public void setUpErrorLayout(int errorCode) {
         mProgressBar.setVisibility(View.GONE);
         mRecyclerView.setVisibility(View.VISIBLE);
         mErrorContainer.setVisibility(View.VISIBLE);
+
+        if (errorCode != Codes.SUCCESFULL) {
+            switch (errorCode) {
+                case Codes.INVALID_PATH:
+                    mPlaylists.clear();
+                    reInitRecycler();
+                    mErrorTextView.setText(R.string.invalid_path_error);
+                    break;
+                case Codes.EMPTY_DATASET:
+                    mErrorTextView.setText(R.string.no_playlists_error);
+                    break;
+            }
+        } else {
+            mPlaylists.clear();
+            reInitRecycler();
+            if (!Network.isNetworkAvailable(getActivity()))
+                mErrorTextView.setText(R.string.no_internet_error);
+            else
+                mErrorTextView.setText(R.string.server_error);
+
+        }
     }
 
     private void setUpNormalLayout() {
@@ -137,7 +159,7 @@ public class MediaFragment extends BackHandledFragment implements PullRefreshLay
         mProgressBar.setVisibility(View.VISIBLE);
     }
 
-    private void reInitRecycler(){
+    private void reInitRecycler() {
         mAdapter = new MediaRecyclerAdapter(getActivity(), mPlaylists);
         mRecyclerView.setAdapter(null);
         mRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
@@ -168,7 +190,7 @@ public class MediaFragment extends BackHandledFragment implements PullRefreshLay
 
     @Override
     public void onRefresh() {
-        if(!isLoading)
+        if (!isLoading)
             queryPath(currentPath);
     }
 
@@ -191,7 +213,7 @@ public class MediaFragment extends BackHandledFragment implements PullRefreshLay
                         code = response.getInt("code");
 
                         JSONArray playlists = response.getJSONArray("playlists");
-                        for(int i = 0; i < playlists.length(); i++){
+                        for (int i = 0; i < playlists.length(); i++) {
 
                             JSONObject playlist = playlists.getJSONObject(i);
                             Playlist item = new Playlist();
@@ -201,7 +223,7 @@ public class MediaFragment extends BackHandledFragment implements PullRefreshLay
                             JSONArray jsonTracks = playlist.getJSONArray("tracks");
                             List<ExploreItem> tracks = new ArrayList<>();
 
-                            for(int j = 0; j < jsonTracks.length(); j++){
+                            for (int j = 0; j < jsonTracks.length(); j++) {
                                 JSONObject track = jsonTracks.getJSONObject(j);
                                 ExploreItem exploreItem = new ExploreItem();
                                 exploreItem.setDirectory(false);
@@ -215,8 +237,12 @@ public class MediaFragment extends BackHandledFragment implements PullRefreshLay
                             mPlaylists.add(item);
                         }
 
+                        if (mPlaylists.size() == 0)
+                            setUpErrorLayout(Codes.EMPTY_DATASET);
+                        else
+                            setUpNormalLayout();
+
                         reInitRecycler();
-                        setUpNormalLayout();
                         mSwipeRefreshLayout.setRefreshing(false);
                         isLoading = false;
 

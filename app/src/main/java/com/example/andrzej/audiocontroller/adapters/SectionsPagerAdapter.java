@@ -38,7 +38,7 @@ public class SectionsPagerAdapter extends FragmentPagerAdapter {
             }
             @Override
             public void onQueryError(String url, int code) {
-
+                mediaFragment.setUpErrorLayout(code);
             }
         });
     }
