@@ -5,32 +5,31 @@ import android.app.DownloadManager;
 import android.content.Context;
 import android.net.Uri;
 import android.os.Environment;
+import android.view.View;
 import android.widget.Toast;
 
+import com.afollestad.materialdialogs.MaterialDialog;
 import com.example.andrzej.audiocontroller.MyApplication;
 import com.example.andrzej.audiocontroller.R;
 import com.example.andrzej.audiocontroller.config.Endpoints;
 import com.example.andrzej.audiocontroller.models.ExploreItem;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 public class Downloader {
 
-    public static void downloadFile(Context context, ExploreItem item) {
+
+    public static void downloadFile(final Context context, final ExploreItem item) {
 
         try {
-            File direct = new File(Environment.getExternalStorageDirectory()
-                    + "/" + context.getResources().getString(R.string.app_name));
-
-            if (!direct.exists()) {
-                direct.mkdirs();
-            }
 
             DownloadManager mgr = (DownloadManager) context.getSystemService(MyApplication.DOWNLOAD_SERVICE);
 
             String uRl = Endpoints.getFileUrl(item.getPath());
             String caption = item.getFormattedName();
-
 
             Uri downloadUri = Uri.parse(uRl);
             DownloadManager.Request request = new DownloadManager.Request(
@@ -59,10 +58,10 @@ public class Downloader {
                 request.setAllowedNetworkTypes(
                         DownloadManager.Request.NETWORK_WIFI
                                 | DownloadManager.Request.NETWORK_MOBILE)
-                        .setAllowedOverRoaming(false).setTitle(context.getString(R.string.download_in_progress))
+                        .setAllowedOverRoaming(true).setTitle(context.getString(R.string.download_in_progress))
                         .setDescription(caption)
                         .setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED)
-                        .setDestinationInExternalPublicDir(context.getResources().getString(R.string.app_name), filename);
+                        .setDestinationInExternalPublicDir(Environment.DIRECTORY_MUSIC, filename);
 
 
                 mgr.enqueue(request);
@@ -74,6 +73,7 @@ public class Downloader {
         } catch (IllegalStateException e) {
             Toast.makeText(context, context.getResources().getString(R.string.download_error), Toast.LENGTH_SHORT).show();
         }
+
 
     }
 }
