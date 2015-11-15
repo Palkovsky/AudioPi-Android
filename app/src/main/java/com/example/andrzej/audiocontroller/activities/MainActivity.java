@@ -15,14 +15,12 @@ import android.widget.Toast;
 
 import com.example.andrzej.audiocontroller.R;
 import com.example.andrzej.audiocontroller.adapters.SectionsPagerAdapter;
-import com.example.andrzej.audiocontroller.interfaces.ExploreFragmentCommunicator;
+import com.example.andrzej.audiocontroller.handlers.StreamManager;
 import com.example.andrzej.audiocontroller.interfaces.MediaCommunicator;
 import com.example.andrzej.audiocontroller.models.ExploreItem;
 import com.example.andrzej.audiocontroller.models.Playlist;
+import com.example.andrzej.audiocontroller.models.Track;
 import com.example.andrzej.audiocontroller.views.BackHandledFragment;
-
-import org.json.JSONObject;
-import org.w3c.dom.Text;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
@@ -30,6 +28,10 @@ import me.relex.circleindicator.CircleIndicator;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener, BackHandledFragment.BackHandlerInterface, ViewPager.OnPageChangeListener, MediaCommunicator {
 
+    //Objects
+    StreamManager streamManager;
+
+    //UI
     private SectionsPagerAdapter mSectionsPagerAdapter;
     private BackHandledFragment selectedFragment;
 
@@ -49,6 +51,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
+
+        //Objects init
+        streamManager = new StreamManager(this);
+
 
         setSupportActionBar(toolbar);
         if (getSupportActionBar() != null)
@@ -84,9 +90,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     public void onBackPressed() {
         if (selectedFragment == null || !selectedFragment.onBackPressed()) {
-            if (mViewPager.getCurrentItem() == 2)
-                mViewPager.setCurrentItem(1, true);
-            else if (mViewPager.getCurrentItem() == 1)
+            if (mViewPager.getCurrentItem() != 0)
                 mViewPager.setCurrentItem(0, true);
             else
                 super.onBackPressed();
@@ -115,11 +119,19 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     @Override
     public void onPlaylistStart(Playlist playlist, int position) {
-        Toast.makeText(this, "Startujemy: " + playlist.getName() + " POS: " + position, Toast.LENGTH_SHORT).show();
+        streamManager.setCurrentPlaylist(playlist, position);
+        streamManager.start(true);
+        updateUI();
     }
 
     @Override
-    public void onTrackStart(ExploreItem track) {
-        Toast.makeText(this, "Uruchomiono: " + track.getName(), Toast.LENGTH_SHORT).show();
+    public void onTrackStart(Track track) {
+        streamManager.setCurrentTrack(track);
+        streamManager.start(true);
+        updateUI();
+    }
+
+    private void updateUI(){
+        //TO DO
     }
 }

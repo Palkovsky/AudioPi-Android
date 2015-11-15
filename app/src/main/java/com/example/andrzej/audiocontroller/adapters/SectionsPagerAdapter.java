@@ -10,6 +10,7 @@ import com.example.andrzej.audiocontroller.interfaces.ExploreFragmentCommunicato
 import com.example.andrzej.audiocontroller.interfaces.MediaCommunicator;
 import com.example.andrzej.audiocontroller.models.ExploreItem;
 import com.example.andrzej.audiocontroller.models.Playlist;
+import com.example.andrzej.audiocontroller.models.Track;
 import com.example.andrzej.audiocontroller.views.BackHandledFragment;
 
 import org.json.JSONObject;
@@ -55,7 +56,7 @@ public class SectionsPagerAdapter extends FragmentPagerAdapter {
             }
 
             @Override
-            public void onTrackStart(ExploreItem track) {
+            public void onTrackStart(Track track) {
                 if (mediaCommunicator != null)
                     mediaCommunicator.onTrackStart(track);
             }
@@ -69,7 +70,7 @@ public class SectionsPagerAdapter extends FragmentPagerAdapter {
             }
 
             @Override
-            public void onTrackStart(ExploreItem track) {
+            public void onTrackStart(Track track) {
                 if(mediaCommunicator != null)
                     mediaCommunicator.onTrackStart(track);
             }

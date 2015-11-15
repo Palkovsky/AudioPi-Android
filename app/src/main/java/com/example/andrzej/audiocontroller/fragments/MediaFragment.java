@@ -26,8 +26,8 @@ import com.example.andrzej.audiocontroller.interfaces.MediaCommunicator;
 import com.example.andrzej.audiocontroller.interfaces.OnChildItemClickListener;
 import com.example.andrzej.audiocontroller.interfaces.OnChildItemLongClickListener;
 import com.example.andrzej.audiocontroller.interfaces.OnMoreChildItemClickListener;
-import com.example.andrzej.audiocontroller.models.ExploreItem;
 import com.example.andrzej.audiocontroller.models.Playlist;
+import com.example.andrzej.audiocontroller.models.Track;
 import com.example.andrzej.audiocontroller.utils.network.Network;
 import com.example.andrzej.audiocontroller.utils.network.VolleySingleton;
 import com.example.andrzej.audiocontroller.views.BackHandledFragment;
@@ -178,14 +178,14 @@ public class MediaFragment extends BackHandledFragment implements PullRefreshLay
         mAdapter.setOnTrackLongClickListener(new OnChildItemLongClickListener() {
             @Override
             public void onChildLongClickListener(View v, int position, Object obj) {
-                ExploreItem item = (ExploreItem) obj;
+                Track item = (Track) obj;
                 Toast.makeText(getActivity(), "POKAZ MENIU | POS: " + position + " - " + item.getName(), Toast.LENGTH_SHORT).show();
             }
         });
         mAdapter.setOnMoreTrackItemClickListener(new OnMoreChildItemClickListener() {
             @Override
             public void onMoreChildItemClick(View v, int position, Object obj) {
-                ExploreItem item = (ExploreItem) obj;
+                Track item = (Track) obj;
                 Toast.makeText(getActivity(), "POKAZ MENIU | POS: " + position + " - " + item.getName(), Toast.LENGTH_SHORT).show();
             }
         });
@@ -226,12 +226,11 @@ public class MediaFragment extends BackHandledFragment implements PullRefreshLay
                             item.setType(playlist.getString("type"));
 
                             JSONArray jsonTracks = playlist.getJSONArray("tracks");
-                            List<ExploreItem> tracks = new ArrayList<>();
+                            List<Track> tracks = new ArrayList<>();
 
                             for (int j = 0; j < jsonTracks.length(); j++) {
                                 JSONObject track = jsonTracks.getJSONObject(j);
-                                ExploreItem exploreItem = new ExploreItem();
-                                exploreItem.setDirectory(false);
+                                Track exploreItem = new Track();
                                 exploreItem.setName(track.getString("basename"));
                                 exploreItem.setPath(track.getString("full"));
                                 exploreItem.setJSONMetadata(track);

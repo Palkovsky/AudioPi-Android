@@ -42,6 +42,7 @@ import com.example.andrzej.audiocontroller.interfaces.OnLongItemClickListener;
 import com.example.andrzej.audiocontroller.interfaces.OnMoreItemClickListener;
 import com.example.andrzej.audiocontroller.models.ExploreItem;
 import com.example.andrzej.audiocontroller.models.Metadata;
+import com.example.andrzej.audiocontroller.utils.Converter;
 import com.example.andrzej.audiocontroller.utils.Dialog;
 import com.example.andrzej.audiocontroller.utils.Image;
 import com.example.andrzej.audiocontroller.utils.network.Downloader;
@@ -194,7 +195,7 @@ public class ExploreFragment extends BackHandledFragment implements OnItemClickL
                 exploreManager.goTo(exploreManager.currentPath() + item.getName() + "/");
             }else{
                 if(mediaCommunicator != null)
-                    mediaCommunicator.onTrackStart(item);
+                    mediaCommunicator.onTrackStart(Converter.exploreItemToTrack(item));
             }
         }
     }

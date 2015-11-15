@@ -13,7 +13,7 @@ public class Playlist implements ParentListItem {
     private String coverUrl;
     private String type;
     private int position;
-    private List<ExploreItem> tracks;
+    private List<Track> tracks;
 
 
     public String getName() {
@@ -32,7 +32,7 @@ public class Playlist implements ParentListItem {
         this.coverUrl = coverUrl;
     }
 
-    public int getPosition() {
+    public int position() {
         return position;
     }
 
@@ -40,11 +40,11 @@ public class Playlist implements ParentListItem {
         this.position = position;
     }
 
-    public List<ExploreItem> getTracks() {
+    public List<Track> getTracks() {
         return tracks;
     }
 
-    public void setTracks(List<ExploreItem> tracks) {
+    public void setTracks(List<Track> tracks) {
         for (ExploreItem track : tracks)
             track.setPlaylist(this);
         this.tracks = tracks;
@@ -66,7 +66,7 @@ public class Playlist implements ParentListItem {
     }
 
     @Override
-    public List<ExploreItem> getChildItemList() {
+    public List<Track> getChildItemList() {
         return tracks;
     }
 
@@ -77,5 +77,21 @@ public class Playlist implements ParentListItem {
 
     public String getType() {
         return type;
+    }
+
+    public boolean canGoNext() {
+        return tracks.size() > 0 && position < tracks.size() - 1;
+    }
+
+    public boolean canGoPrev() {
+        return tracks.size() > 0 && position > 0;
+    }
+
+    public void next(){
+        position++;
+    }
+
+    public void prev(){
+        position--;
     }
 }

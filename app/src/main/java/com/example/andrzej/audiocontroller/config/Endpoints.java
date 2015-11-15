@@ -17,6 +17,7 @@ public class Endpoints {
     public static final String URL_PLAYBACK = DOMAIN + "/track/playback";
     public static final String URL_PAUSE = DOMAIN + "/track/pause";
     public static final String URL_UNPAUSE = DOMAIN + "/track/unpause";
+    public static final String URL_SMARTPAUSE = DOMAIN + "/track/smartpause";
     public static final String URL_REWIND = DOMAIN + "/track/rewind";
     public static final String URL_STOP = DOMAIN + "/flush";
     public static final String URL_VOLUME = DOMAIN + "/volume";
@@ -33,7 +34,7 @@ public class Endpoints {
     //Config
     public static final String CHARSET = "UTF-8";
 
-    public static String getPlayUrl(String path, boolean terminate){
+    public static String getPlayUrl(String path, boolean terminate) {
         String encodedPath = encodeString(path);
         return URL_PLAY +
                 URL_CHAR_QUESTION +
@@ -42,7 +43,7 @@ public class Endpoints {
                 Q_TERMINATE + String.valueOf(terminate);
     }
 
-    public static String getRewindUrl(int seconds, boolean unpause){
+    public static String getRewindUrl(int seconds, boolean unpause) {
         return URL_REWIND +
                 URL_CHAR_QUESTION +
                 Q_POSITION + String.valueOf(seconds) +
@@ -50,16 +51,20 @@ public class Endpoints {
                 Q_UNPAUSE + String.valueOf(unpause);
     }
 
-    public static String getPlaybackUrl(){
+    public static String getPlaybackUrl() {
         return URL_PLAYBACK;
     }
 
-    public static String getPauseUrl(){
+    public static String getPauseUrl() {
         return URL_PAUSE;
     }
 
-    public static String getUnpauseUrl(){
+    public static String getUnpauseUrl() {
         return URL_UNPAUSE;
+    }
+
+    public static String getSmartpauseUrl() {
+        return URL_SMARTPAUSE;
     }
 
     public static String getDataUrl(String path, boolean withMetadata, int sort) {
@@ -91,11 +96,11 @@ public class Endpoints {
                 Q_SORT + String.valueOf(sort);
     }
 
-    public static String getFlushUrl(){
+    public static String getFlushUrl() {
         return URL_STOP;
     }
 
-    public static String getVolumeUrl(){
+    public static String getVolumeUrl() {
         return URL_VOLUME;
     }
 

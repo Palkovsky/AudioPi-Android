@@ -20,8 +20,8 @@ import com.example.andrzej.audiocontroller.R;
 import com.example.andrzej.audiocontroller.interfaces.OnChildItemClickListener;
 import com.example.andrzej.audiocontroller.interfaces.OnChildItemLongClickListener;
 import com.example.andrzej.audiocontroller.interfaces.OnMoreChildItemClickListener;
-import com.example.andrzej.audiocontroller.models.ExploreItem;
 import com.example.andrzej.audiocontroller.models.Playlist;
+import com.example.andrzej.audiocontroller.models.Track;
 import com.example.andrzej.audiocontroller.utils.Image;
 import com.squareup.picasso.Picasso;
 
@@ -80,7 +80,7 @@ public class MediaRecyclerAdapter extends ExpandableRecyclerAdapter<MediaRecycle
 
     @Override
     public void onBindChildViewHolder(TrackViewHolder trackViewHolder, final int position, final Object childListItem) {
-        final ExploreItem track = (ExploreItem) childListItem;
+        final Track track = (Track) childListItem;
         if (!track.isDirectory()) {
 
             //Listeners
@@ -147,10 +147,10 @@ public class MediaRecyclerAdapter extends ExpandableRecyclerAdapter<MediaRecycle
         }
     }
 
-    private int calculateInternalPosition(Playlist item, ExploreItem track) {
+    private int calculateInternalPosition(Playlist item, Track track) {
         int internalPos = 0;
 
-        for (ExploreItem exploreItem : item.getTracks()) {
+        for (Track exploreItem : item.getTracks()) {
             if (exploreItem.equals(track))
                 return internalPos;
             internalPos++;
