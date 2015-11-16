@@ -21,6 +21,7 @@ public class Endpoints {
     public static final String URL_REWIND = DOMAIN + "/track/rewind";
     public static final String URL_STOP = DOMAIN + "/flush";
     public static final String URL_VOLUME = DOMAIN + "/volume";
+    public static final String URL_ALIVE = DOMAIN + "/track/alive";
 
     //Query Params
     public static final String Q_PATH = "path=";
@@ -53,6 +54,10 @@ public class Endpoints {
 
     public static String getPlaybackUrl() {
         return URL_PLAYBACK;
+    }
+
+    public static String getAliveUrl(){
+        return URL_ALIVE;
     }
 
     public static String getPauseUrl() {

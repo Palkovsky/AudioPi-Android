@@ -134,7 +134,7 @@ public class StreamRequester {
         requestQueue.add(request);
     }
 
-    public void pauseStream(){
+    public void pauseStream() {
         String queryUrl = Endpoints.getPauseUrl();
 
         JsonObjectRequest request = new JsonObjectRequest(Request.Method.GET, queryUrl, new Response.Listener<JSONObject>() {
@@ -155,7 +155,7 @@ public class StreamRequester {
         requestQueue.add(request);
     }
 
-    public void unpauseStream(){
+    public void unpauseStream() {
         String queryUrl = Endpoints.getUnpauseUrl();
 
         JsonObjectRequest request = new JsonObjectRequest(Request.Method.GET, queryUrl, new Response.Listener<JSONObject>() {

@@ -30,6 +30,8 @@
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBarSlidr" >
         </activity>
+
+        <service android:name=".services.StreamService"/>
     </application>
 
 </manifest>
