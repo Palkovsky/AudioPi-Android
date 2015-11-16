@@ -75,7 +75,7 @@ public class ExploreRecyclerAdapter extends RecyclerView.Adapter<ExploreRecycler
         Image.clearDrawable(holder.iconIv);
 
         if (item.isDirectory())
-            Image.setDrawable(context, holder.iconIv, R.drawable.ic_folder_black_48dp);
+            Image.setSourceDrawable(context, holder.iconIv, R.drawable.ic_folder_black_48dp);
         else if (item.getMetadata().getCoverUrl() != null) {
             Picasso.with(context).load(item.getMetadata().getCoverUrl()).
                     placeholder(R.drawable.ic_insert_drive_file_black_48dp).
@@ -83,7 +83,7 @@ public class ExploreRecyclerAdapter extends RecyclerView.Adapter<ExploreRecycler
                     fit().
                     into(holder.iconIv);
         } else
-            Image.setDrawable(context, holder.iconIv, R.drawable.ic_insert_drive_file_black_48dp);
+            Image.setSourceDrawable(context, holder.iconIv, R.drawable.ic_insert_drive_file_black_48dp);
 
     }
 

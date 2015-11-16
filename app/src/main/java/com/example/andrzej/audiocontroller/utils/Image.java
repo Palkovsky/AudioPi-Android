@@ -9,11 +9,19 @@ import android.widget.ImageView;
 
 public class Image {
 
-    public static void setDrawable(Context context, ImageView imageView, int id) {
+    public static void setBackgroundDrawable(Context context, ImageView imageView, int id) {
         if (android.os.Build.VERSION.SDK_INT < android.os.Build.VERSION_CODES.JELLY_BEAN)
             imageView.setBackgroundDrawable(getDrawable(context, id));
         else
             imageView.setBackground(getDrawable(context, id));
+    }
+
+    public static void setSourceDrawable(Context context, ImageView imageView, int redId){
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            imageView.setImageDrawable(context.getResources().getDrawable(redId, context.getTheme()));
+        } else {
+            imageView.setImageDrawable(context.getResources().getDrawable(redId));
+        }
     }
 
     public static void clearDrawable(ImageView imageView){

@@ -2,7 +2,6 @@ package com.example.andrzej.audiocontroller.adapters;
 
 
 import android.content.Context;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -10,7 +9,6 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.bignerdranch.expandablerecyclerview.Adapter.ExpandableRecyclerAdapter;
 import com.bignerdranch.expandablerecyclerview.Model.ParentListItem;
@@ -25,7 +23,6 @@ import com.example.andrzej.audiocontroller.models.Track;
 import com.example.andrzej.audiocontroller.utils.Image;
 import com.squareup.picasso.Picasso;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class MediaRecyclerAdapter extends ExpandableRecyclerAdapter<MediaRecyclerAdapter.PlaylistViewHolder, MediaRecyclerAdapter.TrackViewHolder> {
@@ -70,7 +67,7 @@ public class MediaRecyclerAdapter extends ExpandableRecyclerAdapter<MediaRecycle
             Picasso.with(context).load(playlist.getCoverUrl()).placeholder(R.drawable.ic_library_music_black_36dp).
                     error(R.drawable.ic_library_music_black_36dp).into(playlistViewHolder.coverIv);
         else
-            Image.setDrawable(context, playlistViewHolder.coverIv, R.drawable.ic_library_music_black_36dp);
+            Image.setBackgroundDrawable(context, playlistViewHolder.coverIv, R.drawable.ic_library_music_black_36dp);
 
         playlistViewHolder.nameTv.setText(playlist.getName());
         playlistViewHolder.tracksCountTv.setText((String.format(context.getResources().getString(R.string.playlist_count_format),
@@ -119,7 +116,7 @@ public class MediaRecyclerAdapter extends ExpandableRecyclerAdapter<MediaRecycle
                 Picasso.with(context).load(coverUrl).placeholder(R.drawable.ic_music_note_black_36dp).
                         error(R.drawable.ic_music_note_black_36dp).into(trackViewHolder.coverIv);
             else
-                Image.setDrawable(context, trackViewHolder.coverIv, R.drawable.ic_music_note_black_36dp);
+                Image.setBackgroundDrawable(context, trackViewHolder.coverIv, R.drawable.ic_music_note_black_36dp);
 
 
             String artist, album;

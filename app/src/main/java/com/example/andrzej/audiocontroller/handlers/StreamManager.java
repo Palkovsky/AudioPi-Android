@@ -8,6 +8,7 @@ import android.widget.Toast;
 
 import com.android.volley.VolleyError;
 import com.example.andrzej.audiocontroller.R;
+import com.example.andrzej.audiocontroller.interfaces.MediaCallback;
 import com.example.andrzej.audiocontroller.interfaces.StreamListener;
 import com.example.andrzej.audiocontroller.models.Playlist;
 import com.example.andrzej.audiocontroller.models.Track;
@@ -25,6 +26,7 @@ public class StreamManager implements StreamListener {
     private StreamRequester streamRequester;
     private Context context;
     private ServiceManager serviceManager;
+    private MediaCallback mediaCallback;
 
     public StreamManager(final Context context) {
         this.context = context;
@@ -55,25 +57,33 @@ public class StreamManager implements StreamListener {
 
         serviceManager.stop();
         serviceManager.start();
+
+        if(mediaCallback != null)
+            mediaCallback.onMediaStart();
     }
 
     @Override
     public void onStreamStop(JSONObject response) {
-        currentTrack.setPlaying(false);
-        currentTrack.setPaused(true);
+        currentTrack = null;
         serviceManager.stop();
+        if(mediaCallback != null)
+            mediaCallback.onMediaStop();
     }
 
     @Override
     public void onStreamPause(JSONObject response) {
         currentTrack.setPaused(true);
         serviceManager.stop();
+        if(mediaCallback != null)
+            mediaCallback.onMediaPause();
     }
 
     @Override
     public void onStreamUnpause(JSONObject response) {
         currentTrack.setPaused(false);
         serviceManager.start();
+        if(mediaCallback != null)
+            mediaCallback.onMediaUnpause();
     }
 
     @Override
@@ -81,6 +91,8 @@ public class StreamManager implements StreamListener {
         try {
             float pos = response.getInt("newPosition");
             currentTrack.setMilliPosSecs(pos);
+            if(mediaCallback != null)
+                mediaCallback.onMediaRewind(pos);
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -94,7 +106,13 @@ public class StreamManager implements StreamListener {
             Toast.makeText(context, R.string.no_internet_error, Toast.LENGTH_SHORT).show();
     }
 
-    private void handleTrackEnd(){}
+    private void handleTrackEnd(){
+        //This is the place to specify different reproduction methods, like:
+        //repeat, shuffle, end etc.
+        currentTrack = null;
+        if(mediaCallback != null)
+            mediaCallback.onMediaStop();
+    }
 
 
     public void start(boolean terminate) {
@@ -172,4 +190,7 @@ public class StreamManager implements StreamListener {
         this.currentTrack = currentPlaylist.getTracks().get(position);
     }
 
+    public void registerMediaListener(MediaCallback mediaCallback) {
+        this.mediaCallback = mediaCallback;
+    }
 }
