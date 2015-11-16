@@ -177,7 +177,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         streamManager.start(true);
         updateUI();
     }
-
     @Override
     public void onTrackStart(Track track) {
         streamManager.setCurrentTrack(track);
@@ -214,7 +213,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private void updateUI(){
         Track currentTrack = streamManager.getCurrentTrack();
         if(currentTrack == null){
-            Image.setBackgroundDrawable(this, miniCoverIv, R.drawable.ic_music_note_black_36dp);
+            Image.setSourceDrawable(this, miniCoverIv, R.drawable.ic_music_note_black_36dp);
             miniArtistName.setText("- - - - - -");
             miniTrackTitle.setText("- - - - - -");
         }else{
