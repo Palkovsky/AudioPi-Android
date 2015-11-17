@@ -21,7 +21,6 @@
             android:ellipsize="marquee"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:text="@string/ipsum"
             android:layout_gravity="center"
             android:textColor="@android:color/white"
             android:textSize="@dimen/toolbarTitleLargeFontSize"/>

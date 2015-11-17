@@ -1,0 +1,10 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:appcompat="http://schemas.android.com/apk/res-auto"
+    xmlns:hmkcode="http://schemas.android.com/apk/res-auto">
+
+    <item
+        android:id="@+id/menu_playlist"
+        android:title="@string/menu_playlist"
+        android:icon="@drawable/ic_format_list_bulleted_white_24dp"
+        appcompat:showAsAction="ifRoom"/>
+</menu>
