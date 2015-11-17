@@ -1,15 +1,22 @@
 package com.example.andrzej.audiocontroller.handlers;
 
-
+import android.content.ComponentName;
 import android.content.Context;
+import android.content.Intent;
+import android.media.AudioManager;
 import android.os.Handler;
 import android.os.Message;
+import android.support.v4.media.MediaMetadataCompat;
+import android.support.v4.media.session.MediaSessionCompat;
+import android.support.v4.media.session.PlaybackStateCompat;
+import android.util.Log;
 import android.widget.Toast;
 
 import com.android.volley.VolleyError;
 import com.example.andrzej.audiocontroller.R;
 import com.example.andrzej.audiocontroller.interfaces.MediaCallback;
 import com.example.andrzej.audiocontroller.interfaces.StreamListener;
+import com.example.andrzej.audiocontroller.models.Metadata;
 import com.example.andrzej.audiocontroller.models.Playlist;
 import com.example.andrzej.audiocontroller.models.Track;
 import com.example.andrzej.audiocontroller.services.StreamService;
@@ -19,7 +26,7 @@ import com.example.andrzej.audiocontroller.utils.network.Network;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-public class StreamManager implements StreamListener {
+public class StreamManager extends MediaSessionCompat.Callback implements StreamListener {
 
     private Track currentTrack;
     private Playlist currentPlaylist;
@@ -27,6 +34,7 @@ public class StreamManager implements StreamListener {
     private Context context;
     private ServiceManager serviceManager;
     private MediaCallback mediaCallback;
+
 
     public StreamManager(final Context context) {
         this.context = context;
@@ -36,11 +44,17 @@ public class StreamManager implements StreamListener {
         serviceManager = new ServiceManager(context, StreamService.class, new Handler() {
             @Override
             public void handleMessage(Message msg) {
-                Toast.makeText(context, "Koniec", Toast.LENGTH_SHORT).show();
-                serviceManager.stop();
-                handleTrackEnd();
+                if(msg.what == StreamService.MSG_VALUE) {
+                    Toast.makeText(context, "Koniec", Toast.LENGTH_SHORT).show();
+                    serviceManager.stop();
+                    handleTrackEnd();
+                }else{
+                    if(currentTrack != null)
+                        currentTrack.setMilliPosSecs(msg.arg1);
+                }
             }
         });
+
     }
 
     @Override
@@ -48,6 +62,8 @@ public class StreamManager implements StreamListener {
         currentTrack.setPlaying(true);
         currentTrack.setPaused(false);
         currentTrack.setMilliPosSecs(0);
+
+
         try {
             float total = response.getInt("total");
             currentTrack.setMilliTotalSecs(total);
@@ -55,10 +71,11 @@ public class StreamManager implements StreamListener {
             e.printStackTrace();
         }
 
+
         serviceManager.stop();
         serviceManager.start();
 
-        if(mediaCallback != null)
+        if (mediaCallback != null)
             mediaCallback.onMediaStart();
     }
 
@@ -67,7 +84,7 @@ public class StreamManager implements StreamListener {
         currentPlaylist = null;
         currentTrack = null;
         serviceManager.stop();
-        if(mediaCallback != null)
+        if (mediaCallback != null)
             mediaCallback.onMediaStop();
     }
 
@@ -75,7 +92,7 @@ public class StreamManager implements StreamListener {
     public void onStreamPause(JSONObject response) {
         currentTrack.setPaused(true);
         serviceManager.stop();
-        if(mediaCallback != null)
+        if (mediaCallback != null)
             mediaCallback.onMediaPause();
     }
 
@@ -83,7 +100,7 @@ public class StreamManager implements StreamListener {
     public void onStreamUnpause(JSONObject response) {
         currentTrack.setPaused(false);
         serviceManager.start();
-        if(mediaCallback != null)
+        if (mediaCallback != null)
             mediaCallback.onMediaUnpause();
     }
 
@@ -92,7 +109,7 @@ public class StreamManager implements StreamListener {
         try {
             float pos = response.getInt("newPosition");
             currentTrack.setMilliPosSecs(pos);
-            if(mediaCallback != null)
+            if (mediaCallback != null)
                 mediaCallback.onMediaRewind(pos);
         } catch (JSONException e) {
             e.printStackTrace();
@@ -107,16 +124,16 @@ public class StreamManager implements StreamListener {
             Toast.makeText(context, R.string.no_internet_error, Toast.LENGTH_SHORT).show();
     }
 
-    private void handleTrackEnd(){
+    private void handleTrackEnd() {
         //This is the place to specify different reproduction methods, like:
         //repeat, shuffle, end etc.
-        if(currentPlaylist != null && currentPlaylist.canGoNext())
+        if (currentPlaylist != null && currentPlaylist.canGoNext())
             nextTrack();
         else {
             currentPlaylist = null;
             currentTrack = null;
         }
-        if(mediaCallback != null)
+        if (mediaCallback != null)
             mediaCallback.onMediaStop();
     }
 
@@ -199,5 +216,28 @@ public class StreamManager implements StreamListener {
 
     public void registerMediaListener(MediaCallback mediaCallback) {
         this.mediaCallback = mediaCallback;
+    }
+
+    private MediaMetadataCompat grabMetadata() {
+        if (currentTrack != null) {
+            Metadata metadata = currentTrack.getMetadata();
+            return new MediaMetadataCompat.Builder()
+                    .putString(MediaMetadataCompat.METADATA_KEY_ALBUM, metadata.getAlbum())
+                    .putString(MediaMetadataCompat.METADATA_KEY_ALBUM_ART_URI, metadata.getCoverUrl())
+                    .putString(MediaMetadataCompat.METADATA_KEY_ARTIST, metadata.getArtist())
+                    .putString(MediaMetadataCompat.METADATA_KEY_GENRE, metadata.getGenre())
+                    .build();
+
+        }
+        return null;
+    }
+
+    private PlaybackStateCompat getStateCompat(){
+        return new PlaybackStateCompat.Builder()
+                .setActions(
+                        PlaybackStateCompat.ACTION_SKIP_TO_PREVIOUS |
+                        PlaybackStateCompat.ACTION_PAUSE |
+                        PlaybackStateCompat.ACTION_SKIP_TO_NEXT)
+                .build();
     }
 }

@@ -22,6 +22,7 @@ public class StreamService extends AbstractService {
 
     private static final String REQUEST_TAG = "REQUEST_ALIVE_TAG";
     public static final int MSG_VALUE = 1;
+    public static final int MSG_POS_UPDATE = 2;
     private static final int REFRESH_INTERVAL = 1000;
 
     final Handler handler = new Handler();
@@ -35,19 +36,22 @@ public class StreamService extends AbstractService {
             public void run() {
                 try {
                     final RequestQueue requestQueue = VolleySingleton.getsInstance().getRequestQueue();
-                    final String queryUrl = Endpoints.getAliveUrl();
+                    final String queryUrl = Endpoints.getPlaybackUrl();
 
                     requestQueue.cancelAll(REQUEST_TAG);
                     JsonObjectRequest request = new JsonObjectRequest(Request.Method.GET, queryUrl, new Response.Listener<JSONObject>() {
                         @Override
                         public void onResponse(JSONObject response) {
                             try {
-                                boolean alive = response.getBoolean("state");
-                                if (!alive) {
-                                    send(Message.obtain(null, MSG_VALUE, 666, 0));
+                                int code = response.getInt("code");
+                                if (code == 1015) {
+                                    send(Message.obtain(null, MSG_VALUE, -1, 0));
                                     Log.e(null, "DED");
-                                } else
+                                } else {
+                                    int curTime = response.getJSONObject("playback").getJSONObject("position").getInt("millis");
+                                    send(Message.obtain(null, MSG_POS_UPDATE, curTime, 0));
                                     Log.e(null, "PLAYING!!");
+                                }
                             } catch (JSONException e) {
                                 e.printStackTrace();
                             }

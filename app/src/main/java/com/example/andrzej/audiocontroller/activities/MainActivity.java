@@ -14,6 +14,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.andrzej.audiocontroller.MyApplication;
 import com.example.andrzej.audiocontroller.R;
 import com.example.andrzej.audiocontroller.adapters.SectionsPagerAdapter;
 import com.example.andrzej.audiocontroller.handlers.StreamManager;
@@ -31,9 +32,6 @@ import butterknife.ButterKnife;
 import me.relex.circleindicator.CircleIndicator;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener, BackHandledFragment.BackHandlerInterface, ViewPager.OnPageChangeListener, MediaCommunicator, MediaCallback, View.OnLongClickListener {
-
-    //Objects
-    StreamManager streamManager;
 
     //UI
     private SectionsPagerAdapter mSectionsPagerAdapter;
@@ -66,10 +64,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
 
-        //Objects init
-        streamManager = new StreamManager(this);
-
-
         setSupportActionBar(toolbar);
         if (getSupportActionBar() != null)
             getSupportActionBar().setTitle(null);
@@ -94,12 +88,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         nextTrackBtn.setOnClickListener(this);
         bottomToolbar.setOnClickListener(this);
         bottomToolbar.setOnLongClickListener(this);
-        streamManager.registerMediaListener(this);
     }
 
     @Override
     protected void onResume() {
         super.onResume();
+        MyApplication.streamManager.registerMediaListener(this);
         updateUI();
     }
 
@@ -107,25 +101,25 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.miniPlayBtn:
-                Track currentTrack = streamManager.getCurrentTrack();
+                Track currentTrack = MyApplication.streamManager.getCurrentTrack();
                 if(currentTrack != null) {
                     if(currentTrack.isPaused())
-                        streamManager.unpause();
+                        MyApplication.streamManager.unpause();
                     else
-                        streamManager.pause();
+                        MyApplication.streamManager.pause();
                 }
                 setUpButtons();
                 break;
             case R.id.miniPrevTrackBtn:
-                if(streamManager.getCurrentPlaylist() != null && streamManager.getCurrentPlaylist()
+                if(MyApplication.streamManager.getCurrentPlaylist() != null && MyApplication.streamManager.getCurrentPlaylist()
                         .canGoPrev())
-                    streamManager.prevTrack();
+                    MyApplication.streamManager.prevTrack();
                 setUpButtons();
                 break;
             case R.id.miniNextTrackBtn:
-                if(streamManager.getCurrentPlaylist() != null && streamManager.getCurrentPlaylist()
+                if(MyApplication.streamManager.getCurrentPlaylist() != null && MyApplication.streamManager.getCurrentPlaylist()
                         .canGoNext())
-                    streamManager.nextTrack();
+                    MyApplication.streamManager.nextTrack();
                 setUpButtons();
                 break;
             case R.id.bottom_toolbar:
@@ -138,7 +132,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     public boolean onLongClick(View v) {
         switch (v.getId()){
             case R.id.bottom_toolbar:
-                streamManager.flush();
+                MyApplication.streamManager.flush();
                 return true;
         }
         return false;
@@ -177,14 +171,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     //These two methods are fired when some track/playlist is clicked
     @Override
     public void onPlaylistStart(Playlist playlist, int position) {
-        streamManager.setCurrentPlaylist(playlist, position);
-        streamManager.start(true);
+        MyApplication.streamManager.setCurrentPlaylist(playlist, position);
+        MyApplication.streamManager.start(true);
         updateUI();
     }
     @Override
     public void onTrackStart(Track track) {
-        streamManager.setCurrentTrack(track);
-        streamManager.start(true);
+        MyApplication.streamManager.setCurrentTrack(track);
+        MyApplication.streamManager.start(true);
         updateUI();
     }
 
@@ -215,7 +209,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     private void updateUI(){
-        Track currentTrack = streamManager.getCurrentTrack();
+        Track currentTrack = MyApplication.streamManager.getCurrentTrack();
         if(currentTrack == null){
             Image.setSourceDrawable(this, miniCoverIv, R.drawable.ic_music_note_black_36dp);
             miniArtistName.setText("- - - - - -");
@@ -241,8 +235,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     private void setUpButtons(){
-        Track currentTrack = streamManager.getCurrentTrack();
-        Playlist currentPlaylist = streamManager.getCurrentPlaylist();
+        Track currentTrack = MyApplication.streamManager.getCurrentTrack();
+        Playlist currentPlaylist = MyApplication.streamManager.getCurrentPlaylist();
         if(currentTrack == null){
             Image.setSourceDrawable(this, playPauseBtn, R.drawable.ic_pause_black_48dp);
             playPauseBtn.setEnabled(false);
