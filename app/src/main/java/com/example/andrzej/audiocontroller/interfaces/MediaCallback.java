@@ -7,4 +7,5 @@ public interface MediaCallback {
     void onMediaPause();
     void onMediaUnpause();
     void onMediaStop();
+    void onMediaUpdate();
 }

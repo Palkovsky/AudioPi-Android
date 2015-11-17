@@ -46,7 +46,6 @@
                 android:layout_width="300dp"
                 android:layout_height="300dp"
                 android:layout_centerInParent="true"
-                android:background="@drawable/sample_cover"
                 android:layout_marginTop="122dp"/>
 
         </RelativeLayout>
@@ -100,7 +99,7 @@
                     android:gravity="center"
                     android:orientation="horizontal">
 
-                    <ImageButton
+                    <com.example.andrzej.audiocontroller.views.BlankingImageButton
                         android:id="@+id/prevTrackBtn"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
@@ -109,14 +108,14 @@
                         android:background="@drawable/image_button_background"
                         android:src="@drawable/ic_skip_previous_black_36dp" />
 
-                    <ImageButton
+                    <com.example.andrzej.audiocontroller.views.BlankingImageButton
                         android:id="@+id/mainPlayBtn"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:background="@drawable/image_button_background"
                         android:src="@drawable/ic_play_arrow_black_48dp" />
 
-                    <ImageButton
+                    <com.example.andrzej.audiocontroller.views.BlankingImageButton
                         android:id="@+id/nextTrackBtn"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"

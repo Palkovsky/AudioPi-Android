@@ -208,6 +208,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
        updateUI();
     }
 
+    @Override
+    public void onMediaUpdate() {
+
+    }
+
     private void updateUI(){
         Track currentTrack = MyApplication.streamManager.getCurrentTrack();
         if(currentTrack == null){

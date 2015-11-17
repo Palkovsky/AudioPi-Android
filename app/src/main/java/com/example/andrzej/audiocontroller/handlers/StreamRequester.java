@@ -1,6 +1,8 @@
 package com.example.andrzej.audiocontroller.handlers;
 
 
+import android.util.Log;
+
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
@@ -115,6 +117,8 @@ public class StreamRequester {
 
     public void rewindStream(int seconds, boolean unpause) {
         String queryUrl = Endpoints.getRewindUrl(seconds, unpause);
+
+        Log.e(null, queryUrl);
 
         JsonObjectRequest request = new JsonObjectRequest(Request.Method.GET, queryUrl, new Response.Listener<JSONObject>() {
             @Override

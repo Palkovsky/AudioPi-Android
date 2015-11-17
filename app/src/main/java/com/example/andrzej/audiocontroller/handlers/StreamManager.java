@@ -49,8 +49,11 @@ public class StreamManager extends MediaSessionCompat.Callback implements Stream
                     serviceManager.stop();
                     handleTrackEnd();
                 }else{
-                    if(currentTrack != null)
+                    if(currentTrack != null) {
                         currentTrack.setMilliPosSecs(msg.arg1);
+                        if(mediaCallback != null)
+                            mediaCallback.onMediaUpdate();
+                    }
                 }
             }
         });
@@ -107,7 +110,7 @@ public class StreamManager extends MediaSessionCompat.Callback implements Stream
     @Override
     public void onStreamRewind(JSONObject response) {
         try {
-            float pos = response.getInt("newPosition");
+            int pos = response.getInt("newPosition");
             currentTrack.setMilliPosSecs(pos);
             if (mediaCallback != null)
                 mediaCallback.onMediaRewind(pos);
