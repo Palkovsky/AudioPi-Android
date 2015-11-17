@@ -64,6 +64,7 @@ public class StreamManager implements StreamListener {
 
     @Override
     public void onStreamStop(JSONObject response) {
+        currentPlaylist = null;
         currentTrack = null;
         serviceManager.stop();
         if(mediaCallback != null)
@@ -109,7 +110,12 @@ public class StreamManager implements StreamListener {
     private void handleTrackEnd(){
         //This is the place to specify different reproduction methods, like:
         //repeat, shuffle, end etc.
-        currentTrack = null;
+        if(currentPlaylist != null && currentPlaylist.canGoNext())
+            nextTrack();
+        else {
+            currentPlaylist = null;
+            currentTrack = null;
+        }
         if(mediaCallback != null)
             mediaCallback.onMediaStop();
     }
@@ -187,6 +193,7 @@ public class StreamManager implements StreamListener {
 
     public void setCurrentPlaylist(Playlist currentPlaylist, int position) {
         this.currentPlaylist = currentPlaylist;
+        this.currentPlaylist.setPosition(position);
         this.currentTrack = currentPlaylist.getTracks().get(position);
     }
 

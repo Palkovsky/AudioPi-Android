@@ -117,11 +117,15 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 setUpButtons();
                 break;
             case R.id.miniPrevTrackBtn:
-                Toast.makeText(this, "TO DO" , Toast.LENGTH_SHORT).show();
+                if(streamManager.getCurrentPlaylist() != null && streamManager.getCurrentPlaylist()
+                        .canGoPrev())
+                    streamManager.prevTrack();
                 setUpButtons();
                 break;
             case R.id.miniNextTrackBtn:
-                Toast.makeText(this, "TO DO" , Toast.LENGTH_SHORT).show();
+                if(streamManager.getCurrentPlaylist() != null && streamManager.getCurrentPlaylist()
+                        .canGoNext())
+                    streamManager.nextTrack();
                 setUpButtons();
                 break;
             case R.id.bottom_toolbar:
