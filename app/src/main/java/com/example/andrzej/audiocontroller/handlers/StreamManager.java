@@ -62,14 +62,12 @@ public class StreamManager extends MediaSessionCompat.Callback implements Stream
         currentTrack.setPaused(false);
         currentTrack.setMilliPosSecs(0);
 
-
         try {
             float total = response.getInt("total");
             currentTrack.setMilliTotalSecs(total);
         } catch (JSONException e) {
             e.printStackTrace();
         }
-
 
         serviceManager.stop();
         serviceManager.start();
@@ -166,6 +164,7 @@ public class StreamManager extends MediaSessionCompat.Callback implements Stream
     }
 
     public void nextTrack() {
+        restartPlaylistState();
         if (currentPlaylist != null && currentPlaylist.canGoNext()) {
             currentPlaylist.next();
             currentTrack = currentPlaylist.getTracks().get(currentPlaylist.position());
@@ -174,6 +173,7 @@ public class StreamManager extends MediaSessionCompat.Callback implements Stream
     }
 
     public void prevTrack() {
+        restartPlaylistState();
         if (currentPlaylist != null && currentPlaylist.canGoPrev()) {
             currentPlaylist.prev();
             currentTrack = currentPlaylist.getTracks().get(currentPlaylist.position());
@@ -182,6 +182,7 @@ public class StreamManager extends MediaSessionCompat.Callback implements Stream
     }
 
     public void setPosition(int position) {
+        restartPlaylistState();
         if (currentPlaylist != null) {
             currentPlaylist.setPosition(position);
             currentTrack = currentPlaylist.getTracks().get(currentPlaylist.position());
@@ -208,6 +209,7 @@ public class StreamManager extends MediaSessionCompat.Callback implements Stream
     }
 
     public void setCurrentPlaylist(Playlist currentPlaylist, int position) {
+        restartPlaylistState();
         this.currentPlaylist = currentPlaylist;
         this.currentPlaylist.setPosition(position);
         this.currentTrack = currentPlaylist.getTracks().get(position);
@@ -215,6 +217,13 @@ public class StreamManager extends MediaSessionCompat.Callback implements Stream
 
     public void registerMediaListener(MediaCallback mediaCallback) {
         this.mediaCallback = mediaCallback;
+    }
+
+    private void restartPlaylistState(){
+        if(currentPlaylist != null){
+            for(Track track : currentPlaylist.getTracks())
+                track.setPlaying(false);
+        }
     }
 
     private MediaMetadataCompat grabMetadata() {

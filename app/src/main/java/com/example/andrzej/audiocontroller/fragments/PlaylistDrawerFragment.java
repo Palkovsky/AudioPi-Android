@@ -12,6 +12,7 @@ import android.widget.Toast;
 
 import com.example.andrzej.audiocontroller.R;
 import com.example.andrzej.audiocontroller.adapters.PlaylistDrawerRecyclerAdapter;
+import com.example.andrzej.audiocontroller.interfaces.OnItemClickListener;
 import com.example.andrzej.audiocontroller.models.Playlist;
 import com.example.andrzej.audiocontroller.models.Track;
 
@@ -22,18 +23,21 @@ import butterknife.Bind;
 import butterknife.ButterKnife;
 
 
-public class PlaylistDrawerFragment extends Fragment {
+public class PlaylistDrawerFragment extends Fragment implements OnItemClickListener {
 
     public static final String TAG = "PLAYIST_DRAWER_FRAGMENT";
 
     private PlaylistDrawerRecyclerAdapter mAdapter;
     private List<Track> mDataset;
     private Playlist currentPlaylist;
+    private OnItemClickListener clickListener;
 
     @Bind(R.id.playlistRecyclerView)
     RecyclerView mRecyclerView;
     @Bind(R.id.albumTv)
     TextView albumTv;
+    @Bind(R.id.noPlaylistTv)
+    TextView noPlaylistTv;
 
     public PlaylistDrawerFragment() {}
 
@@ -45,10 +49,12 @@ public class PlaylistDrawerFragment extends Fragment {
 
 
         mDataset = new ArrayList<>();
-        mAdapter = new PlaylistDrawerRecyclerAdapter(getActivity(), generateDataset());
+        mAdapter = new PlaylistDrawerRecyclerAdapter(getActivity(), mDataset);
         mRecyclerView.setHasFixedSize(true);
         mRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
         mRecyclerView.setAdapter(mAdapter);
+
+        mAdapter.setOnItemClickListener(this);
 
         return rootView;
     }
@@ -60,30 +66,34 @@ public class PlaylistDrawerFragment extends Fragment {
     }
 
     public void updateUI(){
-        albumTv.setText("Def Leppard");
-    }
-
-    private List<Track> generateDataset(){
-        List<Track> tracks = new ArrayList<>();
-
-        String[] names = {"01. Let's Go.mp3", "02. Dangerous.mp3", "03. Man Enough.mp3", "04. We Belong.mp3",
-        "05. Invincible.mp3", "06. Sea of Love.mp3", "07. Energized.mp3", "08. All Time High.mp3",
-        "09. Battle Of My Own.mp3", "10. Broken 'N' Brokenhearted.mp3", "11. Forever Young.mp3",
-        "12. Last Dance.mp3", "13. Wings Of An Anglel.mp3", "14. Blind Faith.mp3", "15. Piosenka o " +
-                "bardzo dugim tytule.mp3"};
-
-        for(int i = 0; i < names.length; i++){
-            Track track = new Track();
-            track.setName(names[i]);
-            if(i==5)
-                track.setPlaying(true);
-            tracks.add(track);
+        if(currentPlaylist == null){
+            albumTv.setText("");
+            mDataset.clear();
+            mAdapter.notifyDataSetChanged();
+            albumTv.setVisibility(View.GONE);
+            noPlaylistTv.setVisibility(View.VISIBLE);
+        }else{
+            albumTv.setVisibility(View.VISIBLE);
+            noPlaylistTv.setVisibility(View.GONE);
+            albumTv.setText(currentPlaylist.getName());
+            mDataset.clear();
+            mDataset.addAll(currentPlaylist.getTracks());
+            mAdapter.notifyDataSetChanged();
+            mRecyclerView.scrollToPosition(mAdapter.getPlayingPosition());
         }
-
-        return tracks;
     }
 
     public void setCurrentPlaylist(Playlist currentPlaylist) {
         this.currentPlaylist = currentPlaylist;
+    }
+
+    public void setOnClickListener(OnItemClickListener clickListener) {
+        this.clickListener = clickListener;
+    }
+
+    @Override
+    public void onItemClick(View v, int position) {
+        if(clickListener != null)
+            clickListener.onItemClick(v, position);
     }
 }

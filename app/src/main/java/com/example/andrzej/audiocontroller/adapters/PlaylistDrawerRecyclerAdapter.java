@@ -27,7 +27,6 @@ public class PlaylistDrawerRecyclerAdapter extends RecyclerView.Adapter<Playlist
     private List<Track> mDataset;
 
     private OnItemClickListener clickListener;
-    private OnLongItemClickListener longClickListener;
 
     public PlaylistDrawerRecyclerAdapter(Context context, List<Track> mDataset) {
         this.context = context;
@@ -36,10 +35,6 @@ public class PlaylistDrawerRecyclerAdapter extends RecyclerView.Adapter<Playlist
 
     public void setOnItemClickListener(OnItemClickListener clickListener) {
         this.clickListener = clickListener;
-    }
-
-    public void setOnLongItemClickListener(OnLongItemClickListener longClickListener) {
-        this.longClickListener = longClickListener;
     }
 
     @Override
@@ -80,7 +75,16 @@ public class PlaylistDrawerRecyclerAdapter extends RecyclerView.Adapter<Playlist
         return mDataset.size();
     }
 
-    public class TrackViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener, View.OnLongClickListener {
+    public int getPlayingPosition(){
+        for(int i = 0; i < mDataset.size(); i++){
+            Track track = mDataset.get(i);
+            if(track.isPlaying())
+                return i;
+        }
+        return -1;
+    }
+
+    public class TrackViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
         public RelativeLayout rootLayout;
         public ImageView iconIv;
@@ -92,19 +96,14 @@ public class PlaylistDrawerRecyclerAdapter extends RecyclerView.Adapter<Playlist
             rootLayout = (RelativeLayout) itemView.findViewById(R.id.rootLayout);
             iconIv = (ImageView) itemView.findViewById(R.id.iconIv);
             nameTv = (TextView) itemView.findViewById(R.id.nameTv);
+
+            rootLayout.setOnClickListener(this);
         }
 
         @Override
         public void onClick(View v) {
             if (clickListener != null)
                 clickListener.onItemClick(v, getAdapterPosition());
-        }
-
-        @Override
-        public boolean onLongClick(View v) {
-            if (longClickListener != null)
-                longClickListener.onLongItemClick(v, getAdapterPosition());
-            return true;
         }
     }
 }

@@ -5,17 +5,19 @@ import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.example.andrzej.audiocontroller.MyApplication;
 import com.example.andrzej.audiocontroller.R;
+import com.example.andrzej.audiocontroller.fragments.PlaylistDrawerFragment;
 import com.example.andrzej.audiocontroller.interfaces.MediaCallback;
+import com.example.andrzej.audiocontroller.interfaces.OnItemClickListener;
 import com.example.andrzej.audiocontroller.models.Metadata;
 import com.example.andrzej.audiocontroller.models.Playlist;
 import com.example.andrzej.audiocontroller.models.Track;
@@ -29,7 +31,7 @@ import org.adw.library.widgets.discreteseekbar.DiscreteSeekBar;
 import butterknife.Bind;
 import butterknife.ButterKnife;
 
-public class AudioActivity extends AppCompatActivity implements MediaCallback, DiscreteSeekBar.OnProgressChangeListener, View.OnClickListener {
+public class AudioActivity extends AppCompatActivity implements MediaCallback, DiscreteSeekBar.OnProgressChangeListener, View.OnClickListener, OnItemClickListener {
 
     @Bind(R.id.drawer_layout)
     DrawerLayout mDrawerLayout;
@@ -54,6 +56,8 @@ public class AudioActivity extends AppCompatActivity implements MediaCallback, D
     @Bind(R.id.mainPlayBtn)
     BlankingImageButton playPauseBtn;
 
+    PlaylistDrawerFragment drawerFragment;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -64,17 +68,24 @@ public class AudioActivity extends AppCompatActivity implements MediaCallback, D
         if (getSupportActionBar() != null)
             getSupportActionBar().setTitle(null);
 
+        drawerFragment = new PlaylistDrawerFragment();
+        getSupportFragmentManager().beginTransaction()
+                .replace(R.id.drawerLayoutContainer, drawerFragment, PlaylistDrawerFragment.TAG)
+                .commit();
+
         //Listeners
         mainSeekBar.setOnProgressChangeListener(this);
         prevBtn.setOnClickListener(this);
         nextBtn.setOnClickListener(this);
         playPauseBtn.setOnClickListener(this);
+        drawerFragment.setOnClickListener(this);
     }
 
     @Override
     protected void onResume() {
         super.onResume();
         MyApplication.streamManager.registerMediaListener(this);
+        drawerFragment.setCurrentPlaylist(MyApplication.streamManager.getCurrentPlaylist());
         updateUI();
     }
 
@@ -82,6 +93,7 @@ public class AudioActivity extends AppCompatActivity implements MediaCallback, D
     @Override
     public void onMediaStart() {
         updateUI();
+        drawerFragment.updateUI();
     }
 
     @Override
@@ -92,15 +104,19 @@ public class AudioActivity extends AppCompatActivity implements MediaCallback, D
     @Override
     public void onMediaPause() {
         updateUiLight();
+        drawerFragment.updateUI();
     }
 
     @Override
     public void onMediaUnpause() {
         updateUiLight();
+        drawerFragment.updateUI();
     }
 
     @Override
     public void onMediaStop() {
+        drawerFragment.setCurrentPlaylist(MyApplication.streamManager.getCurrentPlaylist());
+        drawerFragment.updateUI();
         updateUI();
     }
 
@@ -165,9 +181,9 @@ public class AudioActivity extends AppCompatActivity implements MediaCallback, D
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()){
+        switch (item.getItemId()) {
             case R.id.menu_playlist:
-                if(mDrawerLayout.isDrawerOpen(GravityCompat.END))
+                if (mDrawerLayout.isDrawerOpen(GravityCompat.END))
                     mDrawerLayout.closeDrawer(GravityCompat.END);
                 else
                     mDrawerLayout.openDrawer(GravityCompat.END);
@@ -175,6 +191,12 @@ public class AudioActivity extends AppCompatActivity implements MediaCallback, D
             default:
                 return super.onOptionsItemSelected(item);
         }
+    }
+
+    //This handles drawer item clicks
+    @Override
+    public void onItemClick(View v, int position) {
+        MyApplication.streamManager.setPosition(position);
     }
 
     private void updateUI() {
@@ -250,4 +272,6 @@ public class AudioActivity extends AppCompatActivity implements MediaCallback, D
                 Image.setSourceDrawable(this, playPauseBtn, R.drawable.ic_pause_black_48dp);
         }
     }
+
+
 }

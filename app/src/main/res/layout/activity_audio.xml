@@ -28,16 +28,11 @@
 
     </RelativeLayout>
 
-    <fragment
-        android:id="@+id/fragment_playlist_drawer"
+    <FrameLayout
+        android:id="@+id/drawerLayoutContainer"
         android:layout_width="@dimen/nav_drawer_width"
         android:layout_height="match_parent"
         android:layout_gravity="end"
-        android:paddingTop="?attr/actionBarSize"
-        android:layout_marginTop="?attr/actionBarSize"
-        app:layout="@layout/fragment_playlist_drawer"
-        android:name="com.example.andrzej.audiocontroller.fragments.PlaylistDrawerFragment"
-        tools:layout="@layout/fragment_playlist_drawer" />
-
+        android:paddingTop="?attr/actionBarSize" />
 
 </android.support.v4.widget.DrawerLayout>

@@ -10,18 +10,29 @@
         android:layout_height="wrap_content"
         android:background="@color/colorAccent"
         android:paddingBottom="8dp"
-        android:paddingRight="4dp"
-        android:paddingLeft="4dp"
         android:paddingEnd="4dp"
+        android:paddingLeft="4dp"
+        android:paddingRight="4dp"
         android:paddingStart="4dp"
         android:paddingTop="8dp"
+        android:textAppearance="@android:style/TextAppearance.Large"
         android:textStyle="bold"
-        android:textAppearance="@android:style/TextAppearance.Large" />
+        android:minLines="1"
+        android:maxLines="2"/>
+
+    <TextView
+        android:id="@+id/noPlaylistTv"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:text="@string/no_playlist"
+        android:visibility="gone" />
 
     <android.support.v7.widget.RecyclerView
         android:id="@+id/playlistRecyclerView"
-        android:layout_below="@+id/albumTv"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/albumTv"
+        android:scrollbars="vertical" />
 
 </RelativeLayout>
