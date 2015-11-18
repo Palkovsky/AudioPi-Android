@@ -6,6 +6,7 @@ import android.preference.PreferenceManager;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -276,14 +277,8 @@ public class ExploreFragment extends BackHandledFragment implements OnItemClickL
         String currentPath = exploreManager.currentPath();
         List<String> parts = new LinkedList<>(Arrays.asList(currentPath.substring(1).split("/")));
 
-        parts.remove(0);
-        parts.remove(0);
-        parts.add(0, getActivity().getString(R.string.root));
-
-
         for (int i = 0; i < parts.size(); i++)
             parts.set(i, parts.get(i).toUpperCase());
-
 
         navigationDataset.clear();
         navigationDataset.addAll(parts);
