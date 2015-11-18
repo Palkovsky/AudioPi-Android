@@ -31,7 +31,7 @@ import org.adw.library.widgets.discreteseekbar.DiscreteSeekBar;
 import butterknife.Bind;
 import butterknife.ButterKnife;
 
-public class AudioActivity extends AppCompatActivity implements MediaCallback, DiscreteSeekBar.OnProgressChangeListener, View.OnClickListener, OnItemClickListener {
+public class AudioActivity extends AppCompatActivity implements MediaCallback, DiscreteSeekBar.OnProgressChangeListener, View.OnClickListener, OnItemClickListener, DrawerLayout.DrawerListener {
 
     @Bind(R.id.drawer_layout)
     DrawerLayout mDrawerLayout;
@@ -74,6 +74,7 @@ public class AudioActivity extends AppCompatActivity implements MediaCallback, D
                 .commit();
 
         //Listeners
+        mDrawerLayout.setDrawerListener(this);
         mainSeekBar.setOnProgressChangeListener(this);
         prevBtn.setOnClickListener(this);
         nextBtn.setOnClickListener(this);
@@ -274,4 +275,17 @@ public class AudioActivity extends AppCompatActivity implements MediaCallback, D
     }
 
 
+    @Override
+    public void onDrawerSlide(View drawerView, float slideOffset) {}
+
+    @Override
+    public void onDrawerOpened(View drawerView) {}
+
+    @Override
+    public void onDrawerClosed(View drawerView) {
+        toolbarTitle.setSelected(true);
+    }
+
+    @Override
+    public void onDrawerStateChanged(int newState) {}
 }

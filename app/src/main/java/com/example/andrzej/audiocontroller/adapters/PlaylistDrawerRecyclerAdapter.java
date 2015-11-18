@@ -19,6 +19,8 @@ import com.example.andrzej.audiocontroller.interfaces.OnLongItemClickListener;
 import com.example.andrzej.audiocontroller.models.Track;
 import com.example.andrzej.audiocontroller.utils.Image;
 
+import org.w3c.dom.Text;
+
 import java.util.List;
 
 public class PlaylistDrawerRecyclerAdapter extends RecyclerView.Adapter<PlaylistDrawerRecyclerAdapter.TrackViewHolder> {
@@ -60,8 +62,11 @@ public class PlaylistDrawerRecyclerAdapter extends RecyclerView.Adapter<Playlist
             holder.nameTv.setTextColor(ContextCompat.getColor(context, R.color.colorAccent));
             holder.rootLayout.setFocusable(false);
             holder.rootLayout.setClickable(false);
+            holder.numberTv.setVisibility(View.INVISIBLE);
         }else{
             holder.iconIv.setVisibility(View.INVISIBLE);
+            holder.numberTv.setVisibility(View.VISIBLE);
+            holder.numberTv.setText((position + 1) + ".");
             holder.nameTv.setEllipsize(null);
             holder.nameTv.setSelected(false);
             holder.nameTv.setTextColor(ContextCompat.getColor(context, android.R.color.black));
@@ -89,6 +94,7 @@ public class PlaylistDrawerRecyclerAdapter extends RecyclerView.Adapter<Playlist
         public RelativeLayout rootLayout;
         public ImageView iconIv;
         public TextView nameTv;
+        public TextView numberTv;
 
         public TrackViewHolder(View itemView) {
             super(itemView);
@@ -96,6 +102,7 @@ public class PlaylistDrawerRecyclerAdapter extends RecyclerView.Adapter<Playlist
             rootLayout = (RelativeLayout) itemView.findViewById(R.id.rootLayout);
             iconIv = (ImageView) itemView.findViewById(R.id.iconIv);
             nameTv = (TextView) itemView.findViewById(R.id.nameTv);
+            numberTv = (TextView) itemView.findViewById(R.id.numberTv);
 
             rootLayout.setOnClickListener(this);
         }
