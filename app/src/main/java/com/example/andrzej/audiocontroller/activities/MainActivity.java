@@ -228,7 +228,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             miniArtistName.setText(artist);
             miniTrackTitle.setText(currentTrack.getFormattedName());
             if(coverUrl == null || coverUrl.equals("") || coverUrl.equals("null"))
-                Image.setBackgroundDrawable(this, miniCoverIv, R.drawable.ic_music_note_black_36dp);
+                Image.setSourceDrawable(this, miniCoverIv, R.drawable.ic_music_note_black_36dp);
             else
                 Picasso.with(this)
                 .load(coverUrl)

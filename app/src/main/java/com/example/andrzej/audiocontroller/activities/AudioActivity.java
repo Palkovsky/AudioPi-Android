@@ -192,6 +192,7 @@ public class AudioActivity extends AppCompatActivity implements MediaCallback, D
             mainSeekBar.setMin(0);
             mainSeekBar.setMax(0);
             mainSeekBar.setProgress(0);
+            mainSeekBar.setEnabled(false);
             toolbarTitle.setText("...");
             artistTv.setText("...");
             totalTimeTv.setText(R.string.zero_formatted_time);
@@ -205,6 +206,7 @@ public class AudioActivity extends AppCompatActivity implements MediaCallback, D
             mainSeekBar.setMin(0);
             mainSeekBar.setMax(Math.round(currentTrack.getMilliTotalSecs()));
             mainSeekBar.setProgress(Math.round(currentTrack.getMilliPosSecs()));
+            mainSeekBar.setEnabled(true);
             artistTv.setText(artist);
             Picasso.with(this).load(currentTrack.getMetadata().getCoverUrl())
                     .placeholder(R.drawable.default_big_cover)

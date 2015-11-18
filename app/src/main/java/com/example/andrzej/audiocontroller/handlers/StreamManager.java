@@ -1,15 +1,11 @@
 package com.example.andrzej.audiocontroller.handlers;
 
-import android.content.ComponentName;
 import android.content.Context;
-import android.content.Intent;
-import android.media.AudioManager;
 import android.os.Handler;
 import android.os.Message;
 import android.support.v4.media.MediaMetadataCompat;
 import android.support.v4.media.session.MediaSessionCompat;
 import android.support.v4.media.session.PlaybackStateCompat;
-import android.util.Log;
 import android.widget.Toast;
 
 import com.android.volley.VolleyError;

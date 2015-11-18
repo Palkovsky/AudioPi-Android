@@ -16,7 +16,7 @@ public class Image {
             imageView.setBackground(getDrawable(context, id));
     }
 
-    public static void setSourceDrawable(Context context, ImageView imageView, int redId){
+    public static void setSourceDrawable(Context context, ImageView imageView, int redId) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             imageView.setImageDrawable(context.getResources().getDrawable(redId, context.getTheme()));
         } else {
@@ -24,11 +24,17 @@ public class Image {
         }
     }
 
-    public static void clearDrawable(ImageView imageView){
+    public static void clearDrawable(ImageView imageView) {
         if (android.os.Build.VERSION.SDK_INT < android.os.Build.VERSION_CODES.JELLY_BEAN)
             imageView.setBackgroundDrawable(null);
         else
             imageView.setBackground(null);
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
+            imageView.setImageDrawable(null);
+        else
+            imageView.setImageDrawable(null);
+
     }
 
     public static Drawable getDrawable(Context context, int id) {
