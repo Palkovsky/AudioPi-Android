@@ -5,6 +5,7 @@ import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.support.v4.content.ContextCompat;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 
 public class Image {
@@ -17,6 +18,14 @@ public class Image {
     }
 
     public static void setSourceDrawable(Context context, ImageView imageView, int redId) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            imageView.setImageDrawable(context.getResources().getDrawable(redId, context.getTheme()));
+        } else {
+            imageView.setImageDrawable(context.getResources().getDrawable(redId));
+        }
+    }
+
+    public static void setSourceDrawable(Context context, ImageButton imageView, int redId) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             imageView.setImageDrawable(context.getResources().getDrawable(redId, context.getTheme()));
         } else {

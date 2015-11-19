@@ -174,12 +174,15 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         MyApplication.streamManager.setCurrentPlaylist(playlist, position);
         MyApplication.streamManager.start(true);
         updateUI();
+        //startActivity(new Intent(this, AudioActivity.class)); - Not sure about this
     }
+
     @Override
     public void onTrackStart(Track track) {
         MyApplication.streamManager.setCurrentTrack(track);
         MyApplication.streamManager.start(true);
         updateUI();
+        //startActivity(new Intent(this, AudioActivity.class)); - Not sure
     }
 
     //These ones are fired after successful request

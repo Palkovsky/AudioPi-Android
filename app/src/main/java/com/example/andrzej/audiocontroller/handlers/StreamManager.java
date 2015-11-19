@@ -10,6 +10,7 @@ import android.widget.Toast;
 
 import com.android.volley.VolleyError;
 import com.example.andrzej.audiocontroller.R;
+import com.example.andrzej.audiocontroller.config.PlaybackMethods;
 import com.example.andrzej.audiocontroller.interfaces.MediaCallback;
 import com.example.andrzej.audiocontroller.interfaces.StreamListener;
 import com.example.andrzej.audiocontroller.models.Metadata;
@@ -22,6 +23,8 @@ import com.example.andrzej.audiocontroller.utils.network.Network;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.Random;
+
 public class StreamManager extends MediaSessionCompat.Callback implements StreamListener {
 
     private Track currentTrack;
@@ -31,23 +34,28 @@ public class StreamManager extends MediaSessionCompat.Callback implements Stream
     private ServiceManager serviceManager;
     private MediaCallback mediaCallback;
 
+    private int trackPlaybackMethod;
+    private int playlistPlaybackMethod;
 
     public StreamManager(final Context context) {
         this.context = context;
+        applyPlaylistPlaybackMethod(PlaybackMethods.PLAYLIST_NORMAL);
+        applyTrackPlaybackMethod(PlaybackMethods.TRACK_NORMAL);
+
         streamRequester = new StreamRequester();
         streamRequester.registerStreamListener(this);
 
         serviceManager = new ServiceManager(context, StreamService.class, new Handler() {
             @Override
             public void handleMessage(Message msg) {
-                if(msg.what == StreamService.MSG_VALUE) {
+                if (msg.what == StreamService.MSG_VALUE) {
                     Toast.makeText(context, "Koniec", Toast.LENGTH_SHORT).show();
                     serviceManager.stop();
                     handleTrackEnd();
-                }else{
-                    if(currentTrack != null) {
+                } else {
+                    if (currentTrack != null) {
                         currentTrack.setMilliPosSecs(msg.arg1);
-                        if(mediaCallback != null)
+                        if (mediaCallback != null)
                             mediaCallback.onMediaUpdate();
                     }
                 }
@@ -124,9 +132,62 @@ public class StreamManager extends MediaSessionCompat.Callback implements Stream
     private void handleTrackEnd() {
         //This is the place to specify different reproduction methods, like:
         //repeat, shuffle, end etc.
-        if (currentPlaylist != null && currentPlaylist.canGoNext())
-            nextTrack();
-        else {
+        if (currentPlaylist != null)
+            switch (playlistPlaybackMethod) {
+                default:
+                case PlaybackMethods.PLAYLIST_NORMAL:
+                    if (currentPlaylist.canGoNext())
+                        nextTrack();
+                    else {
+                        currentPlaylist = null;
+                        currentTrack = null;
+                    }
+                    break;
+                case PlaybackMethods.PLAYLIST_REPEAT:
+                    if (currentPlaylist.canGoNext())
+                        nextTrack();
+                    else if (currentPlaylist.getTracks().size() > 0)
+                        setPosition(0);
+                    else {
+                        currentPlaylist = null;
+                        currentTrack = null;
+                    }
+                    break;
+                case PlaybackMethods.PLAYLIST_TRACK_REPEAT:
+                    setPosition(currentPlaylist.position());
+                    break;
+                case PlaybackMethods.PLAYLIST_SHUFFLE:
+                    Random r = new Random();
+                    int randomPos = r.nextInt(currentPlaylist.getTracks().size());
+                    if (randomPos == currentPlaylist.position()) {
+                        if (randomPos == 0)
+                            randomPos++;
+                        else if (randomPos == currentPlaylist.getTracks().size() - 1)
+                            randomPos--;
+                    }
+                    if (randomPos >= 0 && randomPos < currentPlaylist.getTracks().size())
+                        setPosition(randomPos);
+                    else if(currentPlaylist.getTracks().size() == 1)
+                        setPosition(0);
+                    else {
+                        currentPlaylist = null;
+                        currentTrack = null;
+                    }
+                    break;
+            }
+        else if (currentTrack != null) {
+            switch (trackPlaybackMethod){
+                default:
+                case PlaybackMethods.TRACK_NORMAL:
+                    currentPlaylist = null;
+                    currentTrack = null;
+                    break;
+                case PlaybackMethods.TRACK_REPEAT:
+                    start(true);
+                    break;
+            }
+
+        } else {
             currentPlaylist = null;
             currentTrack = null;
         }
@@ -219,9 +280,9 @@ public class StreamManager extends MediaSessionCompat.Callback implements Stream
         this.mediaCallback = mediaCallback;
     }
 
-    private void restartPlaylistState(){
-        if(currentPlaylist != null){
-            for(Track track : currentPlaylist.getTracks())
+    private void restartPlaylistState() {
+        if (currentPlaylist != null) {
+            for (Track track : currentPlaylist.getTracks())
                 track.setPlaying(false);
         }
     }
@@ -240,12 +301,28 @@ public class StreamManager extends MediaSessionCompat.Callback implements Stream
         return null;
     }
 
-    private PlaybackStateCompat getStateCompat(){
+    private PlaybackStateCompat getStateCompat() {
         return new PlaybackStateCompat.Builder()
                 .setActions(
                         PlaybackStateCompat.ACTION_SKIP_TO_PREVIOUS |
-                        PlaybackStateCompat.ACTION_PAUSE |
-                        PlaybackStateCompat.ACTION_SKIP_TO_NEXT)
+                                PlaybackStateCompat.ACTION_PAUSE |
+                                PlaybackStateCompat.ACTION_SKIP_TO_NEXT)
                 .build();
+    }
+
+    public int getTrackPlaybackMethod() {
+        return trackPlaybackMethod;
+    }
+
+    public void applyTrackPlaybackMethod(int trackPlaybackMethod) {
+        this.trackPlaybackMethod = trackPlaybackMethod;
+    }
+
+    public int getPlaylistPlaybackMethod() {
+        return playlistPlaybackMethod;
+    }
+
+    public void applyPlaylistPlaybackMethod(int playlistPlaybackMethod) {
+        this.playlistPlaybackMethod = playlistPlaybackMethod;
     }
 }

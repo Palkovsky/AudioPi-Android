@@ -37,7 +37,6 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_centerInParent="true"
-                android:text="No internet"
                 android:visibility="gone" />
 
 
@@ -51,6 +50,7 @@
         </RelativeLayout>
 
 
+
         <LinearLayout
             android:id="@+id/controls_container"
             android:layout_width="match_parent"
@@ -58,6 +58,14 @@
             android:layout_alignParentBottom="true"
             android:gravity="center"
             android:orientation="vertical">
+
+            <ImageButton
+                android:id="@+id/playbackModeBtn"
+                android:background="@drawable/image_button_background"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="12dp"/>
+
 
             <RelativeLayout
                 android:layout_width="match_parent"
@@ -79,7 +87,6 @@
                     android:layout_alignLeft="@+id/mainSeekBar"
                     android:layout_alignStart="@+id/mainSeekBar"
                     android:layout_below="@+id/mainSeekBar"
-                    android:text="00:00"
                     android:textAppearance="@android:style/TextAppearance.Small" />
 
                 <TextView
@@ -89,7 +96,6 @@
                     android:layout_alignEnd="@+id/mainSeekBar"
                     android:layout_alignRight="@+id/mainSeekBar"
                     android:layout_below="@+id/mainSeekBar"
-                    android:text="02:36"
                     android:textAppearance="@android:style/TextAppearance.Small" />
 
                 <LinearLayout

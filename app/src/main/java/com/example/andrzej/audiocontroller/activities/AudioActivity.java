@@ -1,6 +1,8 @@
 package com.example.andrzej.audiocontroller.activities;
 
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AppCompatActivity;
@@ -10,11 +12,15 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.FrameLayout;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.andrzej.audiocontroller.MyApplication;
 import com.example.andrzej.audiocontroller.R;
+import com.example.andrzej.audiocontroller.config.PlaybackMethods;
+import com.example.andrzej.audiocontroller.config.PrefKeys;
 import com.example.andrzej.audiocontroller.fragments.PlaylistDrawerFragment;
 import com.example.andrzej.audiocontroller.interfaces.MediaCallback;
 import com.example.andrzej.audiocontroller.interfaces.OnItemClickListener;
@@ -32,6 +38,8 @@ import butterknife.Bind;
 import butterknife.ButterKnife;
 
 public class AudioActivity extends AppCompatActivity implements MediaCallback, DiscreteSeekBar.OnProgressChangeListener, View.OnClickListener, OnItemClickListener, DrawerLayout.DrawerListener {
+
+    private SharedPreferences prefs;
 
     @Bind(R.id.drawer_layout)
     DrawerLayout mDrawerLayout;
@@ -55,6 +63,8 @@ public class AudioActivity extends AppCompatActivity implements MediaCallback, D
     BlankingImageButton nextBtn;
     @Bind(R.id.mainPlayBtn)
     BlankingImageButton playPauseBtn;
+    @Bind(R.id.playbackModeBtn)
+    ImageButton playbackModeBtn;
 
     PlaylistDrawerFragment drawerFragment;
 
@@ -68,6 +78,7 @@ public class AudioActivity extends AppCompatActivity implements MediaCallback, D
         if (getSupportActionBar() != null)
             getSupportActionBar().setTitle(null);
 
+        prefs = PreferenceManager.getDefaultSharedPreferences(this);
         drawerFragment = new PlaylistDrawerFragment();
         getSupportFragmentManager().beginTransaction()
                 .replace(R.id.drawerLayoutContainer, drawerFragment, PlaylistDrawerFragment.TAG)
@@ -80,12 +91,15 @@ public class AudioActivity extends AppCompatActivity implements MediaCallback, D
         nextBtn.setOnClickListener(this);
         playPauseBtn.setOnClickListener(this);
         drawerFragment.setOnClickListener(this);
+        playbackModeBtn.setOnClickListener(this);
     }
 
     @Override
     protected void onResume() {
         super.onResume();
         MyApplication.streamManager.registerMediaListener(this);
+        MyApplication.streamManager.applyPlaylistPlaybackMethod(prefs.getInt(PrefKeys.KEY_PLAYBACK_PLAYLIST, PlaybackMethods.PLAYLIST_NORMAL));
+        MyApplication.streamManager.applyTrackPlaybackMethod(prefs.getInt(PrefKeys.KEY_PLAYBACK_TRACK, PlaybackMethods.TRACK_NORMAL));
         drawerFragment.setCurrentPlaylist(MyApplication.streamManager.getCurrentPlaylist());
         updateUI();
     }
@@ -128,6 +142,7 @@ public class AudioActivity extends AppCompatActivity implements MediaCallback, D
 
     @Override
     public void onClick(View v) {
+        Track currentTrack = MyApplication.streamManager.getCurrentTrack();
         switch (v.getId()) {
             case R.id.nextTrackBtn:
                 if (MyApplication.streamManager.getCurrentPlaylist() != null
@@ -140,13 +155,55 @@ public class AudioActivity extends AppCompatActivity implements MediaCallback, D
                     MyApplication.streamManager.prevTrack();
                 break;
             case R.id.mainPlayBtn:
-                Track currentTrack = MyApplication.streamManager.getCurrentTrack();
                 if (currentTrack != null) {
                     if (currentTrack.isPaused())
                         MyApplication.streamManager.unpause();
                     else
                         MyApplication.streamManager.pause();
                 }
+                break;
+            case R.id.playbackModeBtn:
+                int currentPlaylistPlaybackMode = MyApplication.streamManager.getPlaylistPlaybackMethod();
+                int currentTrackPlaybackMode = MyApplication.streamManager.getTrackPlaybackMethod();
+                Playlist currentPlaylist = MyApplication.streamManager.getCurrentPlaylist();
+                if(currentPlaylist != null){
+                    switch (currentPlaylistPlaybackMode){
+                        case PlaybackMethods.PLAYLIST_NORMAL:
+                            MyApplication.streamManager.applyPlaylistPlaybackMethod(PlaybackMethods.PLAYLIST_REPEAT);
+                            prefs.edit().putInt(PrefKeys.KEY_PLAYBACK_PLAYLIST, PlaybackMethods.PLAYLIST_REPEAT).apply();
+                            Toast.makeText(this, R.string.to_playlist_repeat, Toast.LENGTH_SHORT).show();
+                            break;
+                        case PlaybackMethods.PLAYLIST_REPEAT:
+                            MyApplication.streamManager.applyPlaylistPlaybackMethod(PlaybackMethods.PLAYLIST_TRACK_REPEAT);
+                            prefs.edit().putInt(PrefKeys.KEY_PLAYBACK_PLAYLIST, PlaybackMethods.PLAYLIST_TRACK_REPEAT).apply();
+                            Toast.makeText(this, R.string.to_playlist_track_repeat, Toast.LENGTH_SHORT).show();
+                            break;
+                        case PlaybackMethods.PLAYLIST_TRACK_REPEAT:
+                            MyApplication.streamManager.applyPlaylistPlaybackMethod(PlaybackMethods.PLAYLIST_SHUFFLE);
+                            prefs.edit().putInt(PrefKeys.KEY_PLAYBACK_PLAYLIST, PlaybackMethods.PLAYLIST_SHUFFLE).apply();
+                            Toast.makeText(this, R.string.to_playlist_shuffle, Toast.LENGTH_SHORT).show();
+                            break;
+                        case PlaybackMethods.PLAYLIST_SHUFFLE:
+                            MyApplication.streamManager.applyPlaylistPlaybackMethod(PlaybackMethods.PLAYLIST_NORMAL);
+                            prefs.edit().putInt(PrefKeys.KEY_PLAYBACK_PLAYLIST, PlaybackMethods.PLAYLIST_NORMAL).apply();
+                            Toast.makeText(this, R.string.to_playlist_normal, Toast.LENGTH_SHORT).show();
+                            break;
+                    }
+                }else if(currentTrack != null){
+                    switch (currentTrackPlaybackMode){
+                        case PlaybackMethods.TRACK_NORMAL:
+                            MyApplication.streamManager.applyTrackPlaybackMethod(PlaybackMethods.TRACK_REPEAT);
+                            prefs.edit().putInt(PrefKeys.KEY_PLAYBACK_TRACK, PlaybackMethods.TRACK_REPEAT).apply();
+                            Toast.makeText(this, R.string.to_track_repeat, Toast.LENGTH_SHORT).show();
+                            break;
+                        case PlaybackMethods.TRACK_REPEAT:
+                            MyApplication.streamManager.applyTrackPlaybackMethod(PlaybackMethods.TRACK_NORMAL);
+                            prefs.edit().putInt(PrefKeys.KEY_PLAYBACK_TRACK, PlaybackMethods.TRACK_NORMAL).apply();
+                            Toast.makeText(this, R.string.to_track_normal, Toast.LENGTH_SHORT).show();
+                            break;
+                    }
+                }
+                updateButtons();
                 break;
         }
     }
@@ -272,6 +329,37 @@ public class AudioActivity extends AppCompatActivity implements MediaCallback, D
             else
                 Image.setSourceDrawable(this, playPauseBtn, R.drawable.ic_pause_black_48dp);
         }
+
+        if(currentPlaylist != null){
+            playbackModeBtn.setVisibility(View.VISIBLE);
+            int playlistPlaybackMode = MyApplication.streamManager.getPlaylistPlaybackMethod();
+            switch (playlistPlaybackMode){
+                case PlaybackMethods.PLAYLIST_NORMAL:
+                    Image.setSourceDrawable(this, playbackModeBtn, R.drawable.ic_repeat_one_black_36dp);
+                    break;
+                case PlaybackMethods.PLAYLIST_TRACK_REPEAT:
+                    Image.setSourceDrawable(this, playbackModeBtn, R.drawable.ic_repeat_black_36dp);
+                    break;
+                case PlaybackMethods.PLAYLIST_REPEAT:
+                    Image.setSourceDrawable(this, playbackModeBtn, R.drawable.ic_reorder_black_36dp);
+                    break;
+                case PlaybackMethods.PLAYLIST_SHUFFLE:
+                    Image.setSourceDrawable(this, playbackModeBtn, R.drawable.ic_shuffle_black_36dp);
+                    break;
+            }
+        }else if(currentTrack != null){
+            playbackModeBtn.setVisibility(View.VISIBLE);
+            int trackPlaybackMode = MyApplication.streamManager.getTrackPlaybackMethod();
+            switch (trackPlaybackMode){
+                case PlaybackMethods.TRACK_NORMAL:
+                    Image.setSourceDrawable(this, playbackModeBtn, R.drawable.ic_repeat_one_black_36dp);
+                    break;
+                case PlaybackMethods.TRACK_REPEAT:
+                    Image.setSourceDrawable(this, playbackModeBtn, R.drawable.ic_repeat_black_36dp);
+                    break;
+            }
+        }else
+            playbackModeBtn.setVisibility(View.GONE);
     }
 
 
