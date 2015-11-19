@@ -22,6 +22,8 @@ import com.example.andrzej.audiocontroller.interfaces.MediaCallback;
 import com.example.andrzej.audiocontroller.interfaces.MediaCommunicator;
 import com.example.andrzej.audiocontroller.models.Playlist;
 import com.example.andrzej.audiocontroller.models.Track;
+import com.example.andrzej.audiocontroller.models.dbmodels.PlaylistDb;
+import com.example.andrzej.audiocontroller.models.dbmodels.TrackDb;
 import com.example.andrzej.audiocontroller.utils.Image;
 import com.example.andrzej.audiocontroller.views.BackHandledFragment;
 import com.example.andrzej.audiocontroller.views.BlankingImageButton;
@@ -274,6 +276,4 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 Image.setSourceDrawable(this, playPauseBtn, R.drawable.ic_pause_black_48dp);
         }
     }
-
-
 }

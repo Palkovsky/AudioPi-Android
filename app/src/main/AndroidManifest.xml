@@ -33,6 +33,11 @@
 
         <service android:name=".services.StreamService" />
 
+        <meta-data android:name="AA_DB_NAME" android:value="AudioPi.db" />
+        <meta-data android:name="AA_DB_VERSION" android:value="1" />
+        <meta-data
+            android:name="AA_MODELS"
+            android:value="com.example.andrzej.audiocontroller.models.dbmodels.PlaylistDb, com.example.andrzej.audiocontroller.models.dbmodels.TrackDb" />
     </application>
 
 </manifest>

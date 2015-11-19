@@ -37,7 +37,7 @@ import org.adw.library.widgets.discreteseekbar.DiscreteSeekBar;
 import butterknife.Bind;
 import butterknife.ButterKnife;
 
-public class AudioActivity extends AppCompatActivity implements MediaCallback, DiscreteSeekBar.OnProgressChangeListener, View.OnClickListener, OnItemClickListener, DrawerLayout.DrawerListener {
+public class AudioActivity extends AppCompatActivity implements MediaCallback, DiscreteSeekBar.OnProgressChangeListener, View.OnClickListener, OnItemClickListener, DrawerLayout.DrawerListener, View.OnLongClickListener {
 
     private SharedPreferences prefs;
 
@@ -92,6 +92,7 @@ public class AudioActivity extends AppCompatActivity implements MediaCallback, D
         playPauseBtn.setOnClickListener(this);
         drawerFragment.setOnClickListener(this);
         playbackModeBtn.setOnClickListener(this);
+        toolbarTitle.setOnLongClickListener(this);
     }
 
     @Override
@@ -138,6 +139,13 @@ public class AudioActivity extends AppCompatActivity implements MediaCallback, D
     @Override
     public void onMediaUpdate() {
         updateUiLight();
+    }
+
+    //Just to have some way to flush current stream
+    @Override
+    public boolean onLongClick(View v) {
+        MyApplication.streamManager.flush();
+        return false;
     }
 
     @Override
@@ -376,4 +384,5 @@ public class AudioActivity extends AppCompatActivity implements MediaCallback, D
 
     @Override
     public void onDrawerStateChanged(int newState) {}
+
 }

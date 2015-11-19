@@ -31,6 +31,7 @@ import com.example.andrzej.audiocontroller.models.Track;
 import com.example.andrzej.audiocontroller.utils.network.Network;
 import com.example.andrzej.audiocontroller.utils.network.VolleySingleton;
 import com.example.andrzej.audiocontroller.views.BackHandledFragment;
+import com.getbase.floatingactionbutton.FloatingActionButton;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -48,13 +49,12 @@ import fr.castorflex.android.smoothprogressbar.SmoothProgressBar;
  * and content of mPlaylists(tracks). This last functionality might be
  * outsorced somewhere else.
  */
-public class MediaFragment extends BackHandledFragment implements PullRefreshLayout.OnRefreshListener {
+public class MediaFragment extends BackHandledFragment implements PullRefreshLayout.OnRefreshListener, View.OnClickListener {
 
     public static final String TAG = "MEDIA_FRAGMENT";
 
     //Objects
     private MediaRecyclerAdapter mAdapter;
-    private VolleySingleton volleySingleton;
     private RequestQueue requestQueue;
 
     //Lists
@@ -80,6 +80,8 @@ public class MediaFragment extends BackHandledFragment implements PullRefreshLay
     TextView mErrorTextView;
     @Bind(R.id.errorImageView)
     ImageView mErrorImageView;
+    @Bind(R.id.filterBtn)
+    FloatingActionButton filterBtn;
 
     public MediaFragment() {
     }
@@ -101,15 +103,14 @@ public class MediaFragment extends BackHandledFragment implements PullRefreshLay
         mPlaylists = new ArrayList<>();
 
         //Objects init
-        volleySingleton = VolleySingleton.getsInstance();
-        requestQueue = volleySingleton.getRequestQueue();
+        requestQueue = VolleySingleton.getsInstance().getRequestQueue();
 
         //Listener
         mSwipeRefreshLayout.setOnRefreshListener(this);
+        filterBtn.setOnClickListener(this);
 
         //Recycler config
         reInitRecycler();
-
         setUpNormalLayout();
 
         return rootView;
@@ -198,6 +199,15 @@ public class MediaFragment extends BackHandledFragment implements PullRefreshLay
             queryPath(currentPath);
     }
 
+    @Override
+    public void onClick(View v) {
+        switch (v.getId()) {
+            case R.id.filterBtn:
+                Toast.makeText(getActivity(), "Tutaj dialog z filtrami sie wyswietli", Toast.LENGTH_SHORT).show();
+                break;
+        }
+    }
+
     public void queryPath(String path) {
         if (!isLoading) {
 
@@ -276,4 +286,5 @@ public class MediaFragment extends BackHandledFragment implements PullRefreshLay
     public void registerMediaCommunicator(MediaCommunicator mediaCommunicator) {
         this.mediaCommunicator = mediaCommunicator;
     }
+
 }

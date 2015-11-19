@@ -66,22 +66,24 @@ public class StreamManager extends MediaSessionCompat.Callback implements Stream
 
     @Override
     public void onStreamStart(Track track, JSONObject response) {
-        currentTrack.setPlaying(true);
-        currentTrack.setPaused(false);
-        currentTrack.setMilliPosSecs(0);
+        if(currentTrack != null) {
+            currentTrack.setPlaying(true);
+            currentTrack.setPaused(false);
+            currentTrack.setMilliPosSecs(0);
 
-        try {
-            float total = response.getInt("total");
-            currentTrack.setMilliTotalSecs(total);
-        } catch (JSONException e) {
-            e.printStackTrace();
+            try {
+                float total = response.getInt("total");
+                currentTrack.setMilliTotalSecs(total);
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+
+            serviceManager.stop();
+            serviceManager.start();
+
+            if (mediaCallback != null)
+                mediaCallback.onMediaStart();
         }
-
-        serviceManager.stop();
-        serviceManager.start();
-
-        if (mediaCallback != null)
-            mediaCallback.onMediaStart();
     }
 
     @Override

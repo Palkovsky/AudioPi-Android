@@ -1,5 +1,6 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:fab="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -15,9 +16,9 @@
 
     <com.baoyz.widget.PullRefreshLayout
         android:id="@+id/swipeRefreshLayout"
-        android:layout_below="@+id/mediaProgressBar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_below="@+id/mediaProgressBar"
         app:refreshColors="@array/gplus_colors"
         app:refreshType="material">
 
@@ -53,5 +54,18 @@
     </LinearLayout>
 
 
+    <com.getbase.floatingactionbutton.FloatingActionButton
+        android:id="@+id/filterBtn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentRight="true"
+        android:layout_marginBottom="16dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginRight="16dp"
+        fab:fab_colorNormal="@color/indigo"
+        fab:fab_colorPressed="@color/indigo_pressed"
+        fab:fab_icon="@drawable/ic_filter_list_white_36dp" />
 
 </RelativeLayout>
