@@ -60,4 +60,12 @@
     <string name="to_playlist_normal">Single cycle</string>
     <string name="to_track_repeat">Track repeat</string>
     <string name="to_track_normal">Track single</string>
+    <string name="all">Wszystko</string>
+    <string name="albums">Płyty</string>
+    <string name="artists">Twórcy</string>
+    <string name="genres">Gatunki</string>
+    <string name="playlists">Playlisty</string>
+    <string name="no_albums_error">No playlist for \'album\' filter.</string>
+    <string name="no_artists_error">No playlist for \'artist\' filter.</string>
+    <string name="no_genres_error">No playlist for \'genre\' filter.</string>
 </resources>

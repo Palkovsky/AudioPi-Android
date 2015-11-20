@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item
+        android:id="@+id/allAllowed"
+        android:title="@string/all"
+        android:visible="true"
+        app:showAsAction="ifRoom|withText" />
+    <item
+        android:id="@+id/albumsOnly"
+        android:title="@string/albums"
+        android:visible="true"
+        app:showAsAction="ifRoom|withText" />
+    <item
+        android:id="@+id/artistsOnly"
+        android:title="@string/artists"
+        android:visible="true"
+        app:showAsAction="ifRoom|withText" />
+    <item
+        android:id="@+id/genresOnly"
+        android:title="@string/genres"
+        android:visible="true"
+        app:showAsAction="ifRoom|withText" />
+    <item
+        android:id="@+id/playlistsOnly"
+        android:title="@string/playlists"
+        android:visible="true"
+        app:showAsAction="ifRoom|withText" />
+</menu>

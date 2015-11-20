@@ -1,13 +1,18 @@
 package com.example.andrzej.audiocontroller.fragments;
 
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.PopupMenu;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -21,7 +26,10 @@ import com.example.andrzej.audiocontroller.R;
 import com.example.andrzej.audiocontroller.adapters.MediaRecyclerAdapter;
 import com.example.andrzej.audiocontroller.config.Codes;
 import com.example.andrzej.audiocontroller.config.Endpoints;
+import com.example.andrzej.audiocontroller.config.Filters;
+import com.example.andrzej.audiocontroller.config.PrefKeys;
 import com.example.andrzej.audiocontroller.config.Sort;
+import com.example.andrzej.audiocontroller.handlers.MediaManager;
 import com.example.andrzej.audiocontroller.interfaces.MediaCommunicator;
 import com.example.andrzej.audiocontroller.interfaces.OnChildItemClickListener;
 import com.example.andrzej.audiocontroller.interfaces.OnChildItemLongClickListener;
@@ -49,20 +57,24 @@ import fr.castorflex.android.smoothprogressbar.SmoothProgressBar;
  * and content of mPlaylists(tracks). This last functionality might be
  * outsorced somewhere else.
  */
-public class MediaFragment extends BackHandledFragment implements PullRefreshLayout.OnRefreshListener, View.OnClickListener {
+public class MediaFragment extends BackHandledFragment implements PullRefreshLayout.OnRefreshListener, View.OnClickListener, PopupMenu.OnMenuItemClickListener {
 
     public static final String TAG = "MEDIA_FRAGMENT";
 
     //Objects
     private MediaRecyclerAdapter mAdapter;
     private RequestQueue requestQueue;
+    private SharedPreferences prefs;
+    private MediaManager mediaManager;
 
     //Lists
+    private List<Playlist> orginalPlaylists;
     private List<Playlist> mPlaylists;
 
     //Data
     private boolean isLoading;
     private String currentPath = "";
+    private int filter;
 
     //Interfaces
     private MediaCommunicator mediaCommunicator;
@@ -100,10 +112,16 @@ public class MediaFragment extends BackHandledFragment implements PullRefreshLay
         ButterKnife.bind(this, rootView);
 
         //Array inits
+        orginalPlaylists = new ArrayList<>();
         mPlaylists = new ArrayList<>();
 
         //Objects init
         requestQueue = VolleySingleton.getsInstance().getRequestQueue();
+        prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
+        mediaManager = new MediaManager();
+
+        //Data
+        filter = prefs.getInt(PrefKeys.KEY_MEDIA_FILTER, Filters.ALL);
 
         //Listener
         mSwipeRefreshLayout.setOnRefreshListener(this);
@@ -140,6 +158,15 @@ public class MediaFragment extends BackHandledFragment implements PullRefreshLay
                     break;
                 case Codes.EMPTY_DATASET:
                     mErrorTextView.setText(R.string.no_playlists_error);
+                    break;
+                case Codes.NO_ALBUMS:
+                    mErrorTextView.setText(R.string.no_albums_error);
+                    break;
+                case Codes.NO_ARTISTS:
+                    mErrorTextView.setText(R.string.no_artists_error);
+                    break;
+                case Codes.NO_GENRES:
+                    mErrorTextView.setText(R.string.no_genres_error);
                     break;
             }
         } else {
@@ -203,7 +230,7 @@ public class MediaFragment extends BackHandledFragment implements PullRefreshLay
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.filterBtn:
-                Toast.makeText(getActivity(), "Tutaj dialog z filtrami sie wyswietli", Toast.LENGTH_SHORT).show();
+                showFilterContextMenu(v);
                 break;
         }
     }
@@ -221,6 +248,7 @@ public class MediaFragment extends BackHandledFragment implements PullRefreshLay
                 public void onResponse(JSONObject response) {
 
                     int code = Codes.SUCCESFULL;
+                    orginalPlaylists.clear();
                     mPlaylists.clear();
 
                     try {
@@ -248,6 +276,7 @@ public class MediaFragment extends BackHandledFragment implements PullRefreshLay
                             }
 
                             item.setTracks(tracks);
+                            orginalPlaylists.add(item);
                             mPlaylists.add(item);
                         }
 
@@ -255,6 +284,8 @@ public class MediaFragment extends BackHandledFragment implements PullRefreshLay
                             setUpErrorLayout(Codes.EMPTY_DATASET);
                         else
                             setUpNormalLayout();
+
+                        filterDataset(filter);
 
                         reInitRecycler();
                         mSwipeRefreshLayout.setRefreshing(false);
@@ -287,4 +318,96 @@ public class MediaFragment extends BackHandledFragment implements PullRefreshLay
         this.mediaCommunicator = mediaCommunicator;
     }
 
+    private void showFilterContextMenu(View view) {
+        PopupMenu popupMenu = new PopupMenu(getActivity(), view);
+        popupMenu.inflate(R.menu.filter_popup);
+        Menu menu = popupMenu.getMenu();
+
+        switch (filter) {
+            case Filters.ALL:
+                disableOptions(menu, R.id.allAllowed);
+                break;
+            case Filters.ALBUMS:
+                disableOptions(menu, R.id.albumsOnly);
+                break;
+            case Filters.ARTISTS:
+                disableOptions(menu, R.id.artistsOnly);
+                break;
+            case Filters.GENRES:
+                disableOptions(menu, R.id.genresOnly);
+                break;
+            case Filters.LOCAL_PLAYLISTS:
+                disableOptions(menu, R.id.playlistsOnly);
+                break;
+        }
+
+        popupMenu.setOnMenuItemClickListener(this);
+        popupMenu.show();
+    }
+
+    private void disableOptions(Menu menu, int disableResId){
+        menu.findItem(R.id.allAllowed).setEnabled(true);
+        menu.findItem(R.id.artistsOnly).setEnabled(true);
+        menu.findItem(R.id.albumsOnly).setEnabled(true);
+        menu.findItem(R.id.genresOnly).setEnabled(true);
+        menu.findItem(R.id.playlistsOnly).setEnabled(true);
+        menu.findItem(disableResId).setEnabled(false);
+    }
+
+    @Override
+    public boolean onMenuItemClick(MenuItem item) {
+        SharedPreferences.Editor editor = prefs.edit();
+
+        switch (item.getItemId()) {
+            case R.id.allAllowed:
+                editor.putInt(PrefKeys.KEY_MEDIA_FILTER, Filters.ALL);
+                filter = Filters.ALL;
+                break;
+            case R.id.albumsOnly:
+                editor.putInt(PrefKeys.KEY_MEDIA_FILTER, Filters.ALBUMS);
+                filter = Filters.ALBUMS;
+                break;
+            case R.id.artistsOnly:
+                editor.putInt(PrefKeys.KEY_MEDIA_FILTER, Filters.ARTISTS);
+                filter = Filters.ARTISTS;
+                break;
+            case R.id.genresOnly:
+                editor.putInt(PrefKeys.KEY_MEDIA_FILTER, Filters.GENRES);
+                filter = Filters.GENRES;
+                break;
+            case R.id.playlistsOnly:
+                editor.putInt(PrefKeys.KEY_MEDIA_FILTER, Filters.LOCAL_PLAYLISTS);
+                filter = Filters.LOCAL_PLAYLISTS;
+                break;
+        }
+
+        filterDataset(filter);
+        editor.apply();
+        return false;
+    }
+
+    private void filterDataset(int filt) {
+        List<Playlist> filteredPlaylist = mediaManager.applyFilter(filt, orginalPlaylists);
+        mPlaylists.clear();
+        mPlaylists.addAll(filteredPlaylist);
+        if(mPlaylists.size() == 0){
+            switch (filt){
+                default:
+                case Filters.ALL:
+                    setUpErrorLayout(Codes.EMPTY_DATASET);
+                    break;
+                case Filters.GENRES:
+                    setUpErrorLayout(Codes.NO_GENRES);
+                    break;
+                case Filters.ARTISTS:
+                    setUpErrorLayout(Codes.NO_ARTISTS);
+                    break;
+                case Filters.ALBUMS:
+                    setUpErrorLayout(Codes.NO_ALBUMS);
+                    break;
+            }
+        }else
+            setUpNormalLayout();
+        reInitRecycler();
+    }
 }

@@ -14,14 +14,14 @@
         android:layout_marginLeft="@dimen/activity_horizontal_margin"
         android:layout_marginStart="@dimen/activity_horizontal_margin"
         android:layout_marginTop="4dp"
-        android:text="@string/sample_author"
+        android:singleLine="true"
         android:textSize="@dimen/artist_textview_size" />
 
     <RelativeLayout
         android:id="@+id/main_container"
-        android:layout_below="@+id/artist_text_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:layout_below="@+id/artist_text_view"
         android:layout_marginEnd="@dimen/activity_horizontal_margin"
         android:layout_marginLeft="@dimen/activity_horizontal_margin"
         android:layout_marginRight="@dimen/activity_horizontal_margin"
@@ -45,10 +45,9 @@
                 android:layout_width="300dp"
                 android:layout_height="300dp"
                 android:layout_centerInParent="true"
-                android:layout_marginTop="122dp"/>
+                android:layout_marginTop="122dp" />
 
         </RelativeLayout>
-
 
 
         <LinearLayout
@@ -61,10 +60,10 @@
 
             <ImageButton
                 android:id="@+id/playbackModeBtn"
-                android:background="@drawable/image_button_background"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="12dp"/>
+                android:layout_marginBottom="12dp"
+                android:background="@drawable/image_button_background" />
 
 
             <RelativeLayout

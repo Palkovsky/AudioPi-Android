@@ -234,7 +234,6 @@ public class ExploreFragment extends BackHandledFragment implements OnItemClickL
 
                 //Remove current sorting method from popup menu
                 switch (prefs.getInt(PrefKeys.KEY_EXPLORE_SORT, Sort.NONE)) {
-
                     case Sort.NONE:
                         menu.findItem(R.id.item_noSort).setEnabled(false);
                         menu.findItem(R.id.item_AZ).setEnabled(true);
