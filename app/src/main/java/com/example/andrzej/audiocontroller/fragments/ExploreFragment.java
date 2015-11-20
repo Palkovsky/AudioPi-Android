@@ -41,6 +41,7 @@ import com.example.andrzej.audiocontroller.interfaces.MediaCommunicator;
 import com.example.andrzej.audiocontroller.interfaces.OnItemClickListener;
 import com.example.andrzej.audiocontroller.interfaces.OnLongItemClickListener;
 import com.example.andrzej.audiocontroller.interfaces.OnMoreItemClickListener;
+import com.example.andrzej.audiocontroller.interfaces.OnSuccess;
 import com.example.andrzej.audiocontroller.models.ExploreItem;
 import com.example.andrzej.audiocontroller.models.Metadata;
 import com.example.andrzej.audiocontroller.utils.Converter;
@@ -189,13 +190,13 @@ public class ExploreFragment extends BackHandledFragment implements OnItemClickL
     public void onItemClick(View v, int position) {
         ExploreItem item = mDataset.get(position);
 
-        if(!isLoading) {
+        if (!isLoading) {
             if (item.isDirectory()) {
                 exploreManager.currentDirectory().setSavedState(mRecyclerView.getLayoutManager().onSaveInstanceState());
                 exploreManager.currentDirectory().setItems(mDataset);
                 exploreManager.goTo(exploreManager.currentPath() + item.getName() + "/");
-            }else{
-                if(mediaCommunicator != null)
+            } else {
+                if (mediaCommunicator != null)
                     mediaCommunicator.onTrackStart(Converter.exploreItemToTrack(item));
             }
         }
@@ -529,7 +530,13 @@ public class ExploreFragment extends BackHandledFragment implements OnItemClickL
                                 Downloader.downloadFile(getActivity(), item);
                                 break; //Add to playlist
                             case 1:
-                                //Here I'll show current local playlists list
+                                Dialog.showAddToPlaylistDialog(getActivity(), Converter.exploreItemToTrack(item), new OnSuccess() {
+                                    @Override
+                                    public void onSuccess() {
+                                        if(communicator != null)
+                                            communicator.onCustomPlaylistTrackAppend();
+                                    }
+                                });
                                 break;
                             case 2: //Add to metadata
                                 Dialog.showMetadataDialog(getActivity(), item);

@@ -2,7 +2,14 @@ package com.example.andrzej.audiocontroller.utils;
 
 
 import com.example.andrzej.audiocontroller.models.ExploreItem;
+import com.example.andrzej.audiocontroller.models.Metadata;
+import com.example.andrzej.audiocontroller.models.Playlist;
 import com.example.andrzej.audiocontroller.models.Track;
+import com.example.andrzej.audiocontroller.models.dbmodels.PlaylistDb;
+import com.example.andrzej.audiocontroller.models.dbmodels.TrackDb;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class Converter {
     public static Track exploreItemToTrack(ExploreItem item) {
@@ -37,5 +44,51 @@ public class Converter {
             strMins = "0" + String.valueOf(mins);
 
         return strMins + ":" + strSecs;
+    }
+
+    public static Playlist dbToStandard(PlaylistDb playlistDb){
+        Playlist playlist = new Playlist();
+        playlist.setName(playlistDb.name);
+        playlist.setCoverUrl(playlistDb.coverUrl);
+
+        List<Track> tracks = new ArrayList<>();
+        playlist.setTracks(tracks);
+
+        for(TrackDb trackDb : playlistDb.tracks()){
+            Track track = new Track();
+            Metadata metadata = new Metadata();
+            metadata.setCoverUrl(trackDb.coverUrl);
+            metadata.setArtist(trackDb.artist);
+            metadata.setAlbum(trackDb.album);
+            metadata.setLength(trackDb.length);
+            metadata.setGenre(trackDb.genre);
+            metadata.setFilesize(trackDb.filesize);
+
+            track.setMetadata(metadata);
+            track.setPath(trackDb.path);
+            track.setName(trackDb.name);
+            track.setType("local");
+            track.setPlaylist(playlist);
+
+            playlist.getTracks().add(track);
+        }
+
+        return playlist;
+    }
+
+    public static TrackDb standardToDb(Track track){
+        TrackDb trackDb = new TrackDb();
+        Metadata metadata = track.getMetadata();
+
+        trackDb.name = track.getName();
+        trackDb.album = metadata.getAlbum();
+        trackDb.artist = metadata.getArtist();
+        trackDb.coverUrl = metadata.getCoverUrl();
+        trackDb.filesize = metadata.getFilesize();
+        trackDb.genre = metadata.getGenre();
+        trackDb.path = track.getPath();
+        trackDb.length = metadata.getLength();
+
+        return trackDb;
     }
 }

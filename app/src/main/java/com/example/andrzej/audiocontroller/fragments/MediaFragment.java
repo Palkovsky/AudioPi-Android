@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.text.InputType;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -16,6 +17,7 @@ import android.widget.PopupMenu;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.afollestad.materialdialogs.MaterialDialog;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
@@ -36,10 +38,13 @@ import com.example.andrzej.audiocontroller.interfaces.OnChildItemLongClickListen
 import com.example.andrzej.audiocontroller.interfaces.OnMoreChildItemClickListener;
 import com.example.andrzej.audiocontroller.models.Playlist;
 import com.example.andrzej.audiocontroller.models.Track;
+import com.example.andrzej.audiocontroller.models.dbmodels.PlaylistDb;
+import com.example.andrzej.audiocontroller.utils.Converter;
 import com.example.andrzej.audiocontroller.utils.network.Network;
 import com.example.andrzej.audiocontroller.utils.network.VolleySingleton;
 import com.example.andrzej.audiocontroller.views.BackHandledFragment;
 import com.getbase.floatingactionbutton.FloatingActionButton;
+import com.getbase.floatingactionbutton.FloatingActionsMenu;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -92,8 +97,12 @@ public class MediaFragment extends BackHandledFragment implements PullRefreshLay
     TextView mErrorTextView;
     @Bind(R.id.errorImageView)
     ImageView mErrorImageView;
+    @Bind(R.id.expand_fab)
+    FloatingActionsMenu fabRoot;
     @Bind(R.id.filterBtn)
     FloatingActionButton filterBtn;
+    @Bind(R.id.addPlaylistBtn)
+    FloatingActionButton addPlaylistBtn;
 
     public MediaFragment() {
     }
@@ -126,6 +135,7 @@ public class MediaFragment extends BackHandledFragment implements PullRefreshLay
         //Listener
         mSwipeRefreshLayout.setOnRefreshListener(this);
         filterBtn.setOnClickListener(this);
+        addPlaylistBtn.setOnClickListener(this);
 
         //Recycler config
         reInitRecycler();
@@ -141,6 +151,10 @@ public class MediaFragment extends BackHandledFragment implements PullRefreshLay
 
     @Override
     public boolean onBackPressed() {
+        if(fabRoot.isExpanded()){
+            fabRoot.collapse();
+            return true;
+        }
         return false;
     }
 
@@ -231,6 +245,22 @@ public class MediaFragment extends BackHandledFragment implements PullRefreshLay
         switch (v.getId()) {
             case R.id.filterBtn:
                 showFilterContextMenu(v);
+                break;
+            case R.id.addPlaylistBtn:
+                new MaterialDialog.Builder(getActivity())
+                        .title(R.string.add_new_playlist_dialog_title)
+                        .inputType(InputType.TYPE_CLASS_TEXT)
+                        .input(R.string.input_playlist_name_hint, R.string.input_prefill, new MaterialDialog.InputCallback() {
+                            @Override
+                            public void onInput(MaterialDialog dialog, CharSequence input) {
+                                PlaylistDb newPlaylist = new PlaylistDb(input.toString());
+                                newPlaylist.save();
+                                prefs.edit().putInt(PrefKeys.KEY_MEDIA_FILTER, Filters.LOCAL_PLAYLISTS).apply();
+                                filter = Filters.LOCAL_PLAYLISTS;
+                                filterDataset(filter);
+                                fabRoot.collapse();
+                            }
+                        }).show();
                 break;
         }
     }
@@ -345,7 +375,7 @@ public class MediaFragment extends BackHandledFragment implements PullRefreshLay
         popupMenu.show();
     }
 
-    private void disableOptions(Menu menu, int disableResId){
+    private void disableOptions(Menu menu, int disableResId) {
         menu.findItem(R.id.allAllowed).setEnabled(true);
         menu.findItem(R.id.artistsOnly).setEnabled(true);
         menu.findItem(R.id.albumsOnly).setEnabled(true);
@@ -386,12 +416,12 @@ public class MediaFragment extends BackHandledFragment implements PullRefreshLay
         return false;
     }
 
-    private void filterDataset(int filt) {
+    public void filterDataset(int filt) {
         List<Playlist> filteredPlaylist = mediaManager.applyFilter(filt, orginalPlaylists);
         mPlaylists.clear();
         mPlaylists.addAll(filteredPlaylist);
-        if(mPlaylists.size() == 0){
-            switch (filt){
+        if (mPlaylists.size() == 0) {
+            switch (filt) {
                 default:
                 case Filters.ALL:
                     setUpErrorLayout(Codes.EMPTY_DATASET);
@@ -405,8 +435,13 @@ public class MediaFragment extends BackHandledFragment implements PullRefreshLay
                 case Filters.ALBUMS:
                     setUpErrorLayout(Codes.NO_ALBUMS);
                     break;
+                case Filters.LOCAL_PLAYLISTS:
+                    for(PlaylistDb playlistDb : PlaylistDb.getAll())
+                        mPlaylists.add(Converter.dbToStandard(playlistDb));
+                    setUpNormalLayout();
+                    break;
             }
-        }else
+        } else
             setUpNormalLayout();
         reInitRecycler();
     }

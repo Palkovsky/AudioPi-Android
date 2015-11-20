@@ -68,4 +68,11 @@
     <string name="no_albums_error">No playlist for \'album\' filter.</string>
     <string name="no_artists_error">No playlist for \'artist\' filter.</string>
     <string name="no_genres_error">No playlist for \'genre\' filter.</string>
+    <string name="add_playlist">Dodaj playlistę</string>
+    <string name="add_new_playlist_dialog_title">Dodaj nową playlistę</string>
+    <string name="input_playlist_name_hint">Nazwa playlisty</string>
+    <string name="input_prefill" />
+    <string name="new_playlist_dailog_content">Podaj nazwę nowej playlisty</string>
+    <string name="choose">Wybierz</string>
+    <string name="add_to_playlist_title">Dodaj do playlisty</string>
 </resources>

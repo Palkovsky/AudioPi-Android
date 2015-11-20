@@ -6,8 +6,16 @@ import android.widget.TextView;
 
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.example.andrzej.audiocontroller.R;
+import com.example.andrzej.audiocontroller.interfaces.OnSuccess;
 import com.example.andrzej.audiocontroller.models.ExploreItem;
 import com.example.andrzej.audiocontroller.models.Metadata;
+import com.example.andrzej.audiocontroller.models.Playlist;
+import com.example.andrzej.audiocontroller.models.Track;
+import com.example.andrzej.audiocontroller.models.dbmodels.PlaylistDb;
+import com.example.andrzej.audiocontroller.models.dbmodels.TrackDb;
+
+import java.util.ArrayList;
+import java.util.List;
 
 
 public class Dialog {
@@ -39,5 +47,32 @@ public class Dialog {
         }
 
         dialog.show();
+    }
+
+    public static void showAddToPlaylistDialog(Context context, final Track track, final OnSuccess onSuccess){
+
+        final List<PlaylistDb> playlists = PlaylistDb.getAll();
+        CharSequence[] chars = new CharSequence[playlists.size()];
+
+        for(int i = 0; i < playlists.size(); i++)
+            chars[i] = playlists.get(i).name;
+
+        new MaterialDialog.Builder(context)
+                .title(R.string.add_to_playlist_title)
+                .items(chars)
+                .itemsCallbackMultiChoice(null, new MaterialDialog.ListCallbackMultiChoice() {
+                    @Override
+                    public boolean onSelection(MaterialDialog dialog, Integer[] which, CharSequence[] text) {
+                        for (Integer pos : which) {
+                            TrackDb trackDb = Converter.standardToDb(track);
+                            trackDb.playlist = playlists.get(pos);
+                            trackDb.save();
+                            onSuccess.onSuccess();
+                        }
+                        return true;
+                    }
+                })
+                .positiveText(R.string.choose)
+                .show();
     }
 }

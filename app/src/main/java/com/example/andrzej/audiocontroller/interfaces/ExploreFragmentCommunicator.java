@@ -7,4 +7,5 @@ public interface ExploreFragmentCommunicator {
     void onQueryStart(String url, String path);
     void onQuerySuccess(String url, String path, JSONObject response);
     void onQueryError(String url, int code);
+    void onCustomPlaylistTrackAppend();
 }

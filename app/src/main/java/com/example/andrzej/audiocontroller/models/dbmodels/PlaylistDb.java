@@ -18,6 +18,19 @@ public class PlaylistDb extends Model {
     @Column
     public long createdAt; //In millis, for sorting purposes
 
+    public PlaylistDb(){}
+
+    public PlaylistDb(String name) {
+        this.name = name;
+        this.createdAt = System.currentTimeMillis();
+    }
+
+    public PlaylistDb(String name, String coverUrl) {
+        this.name = name;
+        this.coverUrl = coverUrl;
+        this.createdAt = System.currentTimeMillis();
+    }
+
     public List<TrackDb> tracks() {
         return getMany(TrackDb.class, "Playlist");
     }

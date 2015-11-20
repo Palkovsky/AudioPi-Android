@@ -3,6 +3,7 @@ package com.example.andrzej.audiocontroller.adapters;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 
+import com.example.andrzej.audiocontroller.config.Filters;
 import com.example.andrzej.audiocontroller.fragments.ExploreFragment;
 import com.example.andrzej.audiocontroller.fragments.MainFragment;
 import com.example.andrzej.audiocontroller.fragments.MediaFragment;
@@ -45,6 +46,11 @@ public class SectionsPagerAdapter extends FragmentPagerAdapter {
             @Override
             public void onQueryError(String url, int code) {
                 mediaFragment.setUpErrorLayout(code);
+            }
+
+            @Override
+            public void onCustomPlaylistTrackAppend() {
+                mediaFragment.filterDataset(Filters.LOCAL_PLAYLISTS);
             }
         });
 
