@@ -5,6 +5,7 @@
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+
     <permission android:name="android.permission.MEDIA_CONTENT_CONTROL" />
 
     <application
@@ -21,7 +22,7 @@
             android:theme="@style/AppTheme.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
+                <action android:name="cat.ereza.customactivityoncrash.RESTART" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
@@ -29,15 +30,28 @@
             android:name=".activities.AudioActivity"
             android:label="@string/title_activity_audio"
             android:screenOrientation="portrait"
-            android:theme="@style/AppTheme.NoActionBarSlidr"/>
+            android:theme="@style/AppTheme.NoActionBarSlidr" />
 
         <service android:name=".services.StreamService" />
 
-        <meta-data android:name="AA_DB_NAME" android:value="AudioPi.db" />
-        <meta-data android:name="AA_DB_VERSION" android:value="1" />
+        <meta-data
+            android:name="AA_DB_NAME"
+            android:value="AudioPi.db" />
+        <meta-data
+            android:name="AA_DB_VERSION"
+            android:value="1" />
         <meta-data
             android:name="AA_MODELS"
             android:value="com.example.andrzej.audiocontroller.models.dbmodels.PlaylistDb, com.example.andrzej.audiocontroller.models.dbmodels.TrackDb" />
+
+        <activity
+            android:name=".activities.CrashActivity"
+            android:label="@string/title_activity_crash"
+            android:process=":error_activity">
+            <intent-filter>
+                <action android:name="cat.ereza.customactivityoncrash.ERROR" />
+            </intent-filter>
+        </activity>
     </application>
 
 </manifest>

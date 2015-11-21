@@ -74,8 +74,6 @@ public class StreamManager extends MediaSessionCompat.Callback implements Stream
                 default:
                 case Codes.SUCCESFULL:
                     if (currentTrack != null) {
-                        if(currentTrack.isOffline())
-                            Toast.makeText(context, "Unable to find track.", Toast.LENGTH_SHORT).show();
                         currentTrack.setOffline(false);
                         currentTrack.setPlaying(true);
                         currentTrack.setPaused(false);

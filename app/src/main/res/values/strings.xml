@@ -77,4 +77,7 @@
     <string name="add_to_playlist_title">Dodaj do playlisty</string>
     <string name="removeFromPlaylist">Usuń z playlisty</string>
     <string name="unable_to_find_track">Unable to find track</string>
+    <string name="title_activity_crash">Błąd</string>
+    <string name="crash_message">An unexpected error occurred. \n Sorry for the inconvinience.</string>
+    <string name="restart_app">Zresetuj</string>
 </resources>

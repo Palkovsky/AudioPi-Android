@@ -6,6 +6,8 @@ import android.content.Context;
 import com.activeandroid.ActiveAndroid;
 import com.example.andrzej.audiocontroller.handlers.StreamManager;
 
+import cat.ereza.customactivityoncrash.CustomActivityOnCrash;
+
 
 public class MyApplication extends Application {
 
@@ -16,6 +18,7 @@ public class MyApplication extends Application {
     public void onCreate() {
         super.onCreate();
         ActiveAndroid.initialize(this);
+        CustomActivityOnCrash.install(this);
         MyApplication.context = getApplicationContext();
         streamManager = new StreamManager(context);
     }
