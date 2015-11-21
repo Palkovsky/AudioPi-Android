@@ -35,6 +35,7 @@ import com.example.andrzej.audiocontroller.handlers.MediaManager;
 import com.example.andrzej.audiocontroller.interfaces.MediaCommunicator;
 import com.example.andrzej.audiocontroller.interfaces.OnChildItemClickListener;
 import com.example.andrzej.audiocontroller.interfaces.OnChildItemLongClickListener;
+import com.example.andrzej.audiocontroller.interfaces.OnLongItemClickListener;
 import com.example.andrzej.audiocontroller.interfaces.OnMoreChildItemClickListener;
 import com.example.andrzej.audiocontroller.interfaces.OnRemove;
 import com.example.andrzej.audiocontroller.interfaces.OnSuccess;
@@ -213,6 +214,12 @@ public class MediaFragment extends BackHandledFragment implements PullRefreshLay
         mRecyclerView.setAdapter(null);
         mRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
         mRecyclerView.swapAdapter(mAdapter, true);
+        mAdapter.setOnLongItemClickListener(new OnLongItemClickListener() {
+            @Override
+            public void onLongItemClick(View v, int position) {
+                Toast.makeText(getActivity(), "Odpal plajliste w innym fragmencie, czy tam activity", Toast.LENGTH_SHORT).show();
+            }
+        });
         mAdapter.setOnTrackClickListener(new OnChildItemClickListener() {
             @Override
             public void onChildItemClick(View v, int position, int internalPos, Object obj) {

@@ -9,6 +9,7 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.bignerdranch.expandablerecyclerview.Adapter.ExpandableRecyclerAdapter;
 import com.bignerdranch.expandablerecyclerview.Model.ParentListItem;
@@ -17,6 +18,7 @@ import com.bignerdranch.expandablerecyclerview.ViewHolder.ParentViewHolder;
 import com.example.andrzej.audiocontroller.R;
 import com.example.andrzej.audiocontroller.interfaces.OnChildItemClickListener;
 import com.example.andrzej.audiocontroller.interfaces.OnChildItemLongClickListener;
+import com.example.andrzej.audiocontroller.interfaces.OnLongItemClickListener;
 import com.example.andrzej.audiocontroller.interfaces.OnMoreChildItemClickListener;
 import com.example.andrzej.audiocontroller.models.Playlist;
 import com.example.andrzej.audiocontroller.models.Track;
@@ -30,6 +32,7 @@ public class MediaRecyclerAdapter extends ExpandableRecyclerAdapter<MediaRecycle
     private LayoutInflater mInflater;
     private Context context;
 
+    private OnLongItemClickListener onLongItemClickListener;
     private OnChildItemClickListener onTrackClickListener;
     private OnChildItemLongClickListener onTrackLongClickListener;
     private OnMoreChildItemClickListener onMoreTrackItemClickListener;
@@ -54,10 +57,17 @@ public class MediaRecyclerAdapter extends ExpandableRecyclerAdapter<MediaRecycle
 
     @Override
     public void onBindParentViewHolder(PlaylistViewHolder playlistViewHolder, final int position, ParentListItem parentListItem) {
-        Playlist playlist = (Playlist) parentListItem;
+        final Playlist playlist = (Playlist) parentListItem;
 
         //Listeners
-
+        playlistViewHolder.rootLayout.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                if(onLongItemClickListener != null)
+                    onLongItemClickListener.onLongItemClick(v, calculateParentPosition(playlist));
+                return true;
+            }
+        });
 
         playlistViewHolder.coverIv.setImageBitmap(null);
         playlistViewHolder.coverIv.setImageDrawable(null);
@@ -160,12 +170,12 @@ public class MediaRecyclerAdapter extends ExpandableRecyclerAdapter<MediaRecycle
         return internalPos;
     }
 
-    private int calculateParentPosition(Playlist playlist){
+    private int calculateParentPosition(Playlist playlist) {
         int parentPos = 0;
 
-        for (Object parentObject : getParentItemList()){
+        for (Object parentObject : getParentItemList()) {
             Playlist parentPlaylsit = (Playlist) parentObject;
-            if(parentPlaylsit.equals(playlist))
+            if (parentPlaylsit.equals(playlist))
                 return parentPos;
             else
                 parentPos++;
@@ -174,6 +184,9 @@ public class MediaRecyclerAdapter extends ExpandableRecyclerAdapter<MediaRecycle
         return parentPos;
     }
 
+    public void setOnLongItemClickListener(OnLongItemClickListener onLongItemClickListener) {
+        this.onLongItemClickListener = onLongItemClickListener;
+    }
 
     public void setOnTrackClickListener(OnChildItemClickListener onTrackClickListener) {
         this.onTrackClickListener = onTrackClickListener;
