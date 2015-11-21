@@ -93,8 +93,10 @@ public class MediaRecyclerAdapter extends ExpandableRecyclerAdapter<MediaRecycle
             trackViewHolder.rootLayout.setOnLongClickListener(new View.OnLongClickListener() {
                 @Override
                 public boolean onLongClick(View v) {
+                    int parentPos = calculateParentPosition(track.getPlaylist());
+                    int internalPos = calculateInternalPosition(track.getPlaylist(), track);
                     if (onTrackLongClickListener != null)
-                        onTrackLongClickListener.onChildLongClickListener(v, position, childListItem);
+                        onTrackLongClickListener.onChildLongClickListener(v, position, parentPos, internalPos, track);
                     return true;
                 }
             });
@@ -102,8 +104,10 @@ public class MediaRecyclerAdapter extends ExpandableRecyclerAdapter<MediaRecycle
             trackViewHolder.moreBtn.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
+                    int parentPos = calculateParentPosition(track.getPlaylist());
+                    int internalPos = calculateInternalPosition(track.getPlaylist(), track);
                     if (onMoreTrackItemClickListener != null)
-                        onMoreTrackItemClickListener.onMoreChildItemClick(v, position, childListItem);
+                        onMoreTrackItemClickListener.onMoreChildItemClick(v, position, parentPos, internalPos, track);
                 }
             });
 
@@ -154,6 +158,20 @@ public class MediaRecyclerAdapter extends ExpandableRecyclerAdapter<MediaRecycle
         }
 
         return internalPos;
+    }
+
+    private int calculateParentPosition(Playlist playlist){
+        int parentPos = 0;
+
+        for (Object parentObject : getParentItemList()){
+            Playlist parentPlaylsit = (Playlist) parentObject;
+            if(parentPlaylsit.equals(playlist))
+                return parentPos;
+            else
+                parentPos++;
+        }
+
+        return parentPos;
     }
 
 

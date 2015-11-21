@@ -18,7 +18,8 @@ public class PlaylistDb extends Model {
     @Column
     public long createdAt; //In millis, for sorting purposes
 
-    public PlaylistDb(){}
+    public PlaylistDb() {
+    }
 
     public PlaylistDb(String name) {
         this.name = name;
@@ -41,4 +42,5 @@ public class PlaylistDb extends Model {
                 .orderBy("createdAt ASC")
                 .execute();
     }
+
 }

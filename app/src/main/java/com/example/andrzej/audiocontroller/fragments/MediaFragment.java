@@ -36,10 +36,13 @@ import com.example.andrzej.audiocontroller.interfaces.MediaCommunicator;
 import com.example.andrzej.audiocontroller.interfaces.OnChildItemClickListener;
 import com.example.andrzej.audiocontroller.interfaces.OnChildItemLongClickListener;
 import com.example.andrzej.audiocontroller.interfaces.OnMoreChildItemClickListener;
+import com.example.andrzej.audiocontroller.interfaces.OnRemove;
+import com.example.andrzej.audiocontroller.interfaces.OnSuccess;
 import com.example.andrzej.audiocontroller.models.Playlist;
 import com.example.andrzej.audiocontroller.models.Track;
 import com.example.andrzej.audiocontroller.models.dbmodels.PlaylistDb;
 import com.example.andrzej.audiocontroller.utils.Converter;
+import com.example.andrzej.audiocontroller.utils.Dialog;
 import com.example.andrzej.audiocontroller.utils.network.Network;
 import com.example.andrzej.audiocontroller.utils.network.VolleySingleton;
 import com.example.andrzej.audiocontroller.views.BackHandledFragment;
@@ -219,16 +222,43 @@ public class MediaFragment extends BackHandledFragment implements PullRefreshLay
         });
         mAdapter.setOnTrackLongClickListener(new OnChildItemLongClickListener() {
             @Override
-            public void onChildLongClickListener(View v, int position, Object obj) {
+            public void onChildLongClickListener(View v, int position, final int parentPos, final int internalPos, Object obj) {
+
+
                 Track item = (Track) obj;
-                Toast.makeText(getActivity(), "POKAZ MENIU | POS: " + position + " - " + item.getName(), Toast.LENGTH_SHORT).show();
+                Dialog.showTrackMediaDialog(getActivity(), item, new OnSuccess() {
+                    @Override
+                    public void onSuccess() {
+                        //filterDataset(filter);
+                    }
+                }, new OnRemove() {
+                    @Override
+                    public void onRemove() {
+                        mPlaylists.get(parentPos).getTracks().remove(internalPos);
+                        mAdapter.notifyChildItemRemoved(parentPos, internalPos);
+                        mAdapter.notifyParentItemChanged(parentPos);
+                    }
+                });
+
             }
         });
         mAdapter.setOnMoreTrackItemClickListener(new OnMoreChildItemClickListener() {
             @Override
-            public void onMoreChildItemClick(View v, int position, Object obj) {
+            public void onMoreChildItemClick(View v, int position, final int parentPos, final int internalPos, Object obj) {
                 Track item = (Track) obj;
-                Toast.makeText(getActivity(), "POKAZ MENIU | POS: " + position + " - " + item.getName(), Toast.LENGTH_SHORT).show();
+                Dialog.showTrackMediaDialog(getActivity(), item, new OnSuccess() {
+                    @Override
+                    public void onSuccess() {
+                        //filterDataset(filter);
+                    }
+                }, new OnRemove() {
+                    @Override
+                    public void onRemove() {
+                        mPlaylists.get(parentPos).getTracks().remove(internalPos);
+                        mAdapter.notifyChildItemRemoved(parentPos, internalPos);
+                        mAdapter.notifyParentItemChanged(parentPos);
+                    }
+                });
             }
         });
     }
@@ -413,10 +443,13 @@ public class MediaFragment extends BackHandledFragment implements PullRefreshLay
 
         filterDataset(filter);
         editor.apply();
+        fabRoot.collapse();
         return false;
     }
 
     public void filterDataset(int filt) {
+        prefs.edit().putInt(PrefKeys.KEY_MEDIA_FILTER, filt).apply();
+        filter = filt;
         List<Playlist> filteredPlaylist = mediaManager.applyFilter(filt, orginalPlaylists);
         mPlaylists.clear();
         mPlaylists.addAll(filteredPlaylist);

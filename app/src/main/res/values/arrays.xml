@@ -11,4 +11,9 @@
         <item>@string/addToPlaylist</item>
         <item>@string/songDetalis</item>
     </string-array>
+    <string-array name="explore_file_dialog_items_local">
+        <item>@string/download</item>
+        <item>@string/removeFromPlaylist</item>
+        <item>@string/songDetalis</item>
+    </string-array>
 </resources>

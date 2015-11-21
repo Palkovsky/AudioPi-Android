@@ -75,4 +75,5 @@
     <string name="new_playlist_dailog_content">Podaj nazwę nowej playlisty</string>
     <string name="choose">Wybierz</string>
     <string name="add_to_playlist_title">Dodaj do playlisty</string>
+    <string name="removeFromPlaylist">Usuń z playlisty</string>
 </resources>

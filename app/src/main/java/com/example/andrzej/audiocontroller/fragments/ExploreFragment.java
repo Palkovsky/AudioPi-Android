@@ -6,20 +6,16 @@ import android.preference.PreferenceManager;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.HorizontalScrollView;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.PopupMenu;
 import android.widget.TextView;
-import android.widget.Toast;
 
-import com.afollestad.materialdialogs.MaterialDialog;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
@@ -43,15 +39,12 @@ import com.example.andrzej.audiocontroller.interfaces.OnLongItemClickListener;
 import com.example.andrzej.audiocontroller.interfaces.OnMoreItemClickListener;
 import com.example.andrzej.audiocontroller.interfaces.OnSuccess;
 import com.example.andrzej.audiocontroller.models.ExploreItem;
-import com.example.andrzej.audiocontroller.models.Metadata;
 import com.example.andrzej.audiocontroller.utils.Converter;
 import com.example.andrzej.audiocontroller.utils.Dialog;
 import com.example.andrzej.audiocontroller.utils.Image;
-import com.example.andrzej.audiocontroller.utils.network.Downloader;
 import com.example.andrzej.audiocontroller.utils.network.Network;
 import com.example.andrzej.audiocontroller.utils.network.VolleySingleton;
 import com.example.andrzej.audiocontroller.views.BackHandledFragment;
-import com.example.andrzej.audiocontroller.views.BlankingImageButton;
 import com.getbase.floatingactionbutton.FloatingActionButton;
 import com.getbase.floatingactionbutton.FloatingActionsMenu;
 
@@ -517,33 +510,13 @@ public class ExploreFragment extends BackHandledFragment implements OnItemClickL
     }
 
     private void showFileDialog(final ExploreItem item) {
-        new MaterialDialog.Builder(getActivity())
-                .title(item.getName())
-                .items(R.array.explore_file_dialog_items)
-                .negativeText(R.string.back)
-                .itemsCallback(new MaterialDialog.ListCallback() {
-                    @Override
-                    public void onSelection(MaterialDialog materialDialog, View view, int i, CharSequence charSequence) {
-
-                        switch (i) {
-                            case 0: //Download
-                                Downloader.downloadFile(getActivity(), item);
-                                break; //Add to playlist
-                            case 1:
-                                Dialog.showAddToPlaylistDialog(getActivity(), Converter.exploreItemToTrack(item), new OnSuccess() {
-                                    @Override
-                                    public void onSuccess() {
-                                        if(communicator != null)
-                                            communicator.onCustomPlaylistTrackAppend();
-                                    }
-                                });
-                                break;
-                            case 2: //Add to metadata
-                                Dialog.showMetadataDialog(getActivity(), item);
-                                break;
-                        }
-                    }
-                }).show();
+        Dialog.showTrackExploreDialog(getActivity(), item, new OnSuccess() {
+            @Override
+            public void onSuccess() {
+                if (communicator != null)
+                    communicator.onCustomPlaylistTrackAppend();
+            }
+        });
     }
 
 

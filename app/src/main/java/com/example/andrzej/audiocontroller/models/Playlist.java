@@ -1,9 +1,7 @@
 package com.example.andrzej.audiocontroller.models;
 
-import android.content.Context;
 
 import com.bignerdranch.expandablerecyclerview.Model.ParentListItem;
-import com.example.andrzej.audiocontroller.R;
 
 import java.util.List;
 
@@ -14,7 +12,7 @@ public class Playlist implements ParentListItem {
     private String type;
     private int position;
     private List<Track> tracks;
-
+    private long dbId;
 
     public String getName() {
         return name;
@@ -50,17 +48,6 @@ public class Playlist implements ParentListItem {
         this.tracks = tracks;
     }
 
-    public String getType(Context context) {
-        if (type.equals("artist"))
-            return context.getString(R.string.artistSimple);
-        else if (type.equals("album"))
-            return context.getString(R.string.albumSimple);
-        else if (type.equals("genre"))
-            return context.getString(R.string.genreSimple);
-        else
-            return null;
-    }
-
     public void setType(String type) {
         this.type = type;
     }
@@ -87,15 +74,27 @@ public class Playlist implements ParentListItem {
         return tracks.size() > 0 && position > 0;
     }
 
-    public void next(){
+    public void next() {
         tracks.get(position).setPlaying(false);
         position++;
         tracks.get(position).setPlaying(true);
     }
 
-    public void prev(){
+    public void prev() {
         tracks.get(position).setPlaying(false);
         position--;
         tracks.get(position).setPlaying(true);
+    }
+
+    public boolean isLocal() {
+        return type.equals("local");
+    }
+
+    public long getDbId() {
+        return dbId;
+    }
+
+    public void setDbId(long dbId) {
+        this.dbId = dbId;
     }
 }

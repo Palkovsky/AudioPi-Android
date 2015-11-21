@@ -46,15 +46,17 @@ public class Converter {
         return strMins + ":" + strSecs;
     }
 
-    public static Playlist dbToStandard(PlaylistDb playlistDb){
+    public static Playlist dbToStandard(PlaylistDb playlistDb) {
         Playlist playlist = new Playlist();
         playlist.setName(playlistDb.name);
         playlist.setCoverUrl(playlistDb.coverUrl);
+        playlist.setDbId(playlistDb.getId());
+        playlist.setType("local");
 
         List<Track> tracks = new ArrayList<>();
         playlist.setTracks(tracks);
 
-        for(TrackDb trackDb : playlistDb.tracks()){
+        for (TrackDb trackDb : playlistDb.tracks()) {
             Track track = new Track();
             Metadata metadata = new Metadata();
             metadata.setCoverUrl(trackDb.coverUrl);
@@ -69,6 +71,7 @@ public class Converter {
             track.setName(trackDb.name);
             track.setType("local");
             track.setPlaylist(playlist);
+            track.setDbId(trackDb.getId());
 
             playlist.getTracks().add(track);
         }
@@ -76,7 +79,7 @@ public class Converter {
         return playlist;
     }
 
-    public static TrackDb standardToDb(Track track){
+    public static TrackDb standardToDb(Track track) {
         TrackDb trackDb = new TrackDb();
         Metadata metadata = track.getMetadata();
 

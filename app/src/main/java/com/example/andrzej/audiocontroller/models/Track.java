@@ -7,6 +7,7 @@ public class Track extends ExploreItem{
     private boolean paused;
     private float posMiliSecs;
     private float totalMiliSecs;
+    private long dbId;
 
     public Track() {
         setDirectory(false);
@@ -47,5 +48,13 @@ public class Track extends ExploreItem{
 
     public void setMilliTotalSecs(float totalMiliSecs) {
         this.totalMiliSecs = totalMiliSecs;
+    }
+
+    public long getDbId() {
+        return dbId;
+    }
+
+    public void setDbId(long dbId) {
+        this.dbId = dbId;
     }
 }
