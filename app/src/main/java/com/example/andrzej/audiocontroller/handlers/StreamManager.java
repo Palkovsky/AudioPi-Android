@@ -93,13 +93,13 @@ public class StreamManager extends MediaSessionCompat.Callback implements Stream
                 case Codes.INVALID_PATH:
                 case Codes.FILE_NOT_EXSISTS:
                     currentTrack.setOffline(true);
-                    if(currentPlaylist.canGoNext())
+                    if (currentPlaylist.canGoNext())
                         nextTrack();
-                    else{
+                    else {
                         Toast.makeText(context, R.string.unable_to_find_track, Toast.LENGTH_SHORT).show();
                         currentPlaylist = null;
                         currentTrack = null;
-                        if(mediaCallback != null)
+                        if (mediaCallback != null)
                             mediaCallback.onMediaStop();
                         flush();
                     }
@@ -191,24 +191,24 @@ public class StreamManager extends MediaSessionCompat.Callback implements Stream
                     }
                     break;
                 case PlaybackMethods.PLAYLIST_SHUFFLE:
-                    if (currentPlaylist.getTracks().size() > 0) {
+                    if (currentPlaylist.getTracks().size() > 1) {
                         Random r = new Random();
                         int randomPos = r.nextInt(currentPlaylist.getTracks().size());
                         if (randomPos == currentPlaylist.position()) {
                             if (randomPos == 0)
                                 randomPos++;
-                            else if (randomPos == currentPlaylist.getTracks().size() - 1)
+                            else
                                 randomPos--;
                         }
                         if (randomPos >= 0 && randomPos < currentPlaylist.getTracks().size())
                             setPosition(randomPos);
-                        else if (currentPlaylist.getTracks().size() == 1)
-                            setPosition(0);
                         else {
                             currentPlaylist = null;
                             currentTrack = null;
                         }
-                    } else {
+                    } else if (currentPlaylist.getTracks().size() == 1)
+                        setPosition(0);
+                    else {
                         currentPlaylist = null;
                         currentTrack = null;
                     }
@@ -275,7 +275,7 @@ public class StreamManager extends MediaSessionCompat.Callback implements Stream
     public void prevTrack() {
         restartPlaylistState();
 
-        if(currentPlaylist != null && currentPlaylist.position() >= currentPlaylist.getTracks().size()) {
+        if (currentPlaylist != null && currentPlaylist.position() >= currentPlaylist.getTracks().size()) {
             currentPlaylist.setPosition(currentPlaylist.getPosition() - 1);
             prevTrack();
         } else if (currentPlaylist != null && currentPlaylist.canGoPrev()) {
