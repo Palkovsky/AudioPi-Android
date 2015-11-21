@@ -5,6 +5,7 @@ public class Track extends ExploreItem{
 
     private boolean playing;
     private boolean paused;
+    private boolean offline = true;
     private float posMiliSecs;
     private float totalMiliSecs;
     private long dbId;
@@ -56,5 +57,13 @@ public class Track extends ExploreItem{
 
     public void setDbId(long dbId) {
         this.dbId = dbId;
+    }
+
+    public boolean isOffline() {
+        return offline;
+    }
+
+    public void setOffline(boolean offline) {
+        this.offline = offline;
     }
 }

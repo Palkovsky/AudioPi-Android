@@ -76,4 +76,5 @@
     <string name="choose">Wybierz</string>
     <string name="add_to_playlist_title">Dodaj do playlisty</string>
     <string name="removeFromPlaylist">Usuń z playlisty</string>
+    <string name="unable_to_find_track">Unable to find track</string>
 </resources>

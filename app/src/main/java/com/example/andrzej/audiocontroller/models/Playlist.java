@@ -75,15 +75,22 @@ public class Playlist implements ParentListItem {
     }
 
     public void next() {
-        tracks.get(position).setPlaying(false);
-        position++;
-        tracks.get(position).setPlaying(true);
+            tracks.get(position).setPlaying(false);
+            position++;
+            tracks.get(position).setPlaying(true);
+
     }
 
     public void prev() {
-        tracks.get(position).setPlaying(false);
-        position--;
-        tracks.get(position).setPlaying(true);
+        if(position < tracks.size()) {
+            tracks.get(position).setPlaying(false);
+            position--;
+            tracks.get(position).setPlaying(true);
+        }
+    }
+
+    public int getPosition() {
+        return position;
     }
 
     public boolean isLocal() {

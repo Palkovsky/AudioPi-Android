@@ -10,6 +10,7 @@ import android.widget.Toast;
 
 import com.android.volley.VolleyError;
 import com.example.andrzej.audiocontroller.R;
+import com.example.andrzej.audiocontroller.config.Codes;
 import com.example.andrzej.audiocontroller.config.PlaybackMethods;
 import com.example.andrzej.audiocontroller.interfaces.MediaCallback;
 import com.example.andrzej.audiocontroller.interfaces.StreamListener;
@@ -66,23 +67,48 @@ public class StreamManager extends MediaSessionCompat.Callback implements Stream
 
     @Override
     public void onStreamStart(Track track, JSONObject response) {
-        if(currentTrack != null) {
-            currentTrack.setPlaying(true);
-            currentTrack.setPaused(false);
-            currentTrack.setMilliPosSecs(0);
+        try {
 
-            try {
-                float total = response.getInt("total");
-                currentTrack.setMilliTotalSecs(total);
-            } catch (JSONException e) {
-                e.printStackTrace();
+            int code = response.getInt("code");
+            switch (code) {
+                default:
+                case Codes.SUCCESFULL:
+                    if (currentTrack != null) {
+                        if(currentTrack.isOffline())
+                            Toast.makeText(context, "Unable to find track.", Toast.LENGTH_SHORT).show();
+                        currentTrack.setOffline(false);
+                        currentTrack.setPlaying(true);
+                        currentTrack.setPaused(false);
+                        currentTrack.setMilliPosSecs(0);
+
+                        float total = response.getInt("total");
+                        currentTrack.setMilliTotalSecs(total);
+
+
+                        serviceManager.stop();
+                        serviceManager.start();
+
+                        if (mediaCallback != null)
+                            mediaCallback.onMediaStart();
+                    }
+                    break;
+                case Codes.INVALID_PATH:
+                case Codes.FILE_NOT_EXSISTS:
+                    currentTrack.setOffline(true);
+                    if(currentPlaylist.canGoNext())
+                        nextTrack();
+                    else{
+                        Toast.makeText(context, R.string.unable_to_find_track, Toast.LENGTH_SHORT).show();
+                        currentPlaylist = null;
+                        currentTrack = null;
+                        if(mediaCallback != null)
+                            mediaCallback.onMediaStop();
+                        flush();
+                    }
+                    break;
             }
-
-            serviceManager.stop();
-            serviceManager.start();
-
-            if (mediaCallback != null)
-                mediaCallback.onMediaStart();
+        } catch (JSONException e) {
+            e.printStackTrace();
         }
     }
 
@@ -146,7 +172,7 @@ public class StreamManager extends MediaSessionCompat.Callback implements Stream
                     }
                     break;
                 case PlaybackMethods.PLAYLIST_REPEAT:
-                    if(currentPlaylist.getTracks().size() == 0){
+                    if (currentPlaylist.getTracks().size() == 0) {
                         currentPlaylist = null;
                         currentTrack = null;
                     } else if (currentPlaylist.canGoNext())
@@ -159,15 +185,15 @@ public class StreamManager extends MediaSessionCompat.Callback implements Stream
                     }
                     break;
                 case PlaybackMethods.PLAYLIST_TRACK_REPEAT:
-                    if(currentPlaylist.getTracks().size() < currentPlaylist.position() && currentPlaylist.getTracks().size() > 0)
-                    setPosition(currentPlaylist.position());
+                    if (currentPlaylist.getTracks().size() < currentPlaylist.position() && currentPlaylist.getTracks().size() > 0)
+                        setPosition(currentPlaylist.position());
                     else {
                         currentPlaylist = null;
                         currentTrack = null;
                     }
                     break;
                 case PlaybackMethods.PLAYLIST_SHUFFLE:
-                    if(currentPlaylist.getTracks().size() > 0) {
+                    if (currentPlaylist.getTracks().size() > 0) {
                         Random r = new Random();
                         int randomPos = r.nextInt(currentPlaylist.getTracks().size());
                         if (randomPos == currentPlaylist.position()) {
@@ -184,14 +210,14 @@ public class StreamManager extends MediaSessionCompat.Callback implements Stream
                             currentPlaylist = null;
                             currentTrack = null;
                         }
-                    }else{
+                    } else {
                         currentPlaylist = null;
                         currentTrack = null;
                     }
                     break;
             }
         else if (currentTrack != null) {
-            switch (trackPlaybackMethod){
+            switch (trackPlaybackMethod) {
                 default:
                 case PlaybackMethods.TRACK_NORMAL:
                     currentPlaylist = null;
@@ -250,7 +276,11 @@ public class StreamManager extends MediaSessionCompat.Callback implements Stream
 
     public void prevTrack() {
         restartPlaylistState();
-        if (currentPlaylist != null && currentPlaylist.canGoPrev()) {
+
+        if(currentPlaylist != null && currentPlaylist.position() >= currentPlaylist.getTracks().size()) {
+            currentPlaylist.setPosition(currentPlaylist.getPosition() - 1);
+            prevTrack();
+        } else if (currentPlaylist != null && currentPlaylist.canGoPrev()) {
             currentPlaylist.prev();
             currentTrack = currentPlaylist.getTracks().get(currentPlaylist.position());
             start(true);
