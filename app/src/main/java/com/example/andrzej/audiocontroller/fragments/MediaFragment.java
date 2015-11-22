@@ -1,5 +1,6 @@
 package com.example.andrzej.audiocontroller.fragments;
 
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -25,6 +26,7 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.baoyz.widget.PullRefreshLayout;
 import com.example.andrzej.audiocontroller.R;
+import com.example.andrzej.audiocontroller.activities.DetalisActivity;
 import com.example.andrzej.audiocontroller.adapters.MediaRecyclerAdapter;
 import com.example.andrzej.audiocontroller.config.Codes;
 import com.example.andrzej.audiocontroller.config.Endpoints;
@@ -69,6 +71,7 @@ import fr.castorflex.android.smoothprogressbar.SmoothProgressBar;
 public class MediaFragment extends BackHandledFragment implements PullRefreshLayout.OnRefreshListener, View.OnClickListener, PopupMenu.OnMenuItemClickListener {
 
     public static final String TAG = "MEDIA_FRAGMENT";
+    public  final static String SER_KEY = "com.example.andrzej.audiocontroller.fragments.MediaFragment";
 
     //Objects
     private MediaRecyclerAdapter mAdapter;
@@ -155,7 +158,7 @@ public class MediaFragment extends BackHandledFragment implements PullRefreshLay
 
     @Override
     public boolean onBackPressed() {
-        if(fabRoot.isExpanded()){
+        if (fabRoot.isExpanded()) {
             fabRoot.collapse();
             return true;
         }
@@ -189,12 +192,16 @@ public class MediaFragment extends BackHandledFragment implements PullRefreshLay
             }
         } else {
             mPlaylists.clear();
-            reInitRecycler();
-            if (!Network.isNetworkAvailable(getActivity()))
-                mErrorTextView.setText(R.string.no_internet_error);
-            else
-                mErrorTextView.setText(R.string.server_error);
-
+            if(filter != Filters.LOCAL_PLAYLISTS) {
+                reInitRecycler();
+                if (!Network.isNetworkAvailable(getActivity()))
+                    mErrorTextView.setText(R.string.no_internet_error);
+                else
+                    mErrorTextView.setText(R.string.server_error);
+            }else{
+                filterDataset(filter);
+                setUpNormalLayout();
+            }
         }
     }
 
@@ -217,7 +224,11 @@ public class MediaFragment extends BackHandledFragment implements PullRefreshLay
         mAdapter.setOnLongItemClickListener(new OnLongItemClickListener() {
             @Override
             public void onLongItemClick(View v, int position) {
-                Toast.makeText(getActivity(), "Odpal plajliste w innym fragmencie, czy tam activity", Toast.LENGTH_SHORT).show();
+                Intent intent = new Intent(getActivity(), DetalisActivity.class);
+                Bundle bundle = new Bundle();
+                bundle.putSerializable(SER_KEY, mPlaylists.get(position));
+                intent.putExtras(bundle);
+                getActivity().startActivity(intent);
             }
         });
         mAdapter.setOnTrackClickListener(new OnChildItemClickListener() {
@@ -476,7 +487,7 @@ public class MediaFragment extends BackHandledFragment implements PullRefreshLay
                     setUpErrorLayout(Codes.NO_ALBUMS);
                     break;
                 case Filters.LOCAL_PLAYLISTS:
-                    for(PlaylistDb playlistDb : PlaylistDb.getAll())
+                    for (PlaylistDb playlistDb : PlaylistDb.getAll())
                         mPlaylists.add(Converter.dbToStandard(playlistDb));
                     setUpNormalLayout();
                     break;

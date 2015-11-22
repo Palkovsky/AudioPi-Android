@@ -46,11 +46,9 @@ public class StreamService extends AbstractService {
                                 int code = response.getInt("code");
                                 if (code == 1015) {
                                     send(Message.obtain(null, MSG_VALUE, -1, 0));
-                                    Log.e(null, "DED");
                                 } else {
                                     int curTime = response.getJSONObject("playback").getJSONObject("position").getInt("millis");
                                     send(Message.obtain(null, MSG_POS_UPDATE, curTime, 0));
-                                    Log.e(null, "PLAYING!!");
                                 }
                             } catch (JSONException e) {
                                 e.printStackTrace();

@@ -1,4 +1,4 @@
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
 
     <!-- Base application theme. -->
     <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
@@ -41,5 +41,27 @@
 
     <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
     <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
+
+    <style name="Widget.MyApp.Toolbar.Solid" parent="Widget.AppCompat.ActionBar">
+        <item name="android:background">@color/colorPrimary</item>
+        <item name="android:elevation" tools:ignore="NewApi">4dp</item>
+    </style>
+
+    <style name="ThemeOverlay.MyApp.ActionBar" parent="ThemeOverlay.AppCompat.ActionBar">
+        <!-- Parent theme sets colorControlNormal to textColorPrimary. -->
+        <item name="android:textColorPrimary">@color/white</item>
+    </style>
+
+    <!-- ActionBar vs Toolbar. -->
+    <style name="Widget.MyApp.ActionBar.Solid" parent="Widget.AppCompat.ActionBar.Solid">
+        <item name="background">@color/colorPrimary</item> <!-- No prefix. -->
+        <item name="elevation">4dp</item> <!-- No prefix. -->
+    </style>
+
+    <style name="Theme.MyApp" parent="Theme.AppCompat">
+        <item name="actionBarStyle">@style/Widget.MyApp.ActionBar.Solid</item>
+        <item name="actionBarTheme">@style/ThemeOverlay.MyApp.ActionBar</item>
+        <item name="actionBarPopupTheme">@style/ThemeOverlay.AppCompat.Light</item>
+    </style>
 
 </resources>

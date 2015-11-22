@@ -7,7 +7,9 @@ import org.apache.commons.io.FilenameUtils;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-public class ExploreItem {
+import java.io.Serializable;
+
+public class ExploreItem implements Serializable {
     private String path;
     private String name;
     private String type;

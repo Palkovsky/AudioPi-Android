@@ -3,9 +3,11 @@ package com.example.andrzej.audiocontroller.models;
 
 import com.bignerdranch.expandablerecyclerview.Model.ParentListItem;
 
+import java.io.Serializable;
 import java.util.List;
 
-public class Playlist implements ParentListItem {
+public class Playlist implements ParentListItem, Serializable {
+
 
     private String name;
     private String coverUrl;

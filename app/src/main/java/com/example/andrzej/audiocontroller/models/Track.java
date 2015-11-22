@@ -1,8 +1,8 @@
 package com.example.andrzej.audiocontroller.models;
 
 
-public class Track extends ExploreItem{
 
+public class Track extends ExploreItem {
     private boolean playing;
     private boolean paused;
     private boolean offline = true;

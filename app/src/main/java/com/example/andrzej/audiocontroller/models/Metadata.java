@@ -1,6 +1,8 @@
 package com.example.andrzej.audiocontroller.models;
 
-public class Metadata {
+import java.io.Serializable;
+
+public class Metadata implements Serializable{
     private String artist;
     private String album;
     private String genre;

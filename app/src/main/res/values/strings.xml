@@ -80,4 +80,5 @@
     <string name="title_activity_crash">Błąd</string>
     <string name="crash_message">An unexpected error occurred. \n Sorry for the inconvinience.</string>
     <string name="restart_app">Reset</string>
+    <string name="title_activity_detalis">DetalisActivity</string>
 </resources>
