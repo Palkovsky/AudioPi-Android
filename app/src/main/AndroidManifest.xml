@@ -37,6 +37,8 @@
         <activity
             android:name=".activities.CrashActivity"
             android:label="@string/title_activity_crash"
+            android:screenOrientation="portrait"
+
             android:process=":error_activity" >
             <intent-filter>
                 <action android:name="cat.ereza.customactivityoncrash.ERROR" />
@@ -45,6 +47,17 @@
         <activity
             android:name=".activities.DetalisActivity"
             android:label="@string/title_activity_detalis"
+            android:screenOrientation="portrait"
+            android:parentActivityName=".activities.MainActivity"
+            android:theme="@style/AppTheme.NoActionBar" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.example.andrzej.audiocontroller.activities.MainActivity" />
+        </activity>
+        <activity
+            android:name=".activities.PreferencesActivity"
+            android:label="@string/activity_settings"
+            android:screenOrientation="portrait"
             android:parentActivityName=".activities.MainActivity"
             android:theme="@style/AppTheme.NoActionBar" >
             <meta-data

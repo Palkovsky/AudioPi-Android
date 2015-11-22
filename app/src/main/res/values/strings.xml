@@ -81,4 +81,8 @@
     <string name="crash_message">An unexpected error occurred. \n Sorry for the inconvinience.</string>
     <string name="restart_app">Reset</string>
     <string name="title_activity_detalis">DetalisActivity</string>
+    <string name="shuffle_on_wave_key">SHUFFLE_ON_WAVE</string>
+    <string name="shuffle_on_wave_summary">While playling playlist you can shuffle your current track with accelerometer.</string>
+    <string name="shuffle_on_wave_title">Accelerometer Shuffle</string>
+    <string name="activity_settings">Settings</string>
 </resources>

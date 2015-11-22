@@ -28,7 +28,7 @@ public class DetalisActivity extends AppCompatActivity implements BackHandledFra
 
         //Read extras
         Playlist playlist = (Playlist) getIntent().getSerializableExtra(MediaFragment.SER_KEY);
-        Toast.makeText(this, playlist.getName() + " | " + playlist.getTracks().size() + " | " + playlist.getTracks().get(0).isPlaying(), Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, playlist.getName() + " | " + playlist.getTracks().size(), Toast.LENGTH_SHORT).show();
 
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
