@@ -198,27 +198,7 @@ public class StreamManager extends MediaSessionCompat.Callback implements Stream
                     }
                     break;
                 case PlaybackMethods.PLAYLIST_SHUFFLE:
-                    if (currentPlaylist.getTracks().size() > 1) {
-                        Random r = new Random();
-                        int randomPos = r.nextInt(currentPlaylist.getTracks().size());
-                        if (randomPos == currentPlaylist.position()) {
-                            if (randomPos == 0)
-                                randomPos++;
-                            else
-                                randomPos--;
-                        }
-                        if (randomPos >= 0 && randomPos < currentPlaylist.getTracks().size())
-                            setPosition(randomPos);
-                        else {
-                            currentPlaylist = null;
-                            currentTrack = null;
-                        }
-                    } else if (currentPlaylist.getTracks().size() == 1)
-                        setPosition(0);
-                    else {
-                        currentPlaylist = null;
-                        currentTrack = null;
-                    }
+                    shuffle();
                     break;
             }
         else if (currentTrack != null) {
@@ -239,6 +219,30 @@ public class StreamManager extends MediaSessionCompat.Callback implements Stream
         }
         if (mediaCallback != null)
             mediaCallback.onMediaStop();
+    }
+
+    public void shuffle(){
+        if (currentPlaylist.getTracks().size() > 1) {
+            Random r = new Random();
+            int randomPos = r.nextInt(currentPlaylist.getTracks().size());
+            if (randomPos == currentPlaylist.position()) {
+                if (randomPos == 0)
+                    randomPos++;
+                else
+                    randomPos--;
+            }
+            if (randomPos >= 0 && randomPos < currentPlaylist.getTracks().size())
+                setPosition(randomPos);
+            else {
+                currentPlaylist = null;
+                currentTrack = null;
+            }
+        } else if (currentPlaylist.getTracks().size() == 1)
+            setPosition(0);
+        else {
+            currentPlaylist = null;
+            currentTrack = null;
+        }
     }
 
 
