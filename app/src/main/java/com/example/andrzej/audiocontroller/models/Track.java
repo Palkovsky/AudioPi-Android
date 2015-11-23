@@ -9,6 +9,7 @@ public class Track extends ExploreItem {
     private float posMiliSecs;
     private float totalMiliSecs;
     private long dbId;
+    private boolean pinned;
 
     public Track() {
         setDirectory(false);
@@ -65,5 +66,13 @@ public class Track extends ExploreItem {
 
     public void setOffline(boolean offline) {
         this.offline = offline;
+    }
+
+    public boolean isPinned() {
+        return pinned;
+    }
+
+    public void setPinned(boolean pinned) {
+        this.pinned = pinned;
     }
 }

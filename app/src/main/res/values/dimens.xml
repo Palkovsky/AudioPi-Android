@@ -17,4 +17,6 @@
     <dimen name="cover_child_size">50dp</dimen>
     <dimen name="dialog_horizontal_margin">8dp</dimen>
     <dimen name="nav_drawer_width">240dp</dimen>
+    <dimen name="list_item_height">64dp</dimen>
+    <dimen name="list_item2_height">96dp</dimen>
 </resources>
