@@ -72,6 +72,7 @@ public class Converter {
             track.setType("local");
             track.setPlaylist(playlist);
             track.setDbId(trackDb.getId());
+            track.setPlaylistPosition(trackDb.position);
 
             playlist.getTracks().add(track);
         }
@@ -91,6 +92,7 @@ public class Converter {
         trackDb.genre = metadata.getGenre();
         trackDb.path = track.getPath();
         trackDb.length = metadata.getLength();
+        trackDb.position = track.getPlaylistPosition();
 
         return trackDb;
     }

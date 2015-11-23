@@ -3,7 +3,6 @@ package com.example.andrzej.audiocontroller.fragments;
 import android.graphics.drawable.NinePatchDrawable;
 import android.os.Build;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
@@ -31,7 +30,7 @@ import butterknife.Bind;
 import butterknife.ButterKnife;
 
 
-public class PlaylistFragment extends BackHandledFragment {
+public class LocalPlaylistFragment extends BackHandledFragment {
 
     public static final String TAG = "PLAYLIST_FRAGMENT";
 
@@ -49,7 +48,7 @@ public class PlaylistFragment extends BackHandledFragment {
     RecyclerView mRecyclerView;
 
 
-    public PlaylistFragment() {
+    public LocalPlaylistFragment() {
     }
 
     @Override
@@ -61,7 +60,7 @@ public class PlaylistFragment extends BackHandledFragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View rootView = inflater.inflate(R.layout.fragment_playlist, container, false);
+        View rootView = inflater.inflate(R.layout.fragment_local_playlist, container, false);
         ButterKnife.bind(this, rootView);
 
         ((AppCompatActivity) getActivity()).getSupportActionBar().setTitle(playlist.getName());
@@ -84,16 +83,11 @@ public class PlaylistFragment extends BackHandledFragment {
 
 
         //adapter
-        final DraggableSwipeableTrackRecyclerAdapter myItemAdapter = new DraggableSwipeableTrackRecyclerAdapter(playlist.getTracks());
+        final DraggableSwipeableTrackRecyclerAdapter myItemAdapter = new DraggableSwipeableTrackRecyclerAdapter(playlist.getChildItemList());
         myItemAdapter.setEventListener(new DraggableSwipeableTrackRecyclerAdapter.EventListener() {
             @Override
             public void onItemRemoved(int position) {
                 Toast.makeText(getActivity(), "Removed, POS: " + position, Toast.LENGTH_SHORT).show();
-            }
-
-            @Override
-            public void onItemPinned(int position) {
-                Toast.makeText(getActivity(), "Pinned, POS: " + position, Toast.LENGTH_SHORT).show();
             }
 
             @Override

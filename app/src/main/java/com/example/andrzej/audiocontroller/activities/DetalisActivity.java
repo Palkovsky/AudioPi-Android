@@ -9,8 +9,9 @@ import android.view.MenuItem;
 import android.widget.Toast;
 
 import com.example.andrzej.audiocontroller.R;
+import com.example.andrzej.audiocontroller.fragments.AutoPlaylistFragment;
 import com.example.andrzej.audiocontroller.fragments.MediaFragment;
-import com.example.andrzej.audiocontroller.fragments.PlaylistFragment;
+import com.example.andrzej.audiocontroller.fragments.LocalPlaylistFragment;
 import com.example.andrzej.audiocontroller.models.Playlist;
 import com.example.andrzej.audiocontroller.views.BackHandledFragment;
 
@@ -37,11 +38,19 @@ public class DetalisActivity extends AppCompatActivity implements BackHandledFra
 
         fragmentManager = getSupportFragmentManager();
 
-        PlaylistFragment playlistFragment = new PlaylistFragment();
-        Bundle bundle = new Bundle();
-        bundle.putSerializable(PLAYLIST_SER_KEY, playlist);
-        playlistFragment.setArguments(bundle);
-        putFragment(playlistFragment);
+        if(playlist.isLocal()) {
+            LocalPlaylistFragment playlistFragment = new LocalPlaylistFragment();
+            Bundle bundle = new Bundle();
+            bundle.putSerializable(PLAYLIST_SER_KEY, playlist);
+            playlistFragment.setArguments(bundle);
+            putFragment(playlistFragment);
+        }else{
+            AutoPlaylistFragment playlistFragment = new AutoPlaylistFragment();
+            Bundle bundle = new Bundle();
+            bundle.putSerializable(PLAYLIST_SER_KEY, playlist);
+            playlistFragment.setArguments(bundle);
+            putFragment(playlistFragment);
+        }
     }
 
     @Override

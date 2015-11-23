@@ -188,6 +188,8 @@ public class AudioActivity extends AppCompatActivity implements MediaCallback, D
     @Override
     public boolean onLongClick(View v) {
         MyApplication.streamManager.flush();
+        MyApplication.streamManager.setCurrentPlaylist(null);
+        MyApplication.streamManager.setCurrentTrack(null);
         return false;
     }
 

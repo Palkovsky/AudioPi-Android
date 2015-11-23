@@ -12,6 +12,7 @@ import android.widget.TextView;
 
 import com.example.andrzej.audiocontroller.R;
 import com.example.andrzej.audiocontroller.models.Track;
+import com.example.andrzej.audiocontroller.models.dbmodels.TrackDb;
 import com.example.andrzej.audiocontroller.utils.DrawableUtils;
 import com.example.andrzej.audiocontroller.utils.ViewUtils;
 import com.h6ah4i.android.widget.advrecyclerview.draggable.DraggableItemAdapter;
@@ -20,14 +21,10 @@ import com.h6ah4i.android.widget.advrecyclerview.draggable.ItemDraggableRange;
 import com.h6ah4i.android.widget.advrecyclerview.swipeable.SwipeableItemAdapter;
 import com.h6ah4i.android.widget.advrecyclerview.swipeable.SwipeableItemConstants;
 import com.h6ah4i.android.widget.advrecyclerview.swipeable.action.SwipeResultAction;
-import com.h6ah4i.android.widget.advrecyclerview.swipeable.action.SwipeResultActionDefault;
-import com.h6ah4i.android.widget.advrecyclerview.swipeable.action.SwipeResultActionMoveToSwipedDirection;
 import com.h6ah4i.android.widget.advrecyclerview.swipeable.action.SwipeResultActionRemoveItem;
 import com.h6ah4i.android.widget.advrecyclerview.utils.AbstractDraggableSwipeableItemViewHolder;
-import com.h6ah4i.android.widget.advrecyclerview.utils.RecyclerViewAdapterUtils;
 
-import java.util.Collections;
-import java.util.EventListener;
+
 import java.util.List;
 
 public class DraggableSwipeableTrackRecyclerAdapter extends RecyclerView.Adapter<DraggableSwipeableTrackRecyclerAdapter.MyViewHolder>
@@ -37,17 +34,17 @@ public class DraggableSwipeableTrackRecyclerAdapter extends RecyclerView.Adapter
     // NOTE: Make accessible with short name
     private interface Draggable extends DraggableItemConstants {
     }
+
     private interface Swipeable extends SwipeableItemConstants {
     }
 
     private List<Track> mDataset;
     private EventListener mEventListener;
     private View.OnClickListener mItemViewOnClickListener;
-    private View.OnClickListener mSwipeableViewContainerOnClickListener;
 
     public interface EventListener {
         void onItemRemoved(int position);
-        void onItemPinned(int position);
+
         void onItemViewClicked(View v, boolean pinned);
     }
 
@@ -59,12 +56,6 @@ public class DraggableSwipeableTrackRecyclerAdapter extends RecyclerView.Adapter
                 onItemViewClick(v);
             }
         };
-        mSwipeableViewContainerOnClickListener = new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                onSwipeableViewContainerClick(v);
-            }
-        };
 
         // DraggableItemAdapter and SwipeableItemAdapter require stable ID, and also
         // have to implement the getItemId() method appropriately.
@@ -74,12 +65,6 @@ public class DraggableSwipeableTrackRecyclerAdapter extends RecyclerView.Adapter
     private void onItemViewClick(View v) {
         if (mEventListener != null) {
             mEventListener.onItemViewClicked(v, true); // true --- pinned
-        }
-    }
-
-    private void onSwipeableViewContainerClick(View v) {
-        if (mEventListener != null) {
-            mEventListener.onItemViewClicked(RecyclerViewAdapterUtils.getParentViewHolderItemView(v), false);  // false --- not pinned
         }
     }
 
@@ -107,8 +92,6 @@ public class DraggableSwipeableTrackRecyclerAdapter extends RecyclerView.Adapter
         // set listeners
         // (if the item is *not pinned*, click event comes to the itemView)
         holder.itemView.setOnClickListener(mItemViewOnClickListener);
-        // (if the item is *pinned*, click event comes to the mContainer)
-        holder.mContainer.setOnClickListener(mSwipeableViewContainerOnClickListener);
 
         // set text
         holder.mTextView.setText(item.getFormattedName());
@@ -141,7 +124,7 @@ public class DraggableSwipeableTrackRecyclerAdapter extends RecyclerView.Adapter
 
         // set swiping properties
         holder.setSwipeItemHorizontalSlideAmount(
-                item.isPinned() ? Swipeable.OUTSIDE_OF_THE_WINDOW_LEFT : 0);
+                0);
     }
 
     @Override
@@ -156,24 +139,13 @@ public class DraggableSwipeableTrackRecyclerAdapter extends RecyclerView.Adapter
         switch (result) {
             // swipe right
             case Swipeable.RESULT_SWIPED_RIGHT:
-                if (mDataset.get(position).isPinned()) {
-                    // pinned --- back to default position
-                    return new UnpinResultAction(this, position);
-                } else {
-                    // not pinned --- remove
-                    return new SwipeRightResultAction(this, position);
-                }
-                // swipe left -- pin
+                return new SwipeRemoveResultAction(this, position);
             case Swipeable.RESULT_SWIPED_LEFT:
-                return new SwipeLeftResultAction(this, position);
-            // other --- do nothing
+                return new SwipeRemoveResultAction(this, position);
             case Swipeable.RESULT_CANCELED:
             default:
-                if (position != RecyclerView.NO_POSITION) {
-                    return new UnpinResultAction(this, position);
-                } else {
-                    return null;
-                }
+                return null;
+
         }
     }
 
@@ -223,11 +195,17 @@ public class DraggableSwipeableTrackRecyclerAdapter extends RecyclerView.Adapter
 
     @Override
     public void onMoveItem(int fromPosition, int toPosition) {
-        Log.d(null, "onMoveItem(fromPosition = " + fromPosition + ", toPosition = " + toPosition + ")");
-
         if (fromPosition == toPosition) {
             return;
         }
+
+
+        TrackDb firstTrack = TrackDb.load(TrackDb.class, mDataset.get(fromPosition).getDbId());
+        TrackDb finalTrack = TrackDb.load(TrackDb.class, mDataset.get(toPosition).getDbId());
+        firstTrack.position = toPosition;
+        finalTrack.position = fromPosition;
+        firstTrack.save();
+        finalTrack.save();
 
         final Track item = mDataset.remove(fromPosition);
         mDataset.add(toPosition, item);
@@ -235,9 +213,6 @@ public class DraggableSwipeableTrackRecyclerAdapter extends RecyclerView.Adapter
         notifyItemMoved(fromPosition, toPosition);
     }
 
-    public EventListener getEventListener() {
-        return mEventListener;
-    }
 
     public void setEventListener(EventListener eventListener) {
         mEventListener = eventListener;
@@ -262,51 +237,12 @@ public class DraggableSwipeableTrackRecyclerAdapter extends RecyclerView.Adapter
         }
     }
 
-    private static class SwipeLeftResultAction extends SwipeResultActionMoveToSwipedDirection {
-        private DraggableSwipeableTrackRecyclerAdapter mAdapter;
-        private final int mPosition;
-        private boolean mSetPinned;
 
-        SwipeLeftResultAction(DraggableSwipeableTrackRecyclerAdapter adapter, int position) {
-            mAdapter = adapter;
-            mPosition = position;
-        }
-
-        @Override
-        protected void onPerformAction() {
-            super.onPerformAction();
-
-            Track item = mAdapter.mDataset.get(mPosition);
-
-            if (!item.isPinned()) {
-                item.setPinned(true);
-                mAdapter.notifyItemChanged(mPosition);
-                mSetPinned = true;
-            }
-        }
-
-        @Override
-        protected void onSlideAnimationEnd() {
-            super.onSlideAnimationEnd();
-
-            if (mSetPinned && mAdapter.mEventListener != null) {
-                mAdapter.mEventListener.onItemPinned(mPosition);
-            }
-        }
-
-        @Override
-        protected void onCleanUp() {
-            super.onCleanUp();
-            // clear the references
-            mAdapter = null;
-        }
-    }
-
-    private static class SwipeRightResultAction extends SwipeResultActionRemoveItem {
+    private static class SwipeRemoveResultAction extends SwipeResultActionRemoveItem {
         private DraggableSwipeableTrackRecyclerAdapter mAdapter;
         private final int mPosition;
 
-        SwipeRightResultAction(DraggableSwipeableTrackRecyclerAdapter adapter, int position) {
+        SwipeRemoveResultAction(DraggableSwipeableTrackRecyclerAdapter adapter, int position) {
             mAdapter = adapter;
             mPosition = position;
         }
@@ -336,32 +272,5 @@ public class DraggableSwipeableTrackRecyclerAdapter extends RecyclerView.Adapter
         }
     }
 
-    private static class UnpinResultAction extends SwipeResultActionDefault {
-        private DraggableSwipeableTrackRecyclerAdapter mAdapter;
-        private final int mPosition;
-
-        UnpinResultAction(DraggableSwipeableTrackRecyclerAdapter adapter, int position) {
-            mAdapter = adapter;
-            mPosition = position;
-        }
-
-        @Override
-        protected void onPerformAction() {
-            super.onPerformAction();
-
-            Track item = mAdapter.mDataset.get(mPosition);
-            if (item.isPinned()) {
-                item.setPinned(false);
-                mAdapter.notifyItemChanged(mPosition);
-            }
-        }
-
-        @Override
-        protected void onCleanUp() {
-            super.onCleanUp();
-            // clear the references
-            mAdapter = null;
-        }
-    }
 
 }

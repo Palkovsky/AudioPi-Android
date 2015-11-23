@@ -99,7 +99,9 @@ public class Dialog {
                     @Override
                     public boolean onSelection(MaterialDialog dialog, Integer[] which, CharSequence[] text) {
                         for (Integer pos : which) {
-                            trackDb.playlist = playlists.get(pos);
+                            PlaylistDb playlistDb = playlists.get(pos);
+                            trackDb.playlist = playlistDb;
+                            trackDb.position = playlistDb.tracks().size();
                             trackDb.save();
                             onSuccess.onSuccess();
                         }

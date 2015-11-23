@@ -9,7 +9,7 @@ public class Track extends ExploreItem {
     private float posMiliSecs;
     private float totalMiliSecs;
     private long dbId;
-    private boolean pinned;
+    private int playlistPosition;
 
     public Track() {
         setDirectory(false);
@@ -68,11 +68,11 @@ public class Track extends ExploreItem {
         this.offline = offline;
     }
 
-    public boolean isPinned() {
-        return pinned;
+    public int getPlaylistPosition() {
+        return playlistPosition;
     }
 
-    public void setPinned(boolean pinned) {
-        this.pinned = pinned;
+    public void setPlaylistPosition(int playlistPosition) {
+        this.playlistPosition = playlistPosition;
     }
 }

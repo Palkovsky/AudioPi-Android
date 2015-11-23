@@ -23,6 +23,8 @@ public class TrackDb extends Model {
     public int length;
     @Column
     public double filesize;
+    @Column
+    public int position;
     @Column(name = "Playlist", index = true)
     public PlaylistDb playlist;
 

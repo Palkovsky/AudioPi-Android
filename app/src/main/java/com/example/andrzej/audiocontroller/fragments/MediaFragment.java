@@ -71,7 +71,7 @@ import fr.castorflex.android.smoothprogressbar.SmoothProgressBar;
 public class MediaFragment extends BackHandledFragment implements PullRefreshLayout.OnRefreshListener, View.OnClickListener, PopupMenu.OnMenuItemClickListener {
 
     public static final String TAG = "MEDIA_FRAGMENT";
-    public  final static String SER_KEY = "com.example.andrzej.audiocontroller.fragments.MediaFragment";
+    public final static String SER_KEY = "com.example.andrzej.audiocontroller.fragments.MediaFragment";
 
     //Objects
     private MediaRecyclerAdapter mAdapter;
@@ -189,16 +189,19 @@ public class MediaFragment extends BackHandledFragment implements PullRefreshLay
                 case Codes.NO_GENRES:
                     mErrorTextView.setText(R.string.no_genres_error);
                     break;
+                case Codes.NO_LOCAL_PLAYLISTS:
+                    mErrorTextView.setText(R.string.no_local_playlist_error);
+                    break;
             }
         } else {
             mPlaylists.clear();
-            if(filter != Filters.LOCAL_PLAYLISTS) {
+            if (filter != Filters.LOCAL_PLAYLISTS) {
                 reInitRecycler();
                 if (!Network.isNetworkAvailable(getActivity()))
                     mErrorTextView.setText(R.string.no_internet_error);
                 else
                     mErrorTextView.setText(R.string.server_error);
-            }else{
+            } else {
                 filterDataset(filter);
                 setUpNormalLayout();
             }
@@ -489,7 +492,10 @@ public class MediaFragment extends BackHandledFragment implements PullRefreshLay
                 case Filters.LOCAL_PLAYLISTS:
                     for (PlaylistDb playlistDb : PlaylistDb.getAll())
                         mPlaylists.add(Converter.dbToStandard(playlistDb));
-                    setUpNormalLayout();
+                    if (mPlaylists.size() > 0)
+                        setUpNormalLayout();
+                    else
+                        setUpErrorLayout(Codes.NO_LOCAL_PLAYLISTS);
                     break;
             }
         } else

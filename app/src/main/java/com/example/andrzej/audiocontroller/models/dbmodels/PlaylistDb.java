@@ -33,7 +33,11 @@ public class PlaylistDb extends Model {
     }
 
     public List<TrackDb> tracks() {
-        return getMany(TrackDb.class, "Playlist");
+        return new Select()
+                .from(TrackDb.class)
+                .where("Playlist = ?", getId())
+                .orderBy("position ASC")
+                .execute();
     }
 
     public static List<PlaylistDb> getAll() {
