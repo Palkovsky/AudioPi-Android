@@ -41,7 +41,7 @@ public class SectionsPagerAdapter extends FragmentPagerAdapter {
 
 
                     case Communicator.LOCAL_PLAYLIST_REMOVED:
-
+                        mediaFragment.handlePlaylistDelete();
                         break;
                 }
             }

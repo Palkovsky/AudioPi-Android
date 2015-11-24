@@ -19,4 +19,5 @@
     <dimen name="nav_drawer_width">240dp</dimen>
     <dimen name="list_item_height">64dp</dimen>
     <dimen name="list_item2_height">96dp</dimen>
+    <dimen name="drag_handle_width">32dp</dimen>
 </resources>

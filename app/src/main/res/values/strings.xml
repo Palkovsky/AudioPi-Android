@@ -89,4 +89,7 @@
 <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="no_local_playlist_error">No user-created playlists.</string>
+    <string name="content_remove_playlist">Are you sure that you want to remove this playlist?</string>
+    <string name="yes">Yes</string>
+    <string name="disagree">No</string>
 </resources>

@@ -1,6 +1,7 @@
 package com.example.andrzej.audiocontroller.adapters;
 
 
+import android.content.Context;
 import android.support.v4.view.ViewCompat;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -8,6 +9,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.example.andrzej.audiocontroller.R;
@@ -16,6 +18,7 @@ import com.example.andrzej.audiocontroller.models.dbmodels.TrackDb;
 import com.example.andrzej.audiocontroller.utils.Communicator;
 import com.example.andrzej.audiocontroller.utils.DatabaseUtils;
 import com.example.andrzej.audiocontroller.utils.DrawableUtils;
+import com.example.andrzej.audiocontroller.utils.Image;
 import com.example.andrzej.audiocontroller.utils.ViewUtils;
 import com.h6ah4i.android.widget.advrecyclerview.draggable.DraggableItemAdapter;
 import com.h6ah4i.android.widget.advrecyclerview.draggable.DraggableItemConstants;
@@ -25,6 +28,7 @@ import com.h6ah4i.android.widget.advrecyclerview.swipeable.SwipeableItemConstant
 import com.h6ah4i.android.widget.advrecyclerview.swipeable.action.SwipeResultAction;
 import com.h6ah4i.android.widget.advrecyclerview.swipeable.action.SwipeResultActionRemoveItem;
 import com.h6ah4i.android.widget.advrecyclerview.utils.AbstractDraggableSwipeableItemViewHolder;
+import com.squareup.picasso.Picasso;
 
 
 import java.util.List;
@@ -43,6 +47,7 @@ public class DraggableSwipeableTrackRecyclerAdapter extends RecyclerView.Adapter
     private List<Track> mDataset;
     private EventListener mEventListener;
     private View.OnClickListener mItemViewOnClickListener;
+    private Context context;
 
     public interface EventListener {
         void onItemRemoved(int position);
@@ -52,7 +57,8 @@ public class DraggableSwipeableTrackRecyclerAdapter extends RecyclerView.Adapter
         void onItemViewClicked(View v, boolean pinned);
     }
 
-    public DraggableSwipeableTrackRecyclerAdapter(List<Track> mDataset) {
+    public DraggableSwipeableTrackRecyclerAdapter(Context context, List<Track> mDataset) {
+        this.context = context;
         this.mDataset = mDataset;
         mItemViewOnClickListener = new View.OnClickListener() {
             @Override
@@ -98,7 +104,39 @@ public class DraggableSwipeableTrackRecyclerAdapter extends RecyclerView.Adapter
         holder.itemView.setOnClickListener(mItemViewOnClickListener);
 
         // set text
-        holder.mTextView.setText(item.getFormattedName() + " - " + TrackDb.load(TrackDb.class, item.getDbId()).position);
+        holder.mTrackTitle.setText(item.getFormattedName());
+        holder.coverIv.setImageBitmap(null);
+        holder.coverIv.setImageDrawable(null);
+        Image.clearDrawable(holder.coverIv);
+
+        String coverUrl = item.getMetadata().getCoverUrl();
+        if (coverUrl != null && !coverUrl.equals(""))
+            Picasso.with(context).load(coverUrl).placeholder(R.drawable.ic_music_note_black_36dp).
+                    error(R.drawable.ic_music_note_black_36dp).into(holder.coverIv);
+        else
+            Image.setBackgroundDrawable(context, holder.coverIv, R.drawable.ic_music_note_black_36dp);
+
+        String artist, album;
+        if (item.getMetadata().getArtist() == null)
+            artist = context.getString(R.string.unknown);
+        else
+            artist = item.getMetadata().getArtist();
+        if (item.getMetadata().getAlbum() == null)
+            album = context.getString(R.string.unknown);
+        else
+            album = item.getMetadata().getAlbum();
+
+        String formattedArtistAlbum =
+                String.format(context.getString(R.string.artist_album_format), artist, album);
+
+
+        if ((artist.equals(context.getString(R.string.unknown)) && album.equals(context.getString(R.string.unknown))) ||
+                (artist.equals("null") && album.equals("null")))
+            holder.albumArtistTv.setVisibility(View.GONE);
+        else {
+            holder.albumArtistTv.setVisibility(View.VISIBLE);
+            holder.albumArtistTv.setText(formattedArtistAlbum);
+        }
 
         // set background resource (target view ID: container)
         final int dragState = holder.getDragStateFlags();
@@ -138,7 +176,6 @@ public class DraggableSwipeableTrackRecyclerAdapter extends RecyclerView.Adapter
 
     @Override
     public SwipeResultAction onSwipeItem(MyViewHolder holder, int position, int result) {
-        Log.d(null, "onSwipeItem(position = " + position + ", result = " + result + ")");
 
         switch (result) {
             // swipe right
@@ -245,13 +282,17 @@ public class DraggableSwipeableTrackRecyclerAdapter extends RecyclerView.Adapter
     public static class MyViewHolder extends AbstractDraggableSwipeableItemViewHolder {
         public FrameLayout mContainer;
         public View mDragHandle;
-        public TextView mTextView;
+        public ImageView coverIv;
+        public TextView mTrackTitle;
+        public TextView albumArtistTv;
 
         public MyViewHolder(View v) {
             super(v);
             mContainer = (FrameLayout) v.findViewById(R.id.container);
             mDragHandle = v.findViewById(R.id.drag_handle);
-            mTextView = (TextView) v.findViewById(android.R.id.text1);
+            coverIv = (ImageView) v.findViewById(R.id.coverIv);
+            mTrackTitle = (TextView) v.findViewById(R.id.trackTitleTv);
+            albumArtistTv = (TextView) v.findViewById(R.id.trackAlbumArtistTv);
         }
 
         @Override

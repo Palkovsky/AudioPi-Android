@@ -12,14 +12,18 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
+import com.afollestad.materialdialogs.DialogAction;
+import com.afollestad.materialdialogs.MaterialDialog;
 import com.example.andrzej.audiocontroller.R;
 import com.example.andrzej.audiocontroller.activities.DetalisActivity;
 import com.example.andrzej.audiocontroller.adapters.DraggableSwipeableTrackRecyclerAdapter;
 import com.example.andrzej.audiocontroller.models.Playlist;
+import com.example.andrzej.audiocontroller.models.dbmodels.PlaylistDb;
 import com.example.andrzej.audiocontroller.models.dbmodels.TrackDb;
 import com.example.andrzej.audiocontroller.utils.Communicator;
 import com.example.andrzej.audiocontroller.utils.DatabaseUtils;
 import com.example.andrzej.audiocontroller.views.BackHandledFragment;
+import com.getbase.floatingactionbutton.FloatingActionButton;
 import com.h6ah4i.android.widget.advrecyclerview.animator.GeneralItemAnimator;
 import com.h6ah4i.android.widget.advrecyclerview.animator.SwipeDismissItemAnimator;
 import com.h6ah4i.android.widget.advrecyclerview.decoration.ItemShadowDecorator;
@@ -33,7 +37,7 @@ import butterknife.Bind;
 import butterknife.ButterKnife;
 
 
-public class LocalPlaylistFragment extends BackHandledFragment {
+public class LocalPlaylistFragment extends BackHandledFragment implements View.OnClickListener {
 
     public static final String TAG = "PLAYLIST_FRAGMENT";
 
@@ -49,7 +53,8 @@ public class LocalPlaylistFragment extends BackHandledFragment {
     //Views
     @Bind(R.id.recycler_view)
     RecyclerView mRecyclerView;
-
+    @Bind(R.id.deleteBtn)
+    FloatingActionButton deleteBtn;
 
     public LocalPlaylistFragment() {
     }
@@ -86,7 +91,7 @@ public class LocalPlaylistFragment extends BackHandledFragment {
 
 
         //adapter
-        final DraggableSwipeableTrackRecyclerAdapter myItemAdapter = new DraggableSwipeableTrackRecyclerAdapter(playlist.getChildItemList());
+        final DraggableSwipeableTrackRecyclerAdapter myItemAdapter = new DraggableSwipeableTrackRecyclerAdapter(getActivity(), playlist.getChildItemList());
         myItemAdapter.setEventListener(new DraggableSwipeableTrackRecyclerAdapter.EventListener() {
             @Override
             public void onItemRemoved(int position) {
@@ -135,6 +140,9 @@ public class LocalPlaylistFragment extends BackHandledFragment {
         mRecyclerViewTouchActionGuardManager.attachRecyclerView(mRecyclerView);
         mRecyclerViewSwipeManager.attachRecyclerView(mRecyclerView);
         mRecyclerViewDragDropManager.attachRecyclerView(mRecyclerView);
+
+        //Listeners
+        deleteBtn.setOnClickListener(this);
 
         return rootView;
     }
@@ -190,5 +198,32 @@ public class LocalPlaylistFragment extends BackHandledFragment {
     @Override
     public boolean onBackPressed() {
         return false;
+    }
+
+    @Override
+    public void onClick(View v) {
+        switch (v.getId()){
+            case R.id.deleteBtn:
+
+                new MaterialDialog.Builder(getActivity())
+                        .title(playlist.getName())
+                        .content(R.string.content_remove_playlist)
+                        .positiveText(R.string.yes)
+                        .negativeText(R.string.disagree)
+                        .onPositive(new MaterialDialog.SingleButtonCallback() {
+                            @Override
+                            public void onClick(MaterialDialog materialDialog, DialogAction dialogAction) {
+                                PlaylistDb playlistDb = PlaylistDb.load(PlaylistDb.class, playlist.getDbId());
+                                for(TrackDb trackDb : playlistDb.tracks())
+                                    trackDb.delete();
+                                playlistDb.delete();
+                                Communicator.getInstance().sendMessage(Communicator.LOCAL_PLAYLIST_REMOVED);
+                                getActivity().onBackPressed();
+                            }
+                        })
+                        .show();
+
+                break;
+        }
     }
 }
