@@ -96,4 +96,31 @@ public class Converter {
 
         return trackDb;
     }
+
+    public static Track dbToStandard(TrackDb trackDb) {
+        Track track = new Track();
+        Metadata metadata = new Metadata();
+
+        metadata.setAlbum(trackDb.album);
+        metadata.setArtist(trackDb.artist);
+        metadata.setFilesize(trackDb.filesize);
+        metadata.setCoverUrl(trackDb.coverUrl);
+        metadata.setGenre(trackDb.genre);
+        metadata.setLength(trackDb.length);
+        track.setMetadata(metadata);
+        track.setName(trackDb.name);
+        track.setPath(trackDb.path);
+        track.setPlaylistPosition(trackDb.position);
+
+        return track;
+    }
+
+    public static List<Track> dbToStandard(List<TrackDb> trackDbs){
+        List<Track> tracks = new ArrayList<>();
+
+        for(TrackDb trackDb : trackDbs)
+            tracks.add(dbToStandard(trackDb));
+
+        return tracks;
+    }
 }

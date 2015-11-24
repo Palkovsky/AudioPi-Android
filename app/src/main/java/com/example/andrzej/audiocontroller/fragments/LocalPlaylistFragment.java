@@ -16,6 +16,9 @@ import com.example.andrzej.audiocontroller.R;
 import com.example.andrzej.audiocontroller.activities.DetalisActivity;
 import com.example.andrzej.audiocontroller.adapters.DraggableSwipeableTrackRecyclerAdapter;
 import com.example.andrzej.audiocontroller.models.Playlist;
+import com.example.andrzej.audiocontroller.models.dbmodels.TrackDb;
+import com.example.andrzej.audiocontroller.utils.Communicator;
+import com.example.andrzej.audiocontroller.utils.DatabaseUtils;
 import com.example.andrzej.audiocontroller.views.BackHandledFragment;
 import com.h6ah4i.android.widget.advrecyclerview.animator.GeneralItemAnimator;
 import com.h6ah4i.android.widget.advrecyclerview.animator.SwipeDismissItemAnimator;
@@ -87,7 +90,12 @@ public class LocalPlaylistFragment extends BackHandledFragment {
         myItemAdapter.setEventListener(new DraggableSwipeableTrackRecyclerAdapter.EventListener() {
             @Override
             public void onItemRemoved(int position) {
-                Toast.makeText(getActivity(), "Removed, POS: " + position, Toast.LENGTH_SHORT).show();
+
+            }
+
+            @Override
+            public void onItemMoved(int fromPosition, int toPosition) {
+
             }
 
             @Override

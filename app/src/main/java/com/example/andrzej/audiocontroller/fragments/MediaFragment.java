@@ -44,6 +44,7 @@ import com.example.andrzej.audiocontroller.interfaces.OnSuccess;
 import com.example.andrzej.audiocontroller.models.Playlist;
 import com.example.andrzej.audiocontroller.models.Track;
 import com.example.andrzej.audiocontroller.models.dbmodels.PlaylistDb;
+import com.example.andrzej.audiocontroller.models.dbmodels.TrackDb;
 import com.example.andrzej.audiocontroller.utils.Converter;
 import com.example.andrzej.audiocontroller.utils.Dialog;
 import com.example.andrzej.audiocontroller.utils.network.Network;
@@ -87,6 +88,7 @@ public class MediaFragment extends BackHandledFragment implements PullRefreshLay
     private boolean isLoading;
     private String currentPath = "";
     private int filter;
+    private int lastEditedPlaylistPosition = -1;
 
     //Interfaces
     private MediaCommunicator mediaCommunicator;
@@ -227,6 +229,7 @@ public class MediaFragment extends BackHandledFragment implements PullRefreshLay
         mAdapter.setOnLongItemClickListener(new OnLongItemClickListener() {
             @Override
             public void onLongItemClick(View v, int position) {
+                lastEditedPlaylistPosition = position;
                 Intent intent = new Intent(getActivity(), DetalisActivity.class);
                 Bundle bundle = new Bundle();
                 bundle.putSerializable(SER_KEY, mPlaylists.get(position));
@@ -501,5 +504,37 @@ public class MediaFragment extends BackHandledFragment implements PullRefreshLay
         } else
             setUpNormalLayout();
         reInitRecycler();
+    }
+
+    public void handlePositionChange(Integer[] positions) {
+        if (filter == Filters.LOCAL_PLAYLISTS) {
+
+            mPlaylists.clear();
+            for (PlaylistDb playlistDb : PlaylistDb.getAll())
+                mPlaylists.add(Converter.dbToStandard(playlistDb));
+
+            for (int i = 0; i < mPlaylists.size(); i++) {
+                for (int j = 0; j < mPlaylists.get(i).getTracks().size(); j++)
+                    mAdapter.notifyChildItemChanged(i, j);
+                mAdapter.notifyParentItemChanged(i);
+            }
+
+            mAdapter.notifyChildItemChanged(lastEditedPlaylistPosition, positions[0]);
+            mAdapter.notifyChildItemChanged(lastEditedPlaylistPosition, positions[1]);
+            mAdapter.notifyParentItemChanged(lastEditedPlaylistPosition);
+        }
+    }
+
+    public void handleTrackDelete(Integer pos) {
+
+        List<Track> tracks = mPlaylists.get(lastEditedPlaylistPosition).getTracks();
+
+        if (filter == Filters.LOCAL_PLAYLISTS && lastEditedPlaylistPosition != -1
+                && tracks.size() > 0) {
+
+            tracks.remove(pos.intValue());
+            mAdapter.notifyChildItemRemoved(lastEditedPlaylistPosition, pos);
+            mAdapter.notifyParentItemChanged(lastEditedPlaylistPosition);
+        }
     }
 }

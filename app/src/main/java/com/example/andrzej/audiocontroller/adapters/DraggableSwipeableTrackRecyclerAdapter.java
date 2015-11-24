@@ -13,6 +13,8 @@ import android.widget.TextView;
 import com.example.andrzej.audiocontroller.R;
 import com.example.andrzej.audiocontroller.models.Track;
 import com.example.andrzej.audiocontroller.models.dbmodels.TrackDb;
+import com.example.andrzej.audiocontroller.utils.Communicator;
+import com.example.andrzej.audiocontroller.utils.DatabaseUtils;
 import com.example.andrzej.audiocontroller.utils.DrawableUtils;
 import com.example.andrzej.audiocontroller.utils.ViewUtils;
 import com.h6ah4i.android.widget.advrecyclerview.draggable.DraggableItemAdapter;
@@ -44,6 +46,8 @@ public class DraggableSwipeableTrackRecyclerAdapter extends RecyclerView.Adapter
 
     public interface EventListener {
         void onItemRemoved(int position);
+
+        void onItemMoved(int fromPosition, int toPosition);
 
         void onItemViewClicked(View v, boolean pinned);
     }
@@ -94,7 +98,7 @@ public class DraggableSwipeableTrackRecyclerAdapter extends RecyclerView.Adapter
         holder.itemView.setOnClickListener(mItemViewOnClickListener);
 
         // set text
-        holder.mTextView.setText(item.getFormattedName());
+        holder.mTextView.setText(item.getFormattedName() + " - " + TrackDb.load(TrackDb.class, item.getDbId()).position);
 
         // set background resource (target view ID: container)
         final int dragState = holder.getDragStateFlags();
@@ -199,18 +203,37 @@ public class DraggableSwipeableTrackRecyclerAdapter extends RecyclerView.Adapter
             return;
         }
 
-
         TrackDb firstTrack = TrackDb.load(TrackDb.class, mDataset.get(fromPosition).getDbId());
-        TrackDb finalTrack = TrackDb.load(TrackDb.class, mDataset.get(toPosition).getDbId());
         firstTrack.position = toPosition;
-        finalTrack.position = fromPosition;
+        firstTrack.position = toPosition;
         firstTrack.save();
-        finalTrack.save();
 
         final Track item = mDataset.remove(fromPosition);
         mDataset.add(toPosition, item);
 
+        if (fromPosition > toPosition) {
+            //Up
+            for (int i = toPosition + 1; i <= fromPosition; i++) {
+                TrackDb trackDb = TrackDb.load(TrackDb.class, mDataset.get(i).getDbId());
+                trackDb.position++;
+                trackDb.save();
+            }
+
+        } else {
+            //Down
+            for (int i = toPosition - 1; i >= fromPosition; i--) {
+                TrackDb trackDb = TrackDb.load(TrackDb.class, mDataset.get(i).getDbId());
+                trackDb.position--;
+                trackDb.save();
+            }
+        }
+
+
         notifyItemMoved(fromPosition, toPosition);
+
+        mEventListener.onItemMoved(fromPosition, toPosition);
+        Integer[] positions = {fromPosition, toPosition};
+        Communicator.getInstance().sendMessage(Communicator.LOCAL_PLAYLIST_POSITION_CHANGED, positions);
     }
 
 
@@ -251,7 +274,11 @@ public class DraggableSwipeableTrackRecyclerAdapter extends RecyclerView.Adapter
         protected void onPerformAction() {
             super.onPerformAction();
 
-            mAdapter.mDataset.remove(mPosition);
+            TrackDb.delete(TrackDb.class, mAdapter.mDataset.get(mPosition).getDbId());
+            DatabaseUtils.handlePositions(mAdapter.mDataset.get(mPosition).getPlaylist().getDbId(), mPosition);
+            Communicator.getInstance().sendMessage(Communicator.LOCAL_PLAYLIST_ITEM_REMOVED, Integer.valueOf(mPosition));
+
+            Track track = mAdapter.mDataset.remove(mPosition);
             mAdapter.notifyItemRemoved(mPosition);
         }
 

@@ -9,9 +9,9 @@ import com.example.andrzej.audiocontroller.fragments.MainFragment;
 import com.example.andrzej.audiocontroller.fragments.MediaFragment;
 import com.example.andrzej.audiocontroller.interfaces.ExploreFragmentCommunicator;
 import com.example.andrzej.audiocontroller.interfaces.MediaCommunicator;
-import com.example.andrzej.audiocontroller.models.ExploreItem;
 import com.example.andrzej.audiocontroller.models.Playlist;
 import com.example.andrzej.audiocontroller.models.Track;
+import com.example.andrzej.audiocontroller.utils.Communicator;
 import com.example.andrzej.audiocontroller.views.BackHandledFragment;
 
 import org.json.JSONObject;
@@ -33,6 +33,34 @@ public class SectionsPagerAdapter extends FragmentPagerAdapter {
         mainFragment = new MainFragment();
         exploreFragment = new ExploreFragment();
         mediaFragment = new MediaFragment();
+
+        Communicator.getInstance().setListener(new Communicator.OnCustomStateListener() {
+            @Override
+            public void onMessage() {
+                switch (Communicator.getInstance().getMessage()){
+
+
+                    case Communicator.LOCAL_PLAYLIST_REMOVED:
+
+                        break;
+                }
+            }
+
+            @Override
+            public void onMessage(Object data) {
+                switch (Communicator.getInstance().getMessage()){
+
+                    case Communicator.LOCAL_PLAYLIST_POSITION_CHANGED:
+                        mediaFragment.handlePositionChange((Integer[]) data);
+                        break;
+
+                    case Communicator.LOCAL_PLAYLIST_ITEM_REMOVED:
+                        Integer pos = (Integer) data;
+                        mediaFragment.handleTrackDelete(pos);
+                        break;
+                }
+            }
+        });
 
         exploreFragment.registerCommunicator(new ExploreFragmentCommunicator() {
             @Override
