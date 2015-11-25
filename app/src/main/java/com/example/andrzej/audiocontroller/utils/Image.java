@@ -5,12 +5,13 @@ import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.support.v4.content.ContextCompat;
+import android.view.View;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 
 public class Image {
 
-    public static void setBackgroundDrawable(Context context, ImageView imageView, int id) {
+    public static void setBackgroundDrawable(Context context, View imageView, int id) {
         if (android.os.Build.VERSION.SDK_INT < android.os.Build.VERSION_CODES.JELLY_BEAN)
             imageView.setBackgroundDrawable(getDrawable(context, id));
         else
@@ -31,6 +32,13 @@ public class Image {
         } else {
             imageView.setImageDrawable(context.getResources().getDrawable(redId));
         }
+    }
+
+    public static void clearBackground(View view){
+        if (android.os.Build.VERSION.SDK_INT < android.os.Build.VERSION_CODES.JELLY_BEAN)
+            view.setBackgroundDrawable(null);
+        else
+            view.setBackground(null);
     }
 
     public static void clearDrawable(ImageView imageView) {

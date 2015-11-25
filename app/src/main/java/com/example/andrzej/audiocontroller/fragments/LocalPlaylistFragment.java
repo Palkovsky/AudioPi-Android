@@ -10,14 +10,18 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
+import com.example.andrzej.audiocontroller.MyApplication;
 import com.example.andrzej.audiocontroller.R;
 import com.example.andrzej.audiocontroller.activities.DetalisActivity;
 import com.example.andrzej.audiocontroller.adapters.DraggableSwipeableTrackRecyclerAdapter;
+import com.example.andrzej.audiocontroller.interfaces.FragmentCallback;
 import com.example.andrzej.audiocontroller.models.Playlist;
+import com.example.andrzej.audiocontroller.models.Track;
 import com.example.andrzej.audiocontroller.models.dbmodels.PlaylistDb;
 import com.example.andrzej.audiocontroller.models.dbmodels.TrackDb;
 import com.example.andrzej.audiocontroller.utils.Communicator;
@@ -50,11 +54,14 @@ public class LocalPlaylistFragment extends BackHandledFragment implements View.O
     private RecyclerViewSwipeManager mRecyclerViewSwipeManager;
     private RecyclerViewTouchActionGuardManager mRecyclerViewTouchActionGuardManager;
 
+
     //Views
     @Bind(R.id.recycler_view)
     RecyclerView mRecyclerView;
     @Bind(R.id.deleteBtn)
     FloatingActionButton deleteBtn;
+    @Bind(R.id.errorTextView)
+    TextView errorTv;
 
     public LocalPlaylistFragment() {
     }
@@ -104,8 +111,23 @@ public class LocalPlaylistFragment extends BackHandledFragment implements View.O
             }
 
             @Override
-            public void onItemViewClicked(View v, boolean pinned) {
-                Toast.makeText(getActivity(), "Clicked", Toast.LENGTH_SHORT).show();
+            public void onItemViewClicked(View v, int position) {
+                MyApplication.streamManager.setCurrentPlaylist(playlist, position);
+                MyApplication.streamManager.start(true);
+            }
+
+            @Override
+            public boolean onLongItemViewClicked(View v, int position) {
+                //transfer to track fragment
+                if (fragmentCallback != null) {
+                    TrackFragment fragment = new TrackFragment();
+                    Bundle bundle = new Bundle();
+                    bundle.putSerializable(DetalisActivity.TRACK_SER_KEY, playlist.getTracks().get(position));
+                    fragment.setArguments(bundle);
+                    fragmentCallback.onNewFragmentStart(fragment);
+                    return true;
+                }
+                return false;
             }
         });
 
@@ -143,6 +165,8 @@ public class LocalPlaylistFragment extends BackHandledFragment implements View.O
 
         //Listeners
         deleteBtn.setOnClickListener(this);
+
+        setUpLayout();
 
         return rootView;
     }
@@ -202,7 +226,7 @@ public class LocalPlaylistFragment extends BackHandledFragment implements View.O
 
     @Override
     public void onClick(View v) {
-        switch (v.getId()){
+        switch (v.getId()) {
             case R.id.deleteBtn:
 
                 new MaterialDialog.Builder(getActivity())
@@ -214,7 +238,7 @@ public class LocalPlaylistFragment extends BackHandledFragment implements View.O
                             @Override
                             public void onClick(MaterialDialog materialDialog, DialogAction dialogAction) {
                                 PlaylistDb playlistDb = PlaylistDb.load(PlaylistDb.class, playlist.getDbId());
-                                for(TrackDb trackDb : playlistDb.tracks())
+                                for (TrackDb trackDb : playlistDb.tracks())
                                     trackDb.delete();
                                 playlistDb.delete();
                                 Communicator.getInstance().sendMessage(Communicator.LOCAL_PLAYLIST_REMOVED);
@@ -225,5 +249,12 @@ public class LocalPlaylistFragment extends BackHandledFragment implements View.O
 
                 break;
         }
+    }
+
+    private void setUpLayout() {
+        if (playlist.getTracks().size() == 0)
+            errorTv.setVisibility(View.VISIBLE);
+        else
+            errorTv.setVisibility(View.GONE);
     }
 }

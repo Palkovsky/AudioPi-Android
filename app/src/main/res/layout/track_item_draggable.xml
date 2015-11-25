@@ -21,10 +21,22 @@
             android:background="#20000000" />
 
         <LinearLayout
-            android:layout_marginLeft="@dimen/drag_handle_width"
-            android:layout_marginStart="@dimen/drag_handle_width"
+            android:layout_width="@dimen/drag_handle_width"
+            android:layout_height="match_parent"
+            android:gravity="center">
+
+            <TextView
+                android:id="@+id/trackPositionTv"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textStyle="bold" />
+        </LinearLayout>
+
+        <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
+            android:layout_marginLeft="@dimen/drag_handle_width"
+            android:layout_marginStart="@dimen/drag_handle_width"
             android:gravity="center_vertical"
             android:orientation="horizontal"
             android:weightSum="100">

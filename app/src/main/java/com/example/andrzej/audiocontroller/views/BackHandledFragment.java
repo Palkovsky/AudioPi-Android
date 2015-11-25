@@ -4,8 +4,13 @@ package com.example.andrzej.audiocontroller.views;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 
+import com.example.andrzej.audiocontroller.interfaces.FragmentCallback;
+
 public abstract class BackHandledFragment extends Fragment {
+
+    //Interfaces
     protected BackHandlerInterface backHandlerInterface;
+    protected FragmentCallback fragmentCallback;
 
     public abstract String getTagText();
 
@@ -31,5 +36,9 @@ public abstract class BackHandledFragment extends Fragment {
 
     public interface BackHandlerInterface {
         void setSelectedFragment(BackHandledFragment backHandledFragment);
+    }
+
+    public void registerFragmentCallback(FragmentCallback fragmentCallback) {
+        this.fragmentCallback = fragmentCallback;
     }
 }

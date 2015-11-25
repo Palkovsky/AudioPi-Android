@@ -1,6 +1,7 @@
 package com.example.andrzej.audiocontroller.activities;
 
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
@@ -12,12 +13,14 @@ import com.example.andrzej.audiocontroller.R;
 import com.example.andrzej.audiocontroller.fragments.AutoPlaylistFragment;
 import com.example.andrzej.audiocontroller.fragments.MediaFragment;
 import com.example.andrzej.audiocontroller.fragments.LocalPlaylistFragment;
+import com.example.andrzej.audiocontroller.interfaces.FragmentCallback;
 import com.example.andrzej.audiocontroller.models.Playlist;
 import com.example.andrzej.audiocontroller.views.BackHandledFragment;
 
-public class DetalisActivity extends AppCompatActivity implements BackHandledFragment.BackHandlerInterface {
+public class DetalisActivity extends AppCompatActivity implements BackHandledFragment.BackHandlerInterface, FragmentCallback {
 
-    public static final String PLAYLIST_SER_KEY = "Playlist_Serializable_KEY";
+    public static final String PLAYLIST_SER_KEY = "PLAYLIST_SERIALIZABLE";
+    public static final String TRACK_SER_KEY = "TRACK_SERIALIZABLE";
 
     FragmentManager fragmentManager;
     private BackHandledFragment selectedFragment;
@@ -38,19 +41,16 @@ public class DetalisActivity extends AppCompatActivity implements BackHandledFra
 
         fragmentManager = getSupportFragmentManager();
 
-        if(playlist.isLocal()) {
-            LocalPlaylistFragment playlistFragment = new LocalPlaylistFragment();
-            Bundle bundle = new Bundle();
-            bundle.putSerializable(PLAYLIST_SER_KEY, playlist);
-            playlistFragment.setArguments(bundle);
-            putFragment(playlistFragment);
-        }else{
-            AutoPlaylistFragment playlistFragment = new AutoPlaylistFragment();
-            Bundle bundle = new Bundle();
-            bundle.putSerializable(PLAYLIST_SER_KEY, playlist);
-            playlistFragment.setArguments(bundle);
-            putFragment(playlistFragment);
-        }
+        BackHandledFragment fragment;
+        if (playlist.isLocal())
+            fragment = new LocalPlaylistFragment();
+        else
+            fragment = new AutoPlaylistFragment();
+
+        Bundle bundle = new Bundle();
+        bundle.putSerializable(PLAYLIST_SER_KEY, playlist);
+        fragment.setArguments(bundle);
+        putFragment(fragment);
     }
 
     @Override
@@ -68,6 +68,7 @@ public class DetalisActivity extends AppCompatActivity implements BackHandledFra
     }
 
     private void putFragment(BackHandledFragment fragment) {
+        fragment.registerFragmentCallback(this);
         FragmentTransaction transaction = fragmentManager.beginTransaction();
         transaction.replace(R.id.fragment_container, fragment);
         transaction.addToBackStack(fragment.getTagText());
@@ -86,5 +87,10 @@ public class DetalisActivity extends AppCompatActivity implements BackHandledFra
         else {
             finish();
         }
+    }
+
+    @Override
+    public void onNewFragmentStart(BackHandledFragment fragment) {
+        putFragment(fragment);
     }
 }

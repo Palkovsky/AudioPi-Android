@@ -2,6 +2,7 @@ package com.example.andrzej.audiocontroller.adapters;
 
 
 import android.content.Context;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewCompat;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -54,28 +55,37 @@ public class DraggableSwipeableTrackRecyclerAdapter extends RecyclerView.Adapter
 
         void onItemMoved(int fromPosition, int toPosition);
 
-        void onItemViewClicked(View v, boolean pinned);
+        void onItemViewClicked(View v, int position);
+
+        boolean onLongItemViewClicked(View v, int position);
     }
 
     public DraggableSwipeableTrackRecyclerAdapter(Context context, List<Track> mDataset) {
         this.context = context;
         this.mDataset = mDataset;
+        /*
         mItemViewOnClickListener = new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 onItemViewClick(v);
             }
         };
+        */
 
         // DraggableItemAdapter and SwipeableItemAdapter require stable ID, and also
         // have to implement the getItemId() method appropriately.
         setHasStableIds(true);
     }
 
-    private void onItemViewClick(View v) {
-        if (mEventListener != null) {
-            mEventListener.onItemViewClicked(v, true); // true --- pinned
-        }
+    private void onItemViewClick(View v, int position) {
+        if (mEventListener != null)
+            mEventListener.onItemViewClicked(v, position);
+    }
+
+    private boolean onLongItemViewClick(View v, int position) {
+        if (mEventListener != null)
+            return mEventListener.onLongItemViewClicked(v, position);
+        return false;
     }
 
     @Override
@@ -96,15 +106,28 @@ public class DraggableSwipeableTrackRecyclerAdapter extends RecyclerView.Adapter
     }
 
     @Override
-    public void onBindViewHolder(DraggableSwipeableTrackRecyclerAdapter.MyViewHolder holder, int position) {
+    public void onBindViewHolder(DraggableSwipeableTrackRecyclerAdapter.MyViewHolder holder, final int position) {
         Track item = mDataset.get(position);
 
         // set listeners
-        // (if the item is *not pinned*, click event comes to the itemView)
-        holder.itemView.setOnClickListener(mItemViewOnClickListener);
+        holder.mContainer.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                onItemViewClick(v, position);
+            }
+        });
+
+        holder.mContainer.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                return onLongItemViewClick(v, position);
+            }
+        });
+
 
         // set text
         holder.mTrackTitle.setText(item.getFormattedName());
+        holder.mTrackPosition.setText(String.valueOf(TrackDb.load(TrackDb.class, item.getDbId()).position + 1));
         holder.coverIv.setImageBitmap(null);
         holder.coverIv.setImageDrawable(null);
         Image.clearDrawable(holder.coverIv);
@@ -283,6 +306,7 @@ public class DraggableSwipeableTrackRecyclerAdapter extends RecyclerView.Adapter
         public FrameLayout mContainer;
         public View mDragHandle;
         public ImageView coverIv;
+        public TextView mTrackPosition;
         public TextView mTrackTitle;
         public TextView albumArtistTv;
 
@@ -291,6 +315,7 @@ public class DraggableSwipeableTrackRecyclerAdapter extends RecyclerView.Adapter
             mContainer = (FrameLayout) v.findViewById(R.id.container);
             mDragHandle = v.findViewById(R.id.drag_handle);
             coverIv = (ImageView) v.findViewById(R.id.coverIv);
+            mTrackPosition = (TextView) v.findViewById(R.id.trackPositionTv);
             mTrackTitle = (TextView) v.findViewById(R.id.trackTitleTv);
             albumArtistTv = (TextView) v.findViewById(R.id.trackAlbumArtistTv);
         }

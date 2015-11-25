@@ -554,24 +554,6 @@ public class MediaFragment extends BackHandledFragment implements PullRefreshLay
         }
     }
 
-    /*
-    public void handleTracksAppend() {
-        if (filter != Filters.LOCAL_PLAYLISTS)
-            filterDataset(Filters.LOCAL_PLAYLISTS);
-        else {
-            mPlaylists.clear();
-            for (PlaylistDb playlistDb : PlaylistDb.getAll())
-                mPlaylists.add(Converter.dbToStandard(playlistDb));
-
-            for (int i = 0; i < mPlaylists.size(); i++) {
-                for (int j = 0; j < mPlaylists.get(i).getTracks().size(); j++)
-                    mAdapter.notifyChildItemChanged(i, j);
-                mAdapter.notifyParentItemChanged(i);
-            }
-        }
-    }
-    */
-
     public int getFilter() {
         return filter;
     }
