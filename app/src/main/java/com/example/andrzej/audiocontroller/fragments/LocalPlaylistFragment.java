@@ -3,6 +3,7 @@ package com.example.andrzej.audiocontroller.fragments;
 import android.graphics.drawable.NinePatchDrawable;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.design.widget.Snackbar;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
@@ -74,7 +75,7 @@ public class LocalPlaylistFragment extends BackHandledFragment implements View.O
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+    public View onCreateView(LayoutInflater inflater, final ViewGroup container, Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_local_playlist, container, false);
         ButterKnife.bind(this, rootView);
 
@@ -101,8 +102,20 @@ public class LocalPlaylistFragment extends BackHandledFragment implements View.O
         final DraggableSwipeableTrackRecyclerAdapter myItemAdapter = new DraggableSwipeableTrackRecyclerAdapter(getActivity(), playlist.getChildItemList());
         myItemAdapter.setEventListener(new DraggableSwipeableTrackRecyclerAdapter.EventListener() {
             @Override
-            public void onItemRemoved(int position) {
+            public void onItemRemoved(int position, Track track) {
+                final Snackbar snackbar = Snackbar.make(
+                        container.findViewById(R.id.snackbarCoordinator),
+                        String.format(getActivity().getString(R.string.removed_snackbar_format), track.getFormattedName()),
+                        Snackbar.LENGTH_LONG);
 
+                snackbar.setAction(R.string.snack_bar_action_undo, new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        myItemAdapter.undoLastRemoval();
+                    }
+                });
+                snackbar.setActionTextColor(ContextCompat.getColor(getActivity(), R.color.snackbar_action_color_done));
+                snackbar.show();
             }
 
             @Override

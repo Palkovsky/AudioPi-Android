@@ -37,7 +37,7 @@ public class SectionsPagerAdapter extends FragmentPagerAdapter {
         Communicator.getInstance().setListener(new Communicator.OnCustomStateListener() {
             @Override
             public void onMessage() {
-                switch (Communicator.getInstance().getMessage()){
+                switch (Communicator.getInstance().getMessage()) {
 
 
                     case Communicator.LOCAL_PLAYLIST_REMOVED:
@@ -48,7 +48,7 @@ public class SectionsPagerAdapter extends FragmentPagerAdapter {
 
             @Override
             public void onMessage(Object data) {
-                switch (Communicator.getInstance().getMessage()){
+                switch (Communicator.getInstance().getMessage()) {
 
                     case Communicator.LOCAL_PLAYLIST_POSITION_CHANGED:
                         mediaFragment.handlePositionChange((Integer[]) data);
@@ -60,6 +60,15 @@ public class SectionsPagerAdapter extends FragmentPagerAdapter {
                         break;
                 }
             }
+
+            @Override
+            public void onMessage(Object arg0, Object arg1) {
+                switch (Communicator.getInstance().getMessage()) {
+                    case Communicator.LOCAL_PLAYLIST_ITEM_APPEND:
+                        mediaFragment.handleTrackAppend((Integer) arg0, (Track) arg1);
+                        break;
+                }
+            }
         });
 
         exploreFragment.registerCommunicator(new ExploreFragmentCommunicator() {
@@ -67,10 +76,12 @@ public class SectionsPagerAdapter extends FragmentPagerAdapter {
             public void onQueryStart(String url, String path) {
 
             }
+
             @Override
             public void onQuerySuccess(String url, String path, JSONObject response) {
                 mediaFragment.queryPath(path);
             }
+
             @Override
             public void onQueryError(String url, int code) {
                 mediaFragment.setUpErrorLayout(code);
@@ -99,13 +110,13 @@ public class SectionsPagerAdapter extends FragmentPagerAdapter {
         mediaFragment.registerMediaCommunicator(new MediaCommunicator() {
             @Override
             public void onPlaylistStart(Playlist playlist, int position) {
-                if(mediaCommunicator != null)
+                if (mediaCommunicator != null)
                     mediaCommunicator.onPlaylistStart(playlist, position);
             }
 
             @Override
             public void onTrackStart(Track track) {
-                if(mediaCommunicator != null)
+                if (mediaCommunicator != null)
                     mediaCommunicator.onTrackStart(track);
             }
         });

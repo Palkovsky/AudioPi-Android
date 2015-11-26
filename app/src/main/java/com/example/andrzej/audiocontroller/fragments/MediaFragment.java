@@ -554,6 +554,13 @@ public class MediaFragment extends BackHandledFragment implements PullRefreshLay
         }
     }
 
+    public void handleTrackAppend(Integer position, Track track) {
+        if (filter == Filters.LOCAL_PLAYLISTS) {
+            mPlaylists.get(lastEditedPlaylistPosition).getTracks().add(position, track);
+            mAdapter.notifyChildItemInserted(lastEditedPlaylistPosition, position);
+        }
+    }
+
     public int getFilter() {
         return filter;
     }

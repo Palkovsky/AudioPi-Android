@@ -107,6 +107,7 @@ public class Converter {
         metadata.setCoverUrl(trackDb.coverUrl);
         metadata.setGenre(trackDb.genre);
         metadata.setLength(trackDb.length);
+        track.setDbId(trackDb.getId());
         track.setMetadata(metadata);
         track.setName(trackDb.name);
         track.setPath(trackDb.path);

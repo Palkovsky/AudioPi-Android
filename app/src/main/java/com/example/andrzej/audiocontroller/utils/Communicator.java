@@ -1,15 +1,19 @@
 package com.example.andrzej.audiocontroller.utils;
 
+import java.util.Objects;
+
 public class Communicator {
 
     //Messages
     public static final int LOCAL_PLAYLIST_POSITION_CHANGED = 0x00;
     public static final int LOCAL_PLAYLIST_ITEM_REMOVED = 0x01;
     public static final int LOCAL_PLAYLIST_REMOVED = 0x02;
+    public static final int LOCAL_PLAYLIST_ITEM_APPEND = 0x02;
 
     public interface OnCustomStateListener {
         void onMessage();
         void onMessage(Object data);
+        void onMessage(Object arg0, Object arg1);
     }
 
     private static Communicator mInstance;
@@ -40,6 +44,13 @@ public class Communicator {
         if(mListener != null) {
             message = code;
             mListener.onMessage(data);
+        }
+    }
+
+    public void sendMessage(int code, Object arg0, Object arg1) {
+        if(mListener != null) {
+            message = code;
+            mListener.onMessage(arg0, arg1);
         }
     }
 

@@ -2,10 +2,8 @@ package com.example.andrzej.audiocontroller.adapters;
 
 
 import android.content.Context;
-import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewCompat;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,8 +13,10 @@ import android.widget.TextView;
 
 import com.example.andrzej.audiocontroller.R;
 import com.example.andrzej.audiocontroller.models.Track;
+import com.example.andrzej.audiocontroller.models.dbmodels.PlaylistDb;
 import com.example.andrzej.audiocontroller.models.dbmodels.TrackDb;
 import com.example.andrzej.audiocontroller.utils.Communicator;
+import com.example.andrzej.audiocontroller.utils.Converter;
 import com.example.andrzej.audiocontroller.utils.DatabaseUtils;
 import com.example.andrzej.audiocontroller.utils.DrawableUtils;
 import com.example.andrzej.audiocontroller.utils.Image;
@@ -47,11 +47,12 @@ public class DraggableSwipeableTrackRecyclerAdapter extends RecyclerView.Adapter
 
     private List<Track> mDataset;
     private EventListener mEventListener;
-    private View.OnClickListener mItemViewOnClickListener;
     private Context context;
+    private Track lastRemovedItem;
+    private int lastRemovedPosition = -1;
 
     public interface EventListener {
-        void onItemRemoved(int position);
+        void onItemRemoved(int position, Track track);
 
         void onItemMoved(int fromPosition, int toPosition);
 
@@ -86,6 +87,23 @@ public class DraggableSwipeableTrackRecyclerAdapter extends RecyclerView.Adapter
         if (mEventListener != null)
             return mEventListener.onLongItemViewClicked(v, position);
         return false;
+    }
+
+    public void undoLastRemoval() {
+        if (lastRemovedPosition >= 0 && lastRemovedItem != null) {
+            DatabaseUtils.handleInsertedPositions(lastRemovedItem.getPlaylist().getDbId(), lastRemovedPosition);
+            TrackDb trackDb = Converter.standardToDb(lastRemovedItem);
+            trackDb.position = lastRemovedPosition;
+            trackDb.playlist = PlaylistDb.load(PlaylistDb.class, lastRemovedItem.getPlaylist().getDbId());
+            trackDb.save();
+            Track track = Converter.dbToStandard(trackDb);
+            track.setPlaylist(lastRemovedItem.getPlaylist());
+            mDataset.add(lastRemovedPosition, track);
+            Communicator.getInstance().sendMessage(Communicator.LOCAL_PLAYLIST_ITEM_APPEND, lastRemovedPosition, track);
+            notifyDataSetChanged();
+            lastRemovedItem = null;
+            lastRemovedPosition = -1;
+        }
     }
 
     @Override
@@ -330,6 +348,7 @@ public class DraggableSwipeableTrackRecyclerAdapter extends RecyclerView.Adapter
     private static class SwipeRemoveResultAction extends SwipeResultActionRemoveItem {
         private DraggableSwipeableTrackRecyclerAdapter mAdapter;
         private final int mPosition;
+        private Track removedItem;
 
         SwipeRemoveResultAction(DraggableSwipeableTrackRecyclerAdapter adapter, int position) {
             mAdapter = adapter;
@@ -341,10 +360,13 @@ public class DraggableSwipeableTrackRecyclerAdapter extends RecyclerView.Adapter
             super.onPerformAction();
 
             TrackDb.delete(TrackDb.class, mAdapter.mDataset.get(mPosition).getDbId());
-            DatabaseUtils.handlePositions(mAdapter.mDataset.get(mPosition).getPlaylist().getDbId(), mPosition);
+            DatabaseUtils.handleRemovedPositions(mAdapter.mDataset.get(mPosition).getPlaylist().getDbId(), mPosition);
             Communicator.getInstance().sendMessage(Communicator.LOCAL_PLAYLIST_ITEM_REMOVED, Integer.valueOf(mPosition));
 
-            Track track = mAdapter.mDataset.remove(mPosition);
+            mAdapter.lastRemovedPosition = mPosition;
+            mAdapter.lastRemovedItem = mAdapter.mDataset.get(mPosition);
+            removedItem = mAdapter.lastRemovedItem;
+            mAdapter.mDataset.remove(mPosition);
             mAdapter.notifyItemRemoved(mPosition);
         }
 
@@ -353,7 +375,7 @@ public class DraggableSwipeableTrackRecyclerAdapter extends RecyclerView.Adapter
             super.onSlideAnimationEnd();
 
             if (mAdapter.mEventListener != null) {
-                mAdapter.mEventListener.onItemRemoved(mPosition);
+                mAdapter.mEventListener.onItemRemoved(mPosition, removedItem);
             }
         }
 
