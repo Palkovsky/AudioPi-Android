@@ -98,4 +98,5 @@
     <string name="connect">Connect</string>
     <string name="ip_hint">ip address</string>
     <string name="port_hint">port</string>
+    <string name="volume_change_error">Volume change error</string>
 </resources>

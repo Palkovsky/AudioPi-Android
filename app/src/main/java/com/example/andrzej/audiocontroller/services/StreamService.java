@@ -1,7 +1,5 @@
 package com.example.andrzej.audiocontroller.services;
 
-
-
 import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
@@ -16,7 +14,6 @@ import com.example.andrzej.audiocontroller.utils.network.VolleySingleton;
 
 import org.json.JSONException;
 import org.json.JSONObject;
-
 
 public class StreamService extends AbstractService {
 

@@ -3,6 +3,8 @@ package com.example.andrzej.audiocontroller.activities;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.media.AudioManager;
+import android.os.Handler;
 import android.support.v4.view.GravityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -31,6 +33,7 @@ import com.example.andrzej.audiocontroller.models.Track;
 import com.example.andrzej.audiocontroller.models.dbmodels.PlaylistDb;
 import com.example.andrzej.audiocontroller.models.dbmodels.TrackDb;
 import com.example.andrzej.audiocontroller.utils.Image;
+import com.example.andrzej.audiocontroller.utils.SettingsContentObserver;
 import com.example.andrzej.audiocontroller.views.BackHandledFragment;
 import com.example.andrzej.audiocontroller.views.BlankingImageButton;
 import com.squareup.picasso.Picasso;
@@ -44,6 +47,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     //UI
     private SectionsPagerAdapter mSectionsPagerAdapter;
     private BackHandledFragment selectedFragment;
+    private SettingsContentObserver mSettingsContentObserver;
 
     @Bind(R.id.mainTabsPager)
     ViewPager mViewPager;
@@ -72,6 +76,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
 
+        setVolumeControlStream(AudioManager.STREAM_MUSIC);
+
         setSupportActionBar(toolbar);
         if (getSupportActionBar() != null)
             getSupportActionBar().setTitle(null);
@@ -80,6 +86,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         //Create section adapter
         mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
+
+        //Volume buttons observer
+        mSettingsContentObserver = new SettingsContentObserver(this, new Handler(), new SettingsContentObserver.VolumeCallback() {
+            @Override
+            public void onVolumeChange(int volume) {
+                Toast.makeText(getApplicationContext(), "Vol: " + volume, Toast.LENGTH_SHORT).show();
+            }
+        });
 
         //Adapter listeners(actions from fragments)
         mSectionsPagerAdapter.registerMediaCommunicator(this);
@@ -102,7 +116,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     protected void onResume() {
         super.onResume();
         MyApplication.streamManager.registerMediaListener(this);
+        getContentResolver().registerContentObserver(android.provider.Settings.System.CONTENT_URI, true, mSettingsContentObserver);
         updateUI();
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        getContentResolver().unregisterContentObserver(mSettingsContentObserver);
     }
 
     @Override

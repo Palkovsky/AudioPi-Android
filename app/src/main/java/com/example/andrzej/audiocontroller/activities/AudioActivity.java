@@ -6,7 +6,9 @@ import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
+import android.media.AudioManager;
 import android.os.Bundle;
+import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
@@ -34,6 +36,7 @@ import com.example.andrzej.audiocontroller.models.Playlist;
 import com.example.andrzej.audiocontroller.models.Track;
 import com.example.andrzej.audiocontroller.utils.Converter;
 import com.example.andrzej.audiocontroller.utils.Image;
+import com.example.andrzej.audiocontroller.utils.SettingsContentObserver;
 import com.example.andrzej.audiocontroller.views.BlankingImageButton;
 import com.squareup.picasso.Picasso;
 
@@ -49,6 +52,8 @@ public class AudioActivity extends AppCompatActivity implements MediaCallback, D
     private float mAccel; // acceleration apart from gravity
     private float mAccelCurrent; // current acceleration including gravity
     private float mAccelLast; // last acceleration including gravity
+    private SettingsContentObserver mSettingsContentObserver;
+
 
     @Bind(R.id.drawer_layout)
     DrawerLayout mDrawerLayout;
@@ -104,12 +109,21 @@ public class AudioActivity extends AppCompatActivity implements MediaCallback, D
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_audio);
         ButterKnife.bind(this);
+        setVolumeControlStream(AudioManager.STREAM_MUSIC);
 
         mSensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
         mSensorManager.registerListener(mSensorListener, mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER), SensorManager.SENSOR_DELAY_NORMAL);
         mAccel = 0.00f;
         mAccelCurrent = SensorManager.GRAVITY_EARTH;
         mAccelLast = SensorManager.GRAVITY_EARTH;
+
+        //Volume buttons observer
+        mSettingsContentObserver = new SettingsContentObserver(this, new Handler(), new SettingsContentObserver.VolumeCallback() {
+            @Override
+            public void onVolumeChange(int volume) {
+                Toast.makeText(getApplicationContext(), "Vol: " + volume, Toast.LENGTH_SHORT).show();
+            }
+        });
 
         setSupportActionBar(toolbar);
         if (getSupportActionBar() != null)
@@ -138,6 +152,7 @@ public class AudioActivity extends AppCompatActivity implements MediaCallback, D
         MyApplication.streamManager.registerMediaListener(this);
         MyApplication.streamManager.applyPlaylistPlaybackMethod(prefs.getInt(PrefKeys.KEY_PLAYBACK_PLAYLIST, PlaybackMethods.PLAYLIST_NORMAL));
         MyApplication.streamManager.applyTrackPlaybackMethod(prefs.getInt(PrefKeys.KEY_PLAYBACK_TRACK, PlaybackMethods.TRACK_NORMAL));
+        getContentResolver().registerContentObserver(android.provider.Settings.System.CONTENT_URI, true, mSettingsContentObserver);
         drawerFragment.setCurrentPlaylist(MyApplication.streamManager.getCurrentPlaylist());
         updateUI();
         mSensorManager.registerListener(mSensorListener, mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER), SensorManager.SENSOR_DELAY_NORMAL);
@@ -146,6 +161,7 @@ public class AudioActivity extends AppCompatActivity implements MediaCallback, D
     @Override
     protected void onPause() {
         mSensorManager.unregisterListener(mSensorListener);
+        getContentResolver().unregisterContentObserver(mSettingsContentObserver);
         super.onPause();
     }
 

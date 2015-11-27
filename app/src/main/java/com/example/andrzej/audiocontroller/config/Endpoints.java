@@ -33,6 +33,7 @@ public class Endpoints {
     public static final String Q_TERMINATE = "t=";
     public static final String Q_POSITION = "pos=";
     public static final String Q_UNPAUSE = "unpause=";
+    public static final String Q_VALUE = "value=";
 
     //Config
     public static final String CHARSET = "UTF-8";
@@ -107,8 +108,16 @@ public class Endpoints {
         return URL_STOP;
     }
 
+    //GET
     public static String getVolumeUrl() {
         return URL_VOLUME;
+    }
+
+    //POST
+    public static String getVolumeUrl(int volume) {
+        return URL_VOLUME +
+                URL_CHAR_QUESTION +
+                Q_VALUE + String.valueOf(volume);
     }
 
     public static String encodeString(String path) {

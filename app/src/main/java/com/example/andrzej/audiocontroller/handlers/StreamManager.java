@@ -156,15 +156,7 @@ public class StreamManager extends MediaSessionCompat.Callback implements Stream
 
     @Override
     public void onQueryError(int type, VolleyError error) {
-        if (Network.isNetworkAvailable(context)) {
-            /*
-            Toast.makeText(context, R.string.server_error, Toast.LENGTH_SHORT).show();
-            currentPlaylist = null;
-            currentTrack = null;
-            if (mediaCallback != null)
-                mediaCallback.onMediaStop();
-                */
-        } else {
+        if (!Network.isNetworkAvailable(context)) {
             Toast.makeText(context, R.string.no_internet_error, Toast.LENGTH_SHORT).show();
             if (currentTrack != null && !currentTrack.isPlaying()) {
                 currentPlaylist = null;

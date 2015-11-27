@@ -1,5 +1,6 @@
 package com.example.andrzej.audiocontroller.activities;
 
+import android.media.AudioManager;
 import android.os.Bundle;
 import android.preference.PreferenceActivity;
 import android.preference.PreferenceFragment;
@@ -13,6 +14,7 @@ public class PreferencesActivity extends PreferenceActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setVolumeControlStream(AudioManager.STREAM_MUSIC);
         getFragmentManager().beginTransaction().replace(android.R.id.content, new PreferencesFragment()).commit();
     }
 
