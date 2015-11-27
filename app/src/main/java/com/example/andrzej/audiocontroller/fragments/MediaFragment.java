@@ -181,7 +181,10 @@ public class MediaFragment extends BackHandledFragment implements PullRefreshLay
                     mErrorTextView.setText(R.string.invalid_path_error);
                     break;
                 case Codes.EMPTY_DATASET:
-                    mErrorTextView.setText(R.string.no_playlists_error);
+                    if (filter == Filters.LOCAL_PLAYLISTS && mPlaylists.size() > 0)
+                        setUpNormalLayout();
+                    else
+                        mErrorTextView.setText(R.string.no_playlists_error);
                     break;
                 case Codes.NO_ALBUMS:
                     mErrorTextView.setText(R.string.no_albums_error);

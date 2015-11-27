@@ -95,4 +95,7 @@
     <string name="disagree">No</string>
     <string name="playlist_empty">Playlist empty</string>
     <string name="snack_bar_action_undo">UNDO</string>
+    <string name="connect">Connect</string>
+    <string name="ip_hint">ip address</string>
+    <string name="port_hint">port</string>
 </resources>

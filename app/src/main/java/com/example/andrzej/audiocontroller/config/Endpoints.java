@@ -5,23 +5,25 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 
 public class Endpoints {
-    public static final String DOMAIN = "http://192.168.1.101:5000";
+    public static final String URL_HTTP = "http://";
+    public static String URL_PORT = "";
+    public static String IP = "";
 
     public static final String URL_CHAR_QUESTION = "?";
     public static final String URL_CHAR_AMEPERSAND = "&";
 
-    public static final String URL_DATA = DOMAIN + "/data";
-    public static final String URL_COVER = DOMAIN + "/file";
-    public static final String URL_PLAYLISTS = DOMAIN + "/all_playlists";
-    public static final String URL_PLAY = DOMAIN + "/track/play";
-    public static final String URL_PLAYBACK = DOMAIN + "/track/playback";
-    public static final String URL_PAUSE = DOMAIN + "/track/pause";
-    public static final String URL_UNPAUSE = DOMAIN + "/track/unpause";
-    public static final String URL_SMARTPAUSE = DOMAIN + "/track/smartpause";
-    public static final String URL_REWIND = DOMAIN + "/track/rewind";
-    public static final String URL_STOP = DOMAIN + "/flush";
-    public static final String URL_VOLUME = DOMAIN + "/volume";
-    public static final String URL_ALIVE = DOMAIN + "/track/alive";
+    public static String URL_DATA = IP + "/data";
+    public static String URL_COVER = IP + "/file";
+    public static String URL_PLAYLISTS = IP + "/all_playlists";
+    public static String URL_PLAY = IP + "/track/play";
+    public static String URL_PLAYBACK = IP + "/track/playback";
+    public static String URL_PAUSE = IP + "/track/pause";
+    public static String URL_UNPAUSE = IP + "/track/unpause";
+    public static String URL_SMARTPAUSE = IP + "/track/smartpause";
+    public static String URL_REWIND = IP + "/track/rewind";
+    public static String URL_STOP = IP + "/flush";
+    public static String URL_VOLUME = IP + "/volume";
+    public static String URL_ALIVE = IP + "/track/alive";
 
     //Query Params
     public static final String Q_PATH = "path=";
@@ -56,7 +58,7 @@ public class Endpoints {
         return URL_PLAYBACK;
     }
 
-    public static String getAliveUrl(){
+    public static String getAliveUrl() {
         return URL_ALIVE;
     }
 
@@ -117,5 +119,26 @@ public class Endpoints {
             e.printStackTrace();
         }
         return encodedPath;
+    }
+
+    public static void reInit(String newDomain, String port) {
+        URL_PORT = ":" + port;
+        IP = URL_HTTP + newDomain + URL_PORT;
+        URL_DATA = IP + "/data";
+        URL_COVER = IP + "/file";
+        URL_PLAYLISTS = IP + "/all_playlists";
+        URL_PLAY = IP + "/track/play";
+        URL_PLAYBACK = IP + "/track/playback";
+        URL_PAUSE = IP + "/track/pause";
+        URL_UNPAUSE = IP + "/track/unpause";
+        URL_SMARTPAUSE = IP + "/track/smartpause";
+        URL_REWIND = IP + "/track/rewind";
+        URL_STOP = IP + "/flush";
+        URL_VOLUME = IP + "/volume";
+        URL_ALIVE = IP + "/track/alive";
+    }
+
+    public static String getTestUrl(String ip, String port) {
+        return URL_HTTP + ip + ":" + port;
     }
 }

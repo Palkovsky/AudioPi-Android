@@ -12,4 +12,8 @@ public class PrefKeys {
     //Playback prefs
     public static final String KEY_PLAYBACK_TRACK = "TRACK_PLAYBACK";
     public static final String KEY_PLAYBACK_PLAYLIST = "PLAYLIST_PLAYBACK";
+
+    //Main prefs
+    public static final String KEY_PORT = "PORT";
+    public static final String KEY_IP = "IP";
 }

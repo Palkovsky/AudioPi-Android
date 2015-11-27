@@ -26,7 +26,9 @@ import com.example.andrzej.audiocontroller.models.Track;
 import com.example.andrzej.audiocontroller.models.dbmodels.PlaylistDb;
 import com.example.andrzej.audiocontroller.models.dbmodels.TrackDb;
 import com.example.andrzej.audiocontroller.utils.Communicator;
+import com.example.andrzej.audiocontroller.utils.Converter;
 import com.example.andrzej.audiocontroller.utils.DatabaseUtils;
+import com.example.andrzej.audiocontroller.utils.Dialog;
 import com.example.andrzej.audiocontroller.views.BackHandledFragment;
 import com.getbase.floatingactionbutton.FloatingActionButton;
 import com.h6ah4i.android.widget.advrecyclerview.animator.GeneralItemAnimator;
@@ -131,16 +133,8 @@ public class LocalPlaylistFragment extends BackHandledFragment implements View.O
 
             @Override
             public boolean onLongItemViewClicked(View v, int position) {
-                //transfer to track fragment
-                if (fragmentCallback != null) {
-                    TrackFragment fragment = new TrackFragment();
-                    Bundle bundle = new Bundle();
-                    bundle.putSerializable(DetalisActivity.TRACK_SER_KEY, playlist.getTracks().get(position));
-                    fragment.setArguments(bundle);
-                    fragmentCallback.onNewFragmentStart(fragment);
-                    return true;
-                }
-                return false;
+                Dialog.showMetadataDialog(getActivity(), playlist.getTracks().get(position));
+                return true;
             }
         });
 
