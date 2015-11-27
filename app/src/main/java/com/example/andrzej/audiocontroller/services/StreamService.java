@@ -23,6 +23,7 @@ public class StreamService extends AbstractService {
     private static final String REQUEST_TAG = "REQUEST_ALIVE_TAG";
     public static final int MSG_VALUE = 1;
     public static final int MSG_POS_UPDATE = 2;
+    public static final int SERVER_ERROR = 3;
     private static final int REFRESH_INTERVAL = 1000;
 
     final Handler handler = new Handler();
@@ -57,7 +58,7 @@ public class StreamService extends AbstractService {
                     }, new Response.ErrorListener() {
                         @Override
                         public void onErrorResponse(VolleyError error) {
-
+                            send(Message.obtain(null, SERVER_ERROR, -1, 0));
                         }
                     });
 

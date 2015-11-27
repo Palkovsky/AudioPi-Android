@@ -11,6 +11,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.andrzej.audiocontroller.R;
 import com.example.andrzej.audiocontroller.config.Endpoints;
@@ -29,6 +30,7 @@ public class MainFragment extends BackHandledFragment implements View.OnClickLis
 
     //Objects
     private SharedPreferences prefs;
+    private StatusCallback statusCallback;
 
     //UI Elements
     @Bind(R.id.ipEditText)
@@ -88,6 +90,10 @@ public class MainFragment extends BackHandledFragment implements View.OnClickLis
         prefs.edit().putString(PrefKeys.KEY_IP, ip).apply();
         prefs.edit().putString(PrefKeys.KEY_PORT, port).apply();
         Endpoints.reInit(ip, port);
+        if(statusCallback != null) {
+            statusCallback.onConnect();
+            Toast.makeText(getActivity(), "Connected to " + ip + ":" + port, Toast.LENGTH_SHORT).show();
+        }
     }
 
     private void setUpUI() {
@@ -107,5 +113,12 @@ public class MainFragment extends BackHandledFragment implements View.OnClickLis
         return false;
     }
 
+    public void registerStatusCallback(StatusCallback statusCallback) {
+        this.statusCallback = statusCallback;
+    }
 
+    public interface StatusCallback{
+        void onConnect();
+        void onError();
+    }
 }

@@ -116,19 +116,16 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     else
                         MyApplication.streamManager.pause();
                 }
-                setUpButtons();
                 break;
             case R.id.miniPrevTrackBtn:
                 if(MyApplication.streamManager.getCurrentPlaylist() != null && MyApplication.streamManager.getCurrentPlaylist()
                         .canGoPrev())
                     MyApplication.streamManager.prevTrack();
-                setUpButtons();
                 break;
             case R.id.miniNextTrackBtn:
                 if(MyApplication.streamManager.getCurrentPlaylist() != null && MyApplication.streamManager.getCurrentPlaylist()
                         .canGoNext())
                     MyApplication.streamManager.nextTrack();
-                setUpButtons();
                 break;
             case R.id.bottom_toolbar:
                 Intent intent = new Intent(this, AudioActivity.class);

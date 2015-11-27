@@ -132,7 +132,10 @@ public class Dialog {
                                 break;
                             case 1:
                                 if (track.getPlaylist().isLocal()) {
-                                    TrackDb.delete(TrackDb.class, track.getDbId());
+                                    TrackDb trackDb = TrackDb.load(TrackDb.class, track.getDbId());
+                                    int pos = trackDb.position;
+                                    trackDb.delete();
+                                    DatabaseUtils.handleRemovedPositions(trackDb.playlist.getId(), pos);
                                     if (onRemove != null)
                                         onRemove.onRemove();
                                 } else {

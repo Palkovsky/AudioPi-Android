@@ -120,6 +120,18 @@ public class SectionsPagerAdapter extends FragmentPagerAdapter {
                     mediaCommunicator.onTrackStart(track);
             }
         });
+
+        mainFragment.registerStatusCallback(new MainFragment.StatusCallback() {
+            @Override
+            public void onConnect() {
+                exploreFragment.goRoot();
+            }
+
+            @Override
+            public void onError() {
+
+            }
+        });
     }
 
     @Override

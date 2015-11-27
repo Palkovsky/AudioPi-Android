@@ -519,5 +519,7 @@ public class ExploreFragment extends BackHandledFragment implements OnItemClickL
         });
     }
 
-
+    public void goRoot(){
+        exploreManager.goToRoot();
+    }
 }

@@ -53,6 +53,13 @@ public class StreamManager extends MediaSessionCompat.Callback implements Stream
                     Toast.makeText(context, "Koniec", Toast.LENGTH_SHORT).show();
                     serviceManager.stop();
                     handleTrackEnd();
+                } else if (msg.what == StreamService.SERVER_ERROR) {
+                    if (Network.isNetworkAvailable(context)) {
+                        currentPlaylist = null;
+                        currentTrack = null;
+                        if (mediaCallback != null)
+                            mediaCallback.onMediaStop();
+                    }
                 } else {
                     if (currentTrack != null) {
                         currentTrack.setMilliPosSecs(msg.arg1);
@@ -149,14 +156,18 @@ public class StreamManager extends MediaSessionCompat.Callback implements Stream
 
     @Override
     public void onQueryError(int type, VolleyError error) {
-        if (Network.isNetworkAvailable(context))
+        if (Network.isNetworkAvailable(context)) {
             Toast.makeText(context, R.string.server_error, Toast.LENGTH_SHORT).show();
-        else {
+            currentPlaylist = null;
+            currentTrack = null;
+            if (mediaCallback != null)
+                mediaCallback.onMediaStop();
+        } else {
             Toast.makeText(context, R.string.no_internet_error, Toast.LENGTH_SHORT).show();
-            if(currentTrack != null && !currentTrack.isPlaying()){
+            if (currentTrack != null && !currentTrack.isPlaying()) {
                 currentPlaylist = null;
                 currentTrack = null;
-                if(mediaCallback != null)
+                if (mediaCallback != null)
                     mediaCallback.onMediaStop();
             }
         }
@@ -221,7 +232,7 @@ public class StreamManager extends MediaSessionCompat.Callback implements Stream
             mediaCallback.onMediaStop();
     }
 
-    public void shuffle(){
+    public void shuffle() {
         if (currentPlaylist.getTracks().size() > 1) {
             Random r = new Random();
             int randomPos = r.nextInt(currentPlaylist.getTracks().size());
