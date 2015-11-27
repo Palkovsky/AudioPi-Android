@@ -138,6 +138,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         switch (v.getId()){
             case R.id.bottom_toolbar:
                 MyApplication.streamManager.flush();
+                MyApplication.streamManager.setCurrentPlaylist(null);
+                MyApplication.streamManager.setCurrentTrack(null);
+                updateUI();
                 return true;
         }
         return false;
