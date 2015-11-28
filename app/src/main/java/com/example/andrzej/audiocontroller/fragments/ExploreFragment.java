@@ -16,6 +16,7 @@ import android.widget.LinearLayout;
 import android.widget.PopupMenu;
 import android.widget.TextView;
 
+import com.android.volley.DefaultRetryPolicy;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
@@ -443,6 +444,10 @@ public class ExploreFragment extends BackHandledFragment implements OnItemClickL
                 communicator.onQueryStart(queryUrl, path);
 
             request.setTag(TAG);
+            request.setRetryPolicy(new DefaultRetryPolicy(
+                    Defaults.MY_SOCKET_TIMEOUT_MS,
+                    DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
+                    DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
             requestQueue.add(request);
         }
     }

@@ -19,6 +19,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.afollestad.materialdialogs.MaterialDialog;
+import com.android.volley.DefaultRetryPolicy;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
@@ -29,6 +30,7 @@ import com.example.andrzej.audiocontroller.R;
 import com.example.andrzej.audiocontroller.activities.DetalisActivity;
 import com.example.andrzej.audiocontroller.adapters.MediaRecyclerAdapter;
 import com.example.andrzej.audiocontroller.config.Codes;
+import com.example.andrzej.audiocontroller.config.Defaults;
 import com.example.andrzej.audiocontroller.config.Endpoints;
 import com.example.andrzej.audiocontroller.config.Filters;
 import com.example.andrzej.audiocontroller.config.PrefKeys;
@@ -405,6 +407,10 @@ public class MediaFragment extends BackHandledFragment implements PullRefreshLay
         });
 
         request.setTag(TAG);
+        request.setRetryPolicy(new DefaultRetryPolicy(
+                Defaults.MY_SOCKET_TIMEOUT_MS,
+                DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
+                DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
         requestQueue.add(request);
 
     }
