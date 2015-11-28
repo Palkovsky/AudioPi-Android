@@ -34,8 +34,6 @@ public class SettingsContentObserver extends ContentObserver {
         AudioManager audio = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
         int currentVolume = audio.getStreamVolume(AudioManager.STREAM_MUSIC);
 
-        int delta = previousVolume - currentVolume;
-
         volumeCallback.onVolumeChange(currentVolume);
         previousVolume = currentVolume;
 

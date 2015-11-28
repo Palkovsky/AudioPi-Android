@@ -25,7 +25,7 @@ public class VolumeManager implements VolumeRequester.VolumeRequestCallback {
 
     @Override
     public void onQueryError() {
-        Toast.makeText(context, R.string.volume_change_error, Toast.LENGTH_SHORT).show();
+        //Toast.makeText(context, R.string.volume_change_error, Toast.LENGTH_SHORT).show();
     }
 
     public void setVolume(int volume) {

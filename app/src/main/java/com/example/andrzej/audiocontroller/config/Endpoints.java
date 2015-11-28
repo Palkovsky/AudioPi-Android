@@ -148,6 +148,6 @@ public class Endpoints {
     }
 
     public static String getTestUrl(String ip, String port) {
-        return URL_HTTP + ip + ":" + port;
+        return URL_HTTP + ip + ":" + port + "/test";
     }
 }

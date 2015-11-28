@@ -331,81 +331,82 @@ public class MediaFragment extends BackHandledFragment implements PullRefreshLay
     }
 
     public void queryPath(String path) {
-        if (!isLoading) {
 
-            currentPath = path;
-            isLoading = true;
-            setUpLoadingLayout();
-            String queryUrl = Endpoints.getPlaylistsUrl(path, true, Sort.NONE);
+        requestQueue.cancelAll(TAG);
 
-            JsonObjectRequest request = new JsonObjectRequest(Request.Method.GET, queryUrl, new Response.Listener<JSONObject>() {
-                @Override
-                public void onResponse(JSONObject response) {
+        currentPath = path;
+        isLoading = true;
+        setUpLoadingLayout();
+        String queryUrl = Endpoints.getPlaylistsUrl(path, true, Sort.NONE);
 
-                    int code = Codes.SUCCESFULL;
-                    orginalPlaylists.clear();
-                    mPlaylists.clear();
+        JsonObjectRequest request = new JsonObjectRequest(Request.Method.GET, queryUrl, new Response.Listener<JSONObject>() {
+            @Override
+            public void onResponse(JSONObject response) {
 
-                    try {
-                        code = response.getInt("code");
+                int code = Codes.SUCCESFULL;
+                orginalPlaylists.clear();
+                mPlaylists.clear();
 
-                        JSONArray playlists = response.getJSONArray("playlists");
-                        for (int i = 0; i < playlists.length(); i++) {
+                try {
+                    code = response.getInt("code");
 
-                            JSONObject playlist = playlists.getJSONObject(i);
-                            Playlist item = new Playlist();
-                            item.setCoverUrl(Endpoints.getFileUrl(playlist.getString("cover")));
-                            item.setName(playlist.getString("name"));
-                            item.setType(playlist.getString("type"));
+                    JSONArray playlists = response.getJSONArray("playlists");
+                    for (int i = 0; i < playlists.length(); i++) {
 
-                            JSONArray jsonTracks = playlist.getJSONArray("tracks");
-                            List<Track> tracks = new ArrayList<>();
+                        JSONObject playlist = playlists.getJSONObject(i);
+                        Playlist item = new Playlist();
+                        item.setCoverUrl(Endpoints.getFileUrl(playlist.getString("cover")));
+                        item.setName(playlist.getString("name"));
+                        item.setType(playlist.getString("type"));
 
-                            for (int j = 0; j < jsonTracks.length(); j++) {
-                                JSONObject track = jsonTracks.getJSONObject(j);
-                                Track exploreItem = new Track();
-                                exploreItem.setName(track.getString("basename"));
-                                exploreItem.setPath(track.getString("full"));
-                                exploreItem.setJSONMetadata(track);
-                                tracks.add(exploreItem);
-                            }
+                        JSONArray jsonTracks = playlist.getJSONArray("tracks");
+                        List<Track> tracks = new ArrayList<>();
 
-                            item.setTracks(tracks);
-                            orginalPlaylists.add(item);
+                        for (int j = 0; j < jsonTracks.length(); j++) {
+                            JSONObject track = jsonTracks.getJSONObject(j);
+                            Track exploreItem = new Track();
+                            exploreItem.setName(track.getString("basename"));
+                            exploreItem.setPath(track.getString("full"));
+                            exploreItem.setJSONMetadata(track);
+                            tracks.add(exploreItem);
                         }
 
-                        if (orginalPlaylists.size() == 0)
-                            setUpErrorLayout(Codes.EMPTY_DATASET);
-                        else
-                            setUpNormalLayout();
-
-                        filterDataset(filter);
-
-                        reInitRecycler();
-                        mSwipeRefreshLayout.setRefreshing(false);
-                        isLoading = false;
-
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                        setUpErrorLayout(code);
-                        mSwipeRefreshLayout.setRefreshing(false);
-                        isLoading = false;
+                        item.setTracks(tracks);
+                        orginalPlaylists.add(item);
                     }
-                }
-            }, new Response.ErrorListener() {
-                @Override
-                public void onErrorResponse(VolleyError error) {
-                    mPlaylists.clear();
-                    mAdapter.notifyDataSetChanged();
-                    setUpErrorLayout(Codes.SUCCESFULL);
+
+                    if (orginalPlaylists.size() == 0)
+                        setUpErrorLayout(Codes.EMPTY_DATASET);
+                    else
+                        setUpNormalLayout();
+
+                    filterDataset(filter);
+
+                    reInitRecycler();
+                    mSwipeRefreshLayout.setRefreshing(false);
+                    isLoading = false;
+
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                    setUpErrorLayout(code);
                     mSwipeRefreshLayout.setRefreshing(false);
                     isLoading = false;
                 }
-            });
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                mPlaylists.clear();
+                mAdapter.notifyDataSetChanged();
+                setUpErrorLayout(Codes.SUCCESFULL);
+                mSwipeRefreshLayout.setRefreshing(false);
+                isLoading = false;
+            }
+        });
 
-            request.setTag(TAG);
-            requestQueue.add(request);
-        }
+        request.setTag(TAG);
+        requestQueue.add(request);
+
     }
 
     public void registerMediaCommunicator(MediaCommunicator mediaCommunicator) {

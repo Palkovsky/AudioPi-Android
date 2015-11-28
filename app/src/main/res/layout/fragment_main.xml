@@ -1,4 +1,5 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -22,9 +23,9 @@
             <EditText
                 android:id="@+id/ipEditText"
                 android:layout_width="0dp"
-                android:hint="@string/ip_hint"
                 android:layout_height="wrap_content"
                 android:layout_weight="80"
+                android:hint="@string/ip_hint"
                 android:imeOptions="actionNext"
                 android:singleLine="true" />
 
@@ -37,9 +38,9 @@
             <EditText
                 android:id="@+id/portEditText"
                 android:layout_width="0dp"
-                android:hint="@string/port_hint"
                 android:layout_height="wrap_content"
                 android:layout_weight="19"
+                android:hint="@string/port_hint"
                 android:imeOptions="actionGo"
                 android:singleLine="true" />
 
@@ -60,6 +61,26 @@
 
         </RelativeLayout>
 
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/volumeTv"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+
+            <org.adw.library.widgets.discreteseekbar.DiscreteSeekBar
+                android:id="@+id/volumeSeekBar"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:dsb_rippleColor="@color/indigo_pressed"
+                app:dsb_progressColor="@color/indigo"
+                app:dsb_indicatorColor="@color/colorAccent"
+                app:dsb_max="100"
+                app:dsb_min="0" />
+        </LinearLayout>
     </LinearLayout>
 
 </RelativeLayout>

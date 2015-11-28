@@ -33,6 +33,7 @@
     <string name="playlist_count_format">%1$s utworów</string>
     <string name="artist_album_format">%1$s - %2$s</string>
     <string name="removed_snackbar_format">%1$s removed</string>
+    <string name="volume_format">Volume(%1$s)</string>
 
     <string name="unknown"><![CDATA[<nieznany>]]></string>
     <string name="back">Back</string>
@@ -87,7 +88,7 @@
     <string name="shuffle_on_wave_title">Accelerometer Shuffle</string>
     <string name="activity_settings">Settings</string>
 
-<!-- TODO: Remove or change this placeholder text -->
+    <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="no_local_playlist_error">No user-created playlists.</string>
     <string name="content_remove_playlist">Are you sure that you want to remove this playlist?</string>
@@ -99,4 +100,5 @@
     <string name="ip_hint">ip address</string>
     <string name="port_hint">port</string>
     <string name="volume_change_error">Volume change error</string>
+    <string name="volume">Volume</string>
 </resources>
