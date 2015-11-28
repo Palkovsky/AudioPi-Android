@@ -101,4 +101,5 @@
     <string name="port_hint">port</string>
     <string name="volume_change_error">Volume change error</string>
     <string name="volume">Volume</string>
+    <string name="no_while_loading">Not allowed while loading</string>
 </resources>

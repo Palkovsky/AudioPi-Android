@@ -17,12 +17,14 @@ import com.example.andrzej.audiocontroller.fragments.AutoPlaylistFragment;
 import com.example.andrzej.audiocontroller.fragments.MediaFragment;
 import com.example.andrzej.audiocontroller.fragments.LocalPlaylistFragment;
 import com.example.andrzej.audiocontroller.interfaces.FragmentCallback;
+import com.example.andrzej.audiocontroller.interfaces.MediaCallback;
 import com.example.andrzej.audiocontroller.models.Playlist;
 import com.example.andrzej.audiocontroller.utils.Converter;
+import com.example.andrzej.audiocontroller.utils.PlaybackUtils;
 import com.example.andrzej.audiocontroller.utils.SettingsContentObserver;
 import com.example.andrzej.audiocontroller.views.BackHandledFragment;
 
-public class DetalisActivity extends AppCompatActivity implements BackHandledFragment.BackHandlerInterface, FragmentCallback {
+public class DetalisActivity extends AppCompatActivity implements BackHandledFragment.BackHandlerInterface, FragmentCallback, MediaCallback {
 
     public static final String PLAYLIST_SER_KEY = "PLAYLIST_SERIALIZABLE";
     public static final String TRACK_SER_KEY = "TRACK_SERIALIZABLE";
@@ -35,7 +37,6 @@ public class DetalisActivity extends AppCompatActivity implements BackHandledFra
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_detalis);
-        setVolumeControlStream(AudioManager.STREAM_MUSIC);
 
         //Read extras
         Playlist playlist = (Playlist) getIntent().getSerializableExtra(MediaFragment.SER_KEY);
@@ -70,7 +71,12 @@ public class DetalisActivity extends AppCompatActivity implements BackHandledFra
     @Override
     protected void onResume() {
         super.onResume();
+        MyApplication.streamManager.registerMediaListener(this);
         getContentResolver().registerContentObserver(android.provider.Settings.System.CONTENT_URI, true, mSettingsContentObserver);
+        if(PlaybackUtils.useMediaVolumeStream())
+            setVolumeControlStream(AudioManager.STREAM_MUSIC);
+        else
+            setVolumeControlStream(AudioManager.USE_DEFAULT_STREAM_TYPE);
     }
 
     @Override
@@ -119,4 +125,30 @@ public class DetalisActivity extends AppCompatActivity implements BackHandledFra
     public void onNewFragmentStart(BackHandledFragment fragment) {
         putFragment(fragment);
     }
+
+    @Override
+    public void onMediaStart() {
+        setVolumeControlStream(AudioManager.STREAM_MUSIC);
+    }
+
+    @Override
+    public void onMediaRewind(float position) {}
+
+    @Override
+    public void onMediaPause() {
+        setVolumeControlStream(AudioManager.USE_DEFAULT_STREAM_TYPE);
+    }
+
+    @Override
+    public void onMediaUnpause() {
+        setVolumeControlStream(AudioManager.STREAM_MUSIC);
+    }
+
+    @Override
+    public void onMediaStop() {
+        setVolumeControlStream(AudioManager.USE_DEFAULT_STREAM_TYPE);
+    }
+
+    @Override
+    public void onMediaUpdate() {}
 }

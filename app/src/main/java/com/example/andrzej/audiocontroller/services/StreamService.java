@@ -42,9 +42,9 @@ public class StreamService extends AbstractService {
                         public void onResponse(JSONObject response) {
                             try {
                                 int code = response.getInt("code");
-                                if (code == 1015) {
+                                if (code == 1015)
                                     send(Message.obtain(null, MSG_VALUE, -1, 0));
-                                } else {
+                                else {
                                     int curTime = response.getJSONObject("playback").getJSONObject("position").getInt("millis");
                                     send(Message.obtain(null, MSG_POS_UPDATE, curTime, 0));
                                 }

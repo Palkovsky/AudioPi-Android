@@ -34,6 +34,7 @@ import com.example.andrzej.audiocontroller.models.dbmodels.PlaylistDb;
 import com.example.andrzej.audiocontroller.models.dbmodels.TrackDb;
 import com.example.andrzej.audiocontroller.utils.Converter;
 import com.example.andrzej.audiocontroller.utils.Image;
+import com.example.andrzej.audiocontroller.utils.PlaybackUtils;
 import com.example.andrzej.audiocontroller.utils.SettingsContentObserver;
 import com.example.andrzej.audiocontroller.views.BackHandledFragment;
 import com.example.andrzej.audiocontroller.views.BlankingImageButton;
@@ -119,6 +120,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         MyApplication.streamManager.registerMediaListener(this);
         getContentResolver().registerContentObserver(android.provider.Settings.System.CONTENT_URI, true, mSettingsContentObserver);
         updateUI();
+
+        if(PlaybackUtils.useMediaVolumeStream())
+            setVolumeControlStream(AudioManager.STREAM_MUSIC);
+        else
+            setVolumeControlStream(AudioManager.USE_DEFAULT_STREAM_TYPE);
     }
 
     @Override
@@ -237,6 +243,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     public void onMediaStart() {
         updateUI();
+        setVolumeControlStream(AudioManager.STREAM_MUSIC);
     }
 
     @Override
@@ -247,16 +254,19 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     public void onMediaPause() {
         updateUI();
+        setVolumeControlStream(AudioManager.USE_DEFAULT_STREAM_TYPE);
     }
 
     @Override
     public void onMediaUnpause() {
         updateUI();
+        setVolumeControlStream(AudioManager.STREAM_MUSIC);
     }
 
     @Override
     public void onMediaStop() {
        updateUI();
+        setVolumeControlStream(AudioManager.USE_DEFAULT_STREAM_TYPE);
     }
 
     @Override

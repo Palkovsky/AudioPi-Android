@@ -457,34 +457,37 @@ public class MediaFragment extends BackHandledFragment implements PullRefreshLay
 
     @Override
     public boolean onMenuItemClick(MenuItem item) {
-        SharedPreferences.Editor editor = prefs.edit();
+        if (isLoading && item.getItemId() != R.id.playlistsOnly)
+            Toast.makeText(getActivity(), R.string.no_while_loading, Toast.LENGTH_SHORT).show();
+        else {
+            SharedPreferences.Editor editor = prefs.edit();
 
-        switch (item.getItemId()) {
-            case R.id.allAllowed:
-                editor.putInt(PrefKeys.KEY_MEDIA_FILTER, Filters.ALL);
-                filter = Filters.ALL;
-                break;
-            case R.id.albumsOnly:
-                editor.putInt(PrefKeys.KEY_MEDIA_FILTER, Filters.ALBUMS);
-                filter = Filters.ALBUMS;
-                break;
-            case R.id.artistsOnly:
-                editor.putInt(PrefKeys.KEY_MEDIA_FILTER, Filters.ARTISTS);
-                filter = Filters.ARTISTS;
-                break;
-            case R.id.genresOnly:
-                editor.putInt(PrefKeys.KEY_MEDIA_FILTER, Filters.GENRES);
-                filter = Filters.GENRES;
-                break;
-            case R.id.playlistsOnly:
-                editor.putInt(PrefKeys.KEY_MEDIA_FILTER, Filters.LOCAL_PLAYLISTS);
-                filter = Filters.LOCAL_PLAYLISTS;
-                break;
+            switch (item.getItemId()) {
+                case R.id.allAllowed:
+                    editor.putInt(PrefKeys.KEY_MEDIA_FILTER, Filters.ALL);
+                    filter = Filters.ALL;
+                    break;
+                case R.id.albumsOnly:
+                    editor.putInt(PrefKeys.KEY_MEDIA_FILTER, Filters.ALBUMS);
+                    filter = Filters.ALBUMS;
+                    break;
+                case R.id.artistsOnly:
+                    editor.putInt(PrefKeys.KEY_MEDIA_FILTER, Filters.ARTISTS);
+                    filter = Filters.ARTISTS;
+                    break;
+                case R.id.genresOnly:
+                    editor.putInt(PrefKeys.KEY_MEDIA_FILTER, Filters.GENRES);
+                    filter = Filters.GENRES;
+                    break;
+                case R.id.playlistsOnly:
+                    editor.putInt(PrefKeys.KEY_MEDIA_FILTER, Filters.LOCAL_PLAYLISTS);
+                    filter = Filters.LOCAL_PLAYLISTS;
+                    break;
+            }
+            filterDataset(filter);
+            editor.apply();
+            fabRoot.collapse();
         }
-
-        filterDataset(filter);
-        editor.apply();
-        fabRoot.collapse();
         return false;
     }
 

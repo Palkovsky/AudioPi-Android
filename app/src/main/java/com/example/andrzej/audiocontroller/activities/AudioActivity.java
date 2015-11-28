@@ -36,6 +36,7 @@ import com.example.andrzej.audiocontroller.models.Playlist;
 import com.example.andrzej.audiocontroller.models.Track;
 import com.example.andrzej.audiocontroller.utils.Converter;
 import com.example.andrzej.audiocontroller.utils.Image;
+import com.example.andrzej.audiocontroller.utils.PlaybackUtils;
 import com.example.andrzej.audiocontroller.utils.SettingsContentObserver;
 import com.example.andrzej.audiocontroller.views.BlankingImageButton;
 import com.squareup.picasso.Picasso;
@@ -109,7 +110,6 @@ public class AudioActivity extends AppCompatActivity implements MediaCallback, D
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_audio);
         ButterKnife.bind(this);
-        setVolumeControlStream(AudioManager.STREAM_MUSIC);
 
         mSensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
         mSensorManager.registerListener(mSensorListener, mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER), SensorManager.SENSOR_DELAY_NORMAL);
@@ -156,6 +156,11 @@ public class AudioActivity extends AppCompatActivity implements MediaCallback, D
         drawerFragment.setCurrentPlaylist(MyApplication.streamManager.getCurrentPlaylist());
         updateUI();
         mSensorManager.registerListener(mSensorListener, mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER), SensorManager.SENSOR_DELAY_NORMAL);
+
+        if(PlaybackUtils.useMediaVolumeStream())
+            setVolumeControlStream(AudioManager.STREAM_MUSIC);
+        else
+            setVolumeControlStream(AudioManager.USE_DEFAULT_STREAM_TYPE);
     }
 
     @Override
@@ -169,6 +174,7 @@ public class AudioActivity extends AppCompatActivity implements MediaCallback, D
     public void onMediaStart() {
         updateUI();
         drawerFragment.updateUI();
+        setVolumeControlStream(AudioManager.STREAM_MUSIC);
     }
 
     @Override
@@ -180,12 +186,14 @@ public class AudioActivity extends AppCompatActivity implements MediaCallback, D
     public void onMediaPause() {
         updateUiLight();
         drawerFragment.updateUI();
+        setVolumeControlStream(AudioManager.USE_DEFAULT_STREAM_TYPE);
     }
 
     @Override
     public void onMediaUnpause() {
         updateUiLight();
         drawerFragment.updateUI();
+        setVolumeControlStream(AudioManager.STREAM_MUSIC);
     }
 
     @Override
@@ -193,6 +201,7 @@ public class AudioActivity extends AppCompatActivity implements MediaCallback, D
         drawerFragment.setCurrentPlaylist(MyApplication.streamManager.getCurrentPlaylist());
         drawerFragment.updateUI();
         updateUI();
+        setVolumeControlStream(AudioManager.USE_DEFAULT_STREAM_TYPE);
     }
 
     @Override
