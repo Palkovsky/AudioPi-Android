@@ -89,7 +89,6 @@ public class StreamManager extends MediaSessionCompat.Callback implements Stream
                         float total = response.getInt("total");
                         currentTrack.setMilliTotalSecs(total);
 
-
                         serviceManager.stop();
                         serviceManager.start();
 

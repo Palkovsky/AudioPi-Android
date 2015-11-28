@@ -9,6 +9,7 @@ import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
+import com.example.andrzej.audiocontroller.MyApplication;
 import com.example.andrzej.audiocontroller.config.Endpoints;
 import com.example.andrzej.audiocontroller.utils.network.VolleySingleton;
 
@@ -38,13 +39,26 @@ public class StreamService extends AbstractService {
 
                     requestQueue.cancelAll(REQUEST_TAG);
                     JsonObjectRequest request = new JsonObjectRequest(Request.Method.GET, queryUrl, new Response.Listener<JSONObject>() {
+
+                        //This is used, cuz sometimes /track/playback don't respond properly
+                        //this assures that playback is actually dead, cuz it forces it to wait 1 sec more
+                        //and in that time everyting on server should be fine
+                        private int retryCount = 0;
+
                         @Override
                         public void onResponse(JSONObject response) {
                             try {
                                 int code = response.getInt("code");
-                                if (code == 1015)
-                                    send(Message.obtain(null, MSG_VALUE, -1, 0));
-                                else {
+                                Log.e("andrzej", "code: " + code);
+                                if (code == 1015) {
+                                    retryCount++;
+                                    if ((retryCount >= 2 && MyApplication.streamManager.getCurrentTrack().getMilliPosSecs() == 0)
+                                            ||  MyApplication.streamManager.getCurrentTrack().getMilliPosSecs() > 0) {
+                                        send(Message.obtain(null, MSG_VALUE, -1, 0));
+                                        retryCount = 0;
+                                    }
+                                } else {
+                                    retryCount = 0;
                                     int curTime = response.getJSONObject("playback").getJSONObject("position").getInt("millis");
                                     send(Message.obtain(null, MSG_POS_UPDATE, curTime, 0));
                                 }
@@ -55,7 +69,8 @@ public class StreamService extends AbstractService {
                     }, new Response.ErrorListener() {
                         @Override
                         public void onErrorResponse(VolleyError error) {
-                            send(Message.obtain(null, SERVER_ERROR, -1, 0));
+                            //Disabled because, it was giving some problems. Probably better to keep it this way
+                            //send(Message.obtain(null, SERVER_ERROR, -1, 0));
                         }
                     });
 
