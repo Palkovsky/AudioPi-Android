@@ -116,12 +116,50 @@ public class Converter {
         return track;
     }
 
-    public static List<Track> dbToStandard(List<TrackDb> trackDbs){
+    public static List<Track> dbToStandard(List<TrackDb> trackDbs) {
         List<Track> tracks = new ArrayList<>();
 
-        for(TrackDb trackDb : trackDbs)
+        for (TrackDb trackDb : trackDbs)
             tracks.add(dbToStandard(trackDb));
 
         return tracks;
+    }
+
+    public static int androidVolumeToStandard(int vol) {
+        switch (vol) {
+            default:
+            case 15:
+                return 100;
+            case 14:
+                return 92;
+            case 13:
+                return 84;
+            case 12:
+                return 76;
+            case 11:
+                return 68;
+            case 10:
+                return 61;
+            case 9:
+                return 54;
+            case 8:
+                return 46;
+            case 7:
+                return 39;
+            case 6:
+                return 33;
+            case 5:
+                return 27;
+            case 4:
+                return 19;
+            case 3:
+                return 11;
+            case 2:
+                return 8;
+            case 1:
+                return 5;
+            case 0:
+                return 0;
+        }
     }
 }

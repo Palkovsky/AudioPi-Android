@@ -32,6 +32,7 @@ import com.example.andrzej.audiocontroller.models.Playlist;
 import com.example.andrzej.audiocontroller.models.Track;
 import com.example.andrzej.audiocontroller.models.dbmodels.PlaylistDb;
 import com.example.andrzej.audiocontroller.models.dbmodels.TrackDb;
+import com.example.andrzej.audiocontroller.utils.Converter;
 import com.example.andrzej.audiocontroller.utils.Image;
 import com.example.andrzej.audiocontroller.utils.SettingsContentObserver;
 import com.example.andrzej.audiocontroller.views.BackHandledFragment;
@@ -91,7 +92,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         mSettingsContentObserver = new SettingsContentObserver(this, new Handler(), new SettingsContentObserver.VolumeCallback() {
             @Override
             public void onVolumeChange(int volume) {
-                Toast.makeText(getApplicationContext(), "Vol: " + volume, Toast.LENGTH_SHORT).show();
+                MyApplication.volumeManager.setVolume(Converter.androidVolumeToStandard(volume));
             }
         });
 

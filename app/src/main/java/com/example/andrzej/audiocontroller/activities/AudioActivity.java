@@ -121,7 +121,7 @@ public class AudioActivity extends AppCompatActivity implements MediaCallback, D
         mSettingsContentObserver = new SettingsContentObserver(this, new Handler(), new SettingsContentObserver.VolumeCallback() {
             @Override
             public void onVolumeChange(int volume) {
-                Toast.makeText(getApplicationContext(), "Vol: " + volume, Toast.LENGTH_SHORT).show();
+                MyApplication.volumeManager.setVolume(Converter.androidVolumeToStandard(volume));
             }
         });
 

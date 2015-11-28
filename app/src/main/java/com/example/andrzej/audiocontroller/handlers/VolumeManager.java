@@ -4,6 +4,7 @@ package com.example.andrzej.audiocontroller.handlers;
 import android.content.Context;
 import android.widget.Toast;
 
+import com.example.andrzej.audiocontroller.MyApplication;
 import com.example.andrzej.audiocontroller.R;
 
 public class VolumeManager implements VolumeRequester.VolumeRequestCallback {

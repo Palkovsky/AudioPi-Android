@@ -33,7 +33,6 @@ public class MyApplication extends Application {
         Endpoints.reInit(prefs.getString(PrefKeys.KEY_IP, ""), prefs.getString(PrefKeys.KEY_PORT, ""));
         streamManager = new StreamManager(context);
         volumeManager = new VolumeManager(context);
-        volumeManager.setVolume(100);
     }
 
 

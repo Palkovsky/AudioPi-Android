@@ -11,12 +11,14 @@ import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 import android.widget.Toast;
 
+import com.example.andrzej.audiocontroller.MyApplication;
 import com.example.andrzej.audiocontroller.R;
 import com.example.andrzej.audiocontroller.fragments.AutoPlaylistFragment;
 import com.example.andrzej.audiocontroller.fragments.MediaFragment;
 import com.example.andrzej.audiocontroller.fragments.LocalPlaylistFragment;
 import com.example.andrzej.audiocontroller.interfaces.FragmentCallback;
 import com.example.andrzej.audiocontroller.models.Playlist;
+import com.example.andrzej.audiocontroller.utils.Converter;
 import com.example.andrzej.audiocontroller.utils.SettingsContentObserver;
 import com.example.andrzej.audiocontroller.views.BackHandledFragment;
 
@@ -43,7 +45,7 @@ public class DetalisActivity extends AppCompatActivity implements BackHandledFra
         mSettingsContentObserver = new SettingsContentObserver(this, new Handler(), new SettingsContentObserver.VolumeCallback() {
             @Override
             public void onVolumeChange(int volume) {
-                Toast.makeText(getApplicationContext(), "Vol: " + volume, Toast.LENGTH_SHORT).show();
+                MyApplication.volumeManager.setVolume(Converter.androidVolumeToStandard(volume));
             }
         });
 

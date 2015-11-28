@@ -1,25 +1,17 @@
 package com.example.andrzej.audiocontroller.handlers;
 
 
-import android.util.Log;
-import android.widget.Toast;
 
-import com.android.volley.AuthFailureError;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.example.andrzej.audiocontroller.config.Endpoints;
-import com.example.andrzej.audiocontroller.interfaces.StreamListener;
 import com.example.andrzej.audiocontroller.utils.network.VolleySingleton;
 
 import org.json.JSONException;
 import org.json.JSONObject;
-
-import java.util.HashMap;
-import java.util.Map;
-
 public class VolumeRequester {
 
     public static final String TAG = "VOLUME_REQUESTER";
