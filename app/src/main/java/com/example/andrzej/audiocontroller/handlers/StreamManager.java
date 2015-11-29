@@ -99,7 +99,7 @@ public class StreamManager extends MediaSessionCompat.Callback implements Stream
                 case Codes.INVALID_PATH:
                 case Codes.FILE_NOT_EXSISTS:
                     currentTrack.setOffline(true);
-                    if (currentPlaylist.canGoNext())
+                    if (currentPlaylist != null && currentPlaylist.canGoNext())
                         nextTrack();
                     else {
                         Toast.makeText(context, R.string.unable_to_find_track, Toast.LENGTH_SHORT).show();
