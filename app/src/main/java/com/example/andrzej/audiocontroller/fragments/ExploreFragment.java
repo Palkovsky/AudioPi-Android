@@ -40,6 +40,8 @@ import com.example.andrzej.audiocontroller.interfaces.OnLongItemClickListener;
 import com.example.andrzej.audiocontroller.interfaces.OnMoreItemClickListener;
 import com.example.andrzej.audiocontroller.interfaces.OnSuccess;
 import com.example.andrzej.audiocontroller.models.ExploreItem;
+import com.example.andrzej.audiocontroller.models.Playlist;
+import com.example.andrzej.audiocontroller.models.Track;
 import com.example.andrzej.audiocontroller.utils.Converter;
 import com.example.andrzej.audiocontroller.utils.Dialog;
 import com.example.andrzej.audiocontroller.utils.Image;
@@ -190,8 +192,28 @@ public class ExploreFragment extends BackHandledFragment implements OnItemClickL
                 exploreManager.currentDirectory().setItems(mDataset);
                 exploreManager.goTo(exploreManager.currentPath() + item.getName() + "/");
             } else {
+
+                List<Track> tracks = new ArrayList<>();
+                int trackPosition = 0;
+                boolean posFound = false;
+                for (int i = 0; i < mDataset.size(); i++) {
+                    ExploreItem exploreItem = mDataset.get(i);
+                    if (!exploreItem.isDirectory()) {
+                        if (!exploreItem.equals(item) && !posFound)
+                            trackPosition++;
+                        else
+                            posFound = true;
+                        Track track = Converter.exploreItemToTrack(exploreItem);
+                        tracks.add(track);
+                    }
+                }
+
+                Playlist playlist = new Playlist();
+                playlist.setName(navigationDataset.get(navigationDataset.size() - 1));
+                playlist.setTracks(tracks);
+
                 if (mediaCommunicator != null)
-                    mediaCommunicator.onTrackStart(Converter.exploreItemToTrack(item));
+                    mediaCommunicator.onPlaylistStart(playlist, trackPosition);
             }
         }
     }
@@ -524,7 +546,7 @@ public class ExploreFragment extends BackHandledFragment implements OnItemClickL
         });
     }
 
-    public void goRoot(){
+    public void goRoot() {
         exploreManager.goToRoot();
     }
 }
