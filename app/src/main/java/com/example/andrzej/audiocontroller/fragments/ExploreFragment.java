@@ -77,7 +77,6 @@ public class ExploreFragment extends BackHandledFragment implements OnItemClickL
     private ExploreRecyclerAdapter mAdapter;
     private NavigationRecyclerView navigationAdapter;
     private ExploreManager exploreManager;
-    private VolleySingleton volleySingleton;
     private RequestQueue requestQueue;
     private SharedPreferences prefs;
 
@@ -91,7 +90,7 @@ public class ExploreFragment extends BackHandledFragment implements OnItemClickL
 
     //Vitals
     private boolean isGrid = true;
-    private boolean isLoading = false;
+    private boolean goingDown = false;
     private int sortingMethod;
 
     //View bindings
@@ -135,8 +134,7 @@ public class ExploreFragment extends BackHandledFragment implements OnItemClickL
         ButterKnife.bind(this, rootView);
 
         exploreManager = new ExploreManager(Defaults.PATH);
-        volleySingleton = VolleySingleton.getsInstance();
-        requestQueue = volleySingleton.getRequestQueue();
+        requestQueue = VolleySingleton.getsInstance().getRequestQueue();
         prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
 
         isGrid = prefs.getBoolean(PrefKeys.KEY_EXPLORE_VIEW, true);
@@ -159,8 +157,8 @@ public class ExploreFragment extends BackHandledFragment implements OnItemClickL
                     currentPos = exploreManager.getDepth();
                 }
 
-                if (!isLoading)
-                    queryPath(exploreManager.currentPath());
+                queryPath(exploreManager.currentPath());
+
             }
         });
         navigationRecyclerView.setAdapter(navigationAdapter);
@@ -186,36 +184,37 @@ public class ExploreFragment extends BackHandledFragment implements OnItemClickL
     public void onItemClick(View v, int position) {
         ExploreItem item = mDataset.get(position);
 
-        if (!isLoading) {
-            if (item.isDirectory()) {
-                exploreManager.currentDirectory().setSavedState(mRecyclerView.getLayoutManager().onSaveInstanceState());
-                exploreManager.currentDirectory().setItems(mDataset);
-                exploreManager.goTo(exploreManager.currentPath() + item.getName() + "/");
-            } else {
+        if (item.isDirectory()) {
+            exploreManager.currentDirectory().setSavedState(mRecyclerView.getLayoutManager().onSaveInstanceState());
+            exploreManager.currentDirectory().setItems(mDataset);
+            if (goingDown)
+                exploreManager.goUp();
+            exploreManager.goTo(exploreManager.currentPath() + item.getName() + "/");
+        } else {
 
-                List<Track> tracks = new ArrayList<>();
-                int trackPosition = 0;
-                boolean posFound = false;
-                for (int i = 0; i < mDataset.size(); i++) {
-                    ExploreItem exploreItem = mDataset.get(i);
-                    if (!exploreItem.isDirectory()) {
-                        if (!exploreItem.equals(item) && !posFound)
-                            trackPosition++;
-                        else
-                            posFound = true;
-                        Track track = Converter.exploreItemToTrack(exploreItem);
-                        tracks.add(track);
-                    }
+            List<Track> tracks = new ArrayList<>();
+            int trackPosition = 0;
+            boolean posFound = false;
+            for (int i = 0; i < mDataset.size(); i++) {
+                ExploreItem exploreItem = mDataset.get(i);
+                if (!exploreItem.isDirectory()) {
+                    if (!exploreItem.equals(item) && !posFound)
+                        trackPosition++;
+                    else
+                        posFound = true;
+                    Track track = Converter.exploreItemToTrack(exploreItem);
+                    tracks.add(track);
                 }
-
-                Playlist playlist = new Playlist();
-                playlist.setName(navigationDataset.get(navigationDataset.size() - 1));
-                playlist.setTracks(tracks);
-
-                if (mediaCommunicator != null)
-                    mediaCommunicator.onPlaylistStart(playlist, trackPosition);
             }
+
+            Playlist playlist = new Playlist();
+            playlist.setName(navigationDataset.get(navigationDataset.size() - 1));
+            playlist.setTracks(tracks);
+
+            if (mediaCommunicator != null)
+                mediaCommunicator.onPlaylistStart(playlist, trackPosition);
         }
+
     }
 
     @Override
@@ -276,16 +275,13 @@ public class ExploreFragment extends BackHandledFragment implements OnItemClickL
 
     @Override
     public void onDirectoryUp(String oldPath, String newPath) {
-        if (!isLoading)
-            queryPath(newPath);
-
+        queryPath(newPath);
     }
 
     @Override
     public void onDirectoryDown(String oldPath, String newPath) {
-        if (!isLoading) {
-            queryPath(newPath);
-        }
+        queryPath(newPath);
+        goingDown = true;
     }
 
     private void updatePathToolbar() {
@@ -373,105 +369,104 @@ public class ExploreFragment extends BackHandledFragment implements OnItemClickL
 
     private void queryPath(final String path) {
 
-        if (!isLoading) {
-            isLoading = true;
-            requestQueue.cancelAll(TAG);
 
-            setLoadingLayout();
-            final String queryUrl = Endpoints.getDataUrl(path, true, sortingMethod);
+        requestQueue.cancelAll(TAG);
 
-            JsonObjectRequest request = new JsonObjectRequest(Request.Method.GET, queryUrl, new Response.Listener<JSONObject>() {
+        setLoadingLayout();
+        final String queryUrl = Endpoints.getDataUrl(path, true, sortingMethod);
 
-                @Override
-                public void onResponse(JSONObject response) {
+        JsonObjectRequest request = new JsonObjectRequest(Request.Method.GET, queryUrl, new Response.Listener<JSONObject>() {
 
-                    int code = Codes.SUCCESFULL;
+            @Override
+            public void onResponse(JSONObject response) {
 
-                    try {
-                        code = response.getInt("code");
+                int code = Codes.SUCCESFULL;
 
-                        List<ExploreItem> dataset = new ArrayList<>();
-                        JSONObject directory = response.getJSONObject("directory");
-                        JSONArray directories = directory.getJSONArray("directories");
-                        JSONArray tracks = directory.getJSONArray("tracks");
+                try {
+                    code = response.getInt("code");
 
-                        for (int i = 0; i < directories.length(); i++) {
-                            JSONObject dir = directories.getJSONObject(i);
-                            ExploreItem item = new ExploreItem();
-                            item.setName(dir.getString("relative"));
-                            item.setPath(dir.getString("full"));
-                            item.setDirectory(true);
-                            dataset.add(item);
-                        }
+                    List<ExploreItem> dataset = new ArrayList<>();
+                    JSONObject directory = response.getJSONObject("directory");
+                    JSONArray directories = directory.getJSONArray("directories");
+                    JSONArray tracks = directory.getJSONArray("tracks");
 
-                        for (int i = 0; i < tracks.length(); i++) {
-                            JSONObject track = tracks.getJSONObject(i);
-                            JSONObject metadata = track.getJSONObject("metadata");
-                            ExploreItem item = new ExploreItem();
-                            item.setName(track.getString("relative"));
-                            item.setPath(track.getString("full"));
-                            item.setJSONMetadata(metadata);
-                            item.setDirectory(false);
-                            dataset.add(item);
-                        }
-
-                        mDataset.clear();
-                        mDataset.addAll(dataset);
-                        mAdapter.notifyDataSetChanged();
-                        if (mDataset.size() == 0) {
-                            setUpErrorLayout(Codes.EMPTY_DATASET);
-                            if (communicator != null)
-                                communicator.onQueryError(queryUrl, Codes.EMPTY_DATASET);
-                        } else {
-                            exploreManager.currentDirectory().setItems(mDataset);
-                            setNormalLayout();
-                            if (communicator != null)
-                                communicator.onQuerySuccess(queryUrl, path, response);
-                        }
-                        updatePathToolbar();
-
-                        swipeRefreshLayout.setRefreshing(false);
-
-                        mRecyclerView.scrollToPosition(0);
-                        if (exploreManager.currentDirectory().getSavedState() != null)
-                            mRecyclerView.getLayoutManager().onRestoreInstanceState(exploreManager.currentDirectory().getSavedState());
-
-                        isLoading = false;
-
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                        setUpErrorLayout(code);
-                        if (communicator != null)
-                            communicator.onQueryError(queryUrl, code);
-                        updatePathToolbar();
-                        swipeRefreshLayout.setRefreshing(false);
-                        isLoading = false;
+                    for (int i = 0; i < directories.length(); i++) {
+                        JSONObject dir = directories.getJSONObject(i);
+                        ExploreItem item = new ExploreItem();
+                        item.setName(dir.getString("relative"));
+                        item.setPath(dir.getString("full"));
+                        item.setDirectory(true);
+                        dataset.add(item);
                     }
-                }
-            }, new Response.ErrorListener() {
-                @Override
-                public void onErrorResponse(VolleyError error) {
+
+                    for (int i = 0; i < tracks.length(); i++) {
+                        JSONObject track = tracks.getJSONObject(i);
+                        JSONObject metadata = track.getJSONObject("metadata");
+                        ExploreItem item = new ExploreItem();
+                        item.setName(track.getString("relative"));
+                        item.setPath(track.getString("full"));
+                        item.setJSONMetadata(metadata);
+                        item.setDirectory(false);
+                        dataset.add(item);
+                    }
+
                     mDataset.clear();
+                    mDataset.addAll(dataset);
                     mAdapter.notifyDataSetChanged();
-                    setUpErrorLayout(Codes.SUCCESFULL);
+                    if (mDataset.size() == 0) {
+                        setUpErrorLayout(Codes.EMPTY_DATASET);
+                        if (communicator != null)
+                            communicator.onQueryError(queryUrl, Codes.EMPTY_DATASET);
+                    } else {
+                        exploreManager.currentDirectory().setItems(mDataset);
+                        setNormalLayout();
+                        if (communicator != null)
+                            communicator.onQuerySuccess(queryUrl, path, response);
+                    }
                     updatePathToolbar();
-                    if (communicator != null)
-                        communicator.onQueryError(queryUrl, Codes.SUCCESFULL);
+
                     swipeRefreshLayout.setRefreshing(false);
-                    isLoading = false;
+
+                    mRecyclerView.scrollToPosition(0);
+                    if (exploreManager.currentDirectory().getSavedState() != null)
+                        mRecyclerView.getLayoutManager().onRestoreInstanceState(exploreManager.currentDirectory().getSavedState());
+
+                    goingDown = false;
+
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                    setUpErrorLayout(code);
+                    if (communicator != null)
+                        communicator.onQueryError(queryUrl, code);
+                    updatePathToolbar();
+                    swipeRefreshLayout.setRefreshing(false);
+                    goingDown = false;
                 }
-            });
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                mDataset.clear();
+                mAdapter.notifyDataSetChanged();
+                setUpErrorLayout(Codes.SUCCESFULL);
+                updatePathToolbar();
+                if (communicator != null)
+                    communicator.onQueryError(queryUrl, Codes.SUCCESFULL);
+                swipeRefreshLayout.setRefreshing(false);
+                goingDown = false;
+            }
+        });
 
-            if (communicator != null)
-                communicator.onQueryStart(queryUrl, path);
+        if (communicator != null)
+            communicator.onQueryStart(queryUrl, path);
 
-            request.setTag(TAG);
-            request.setRetryPolicy(new DefaultRetryPolicy(
-                    Defaults.MY_SOCKET_TIMEOUT_MS,
-                    DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
-                    DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
-            requestQueue.add(request);
-        }
+        request.setTag(TAG);
+        request.setRetryPolicy(new DefaultRetryPolicy(
+                Defaults.MY_SOCKET_TIMEOUT_MS,
+                DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
+                DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+        requestQueue.add(request);
+
     }
 
     @Override
@@ -486,8 +481,7 @@ public class ExploreFragment extends BackHandledFragment implements OnItemClickL
             return true;
         }
         if (exploreManager.canGoUp()) {
-            if (!isLoading)
-                exploreManager.goUp();
+            exploreManager.goUp();
             return true;
         }
         return false;
@@ -521,7 +515,7 @@ public class ExploreFragment extends BackHandledFragment implements OnItemClickL
                 break;
         }
 
-        if (!isLoading && Network.isNetworkAvailable(getActivity()))
+        if (Network.isNetworkAvailable(getActivity()))
             queryPath(exploreManager.currentPath());
 
         editor.apply();

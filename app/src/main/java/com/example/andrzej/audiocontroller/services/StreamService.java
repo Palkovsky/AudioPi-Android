@@ -50,10 +50,10 @@ public class StreamService extends AbstractService {
                             try {
                                 int code = response.getInt("code");
                                 Log.e("andrzej", "code: " + code);
-                                if (code == 1015) {
+                                if (code == 1015 && MyApplication.streamManager.getCurrentTrack() != null) {
                                     retryCount++;
                                     if ((retryCount >= 2 && MyApplication.streamManager.getCurrentTrack().getMilliPosSecs() == 0)
-                                            ||  MyApplication.streamManager.getCurrentTrack().getMilliPosSecs() > 0) {
+                                            || MyApplication.streamManager.getCurrentTrack().getMilliPosSecs() > 0) {
                                         send(Message.obtain(null, MSG_VALUE, -1, 0));
                                         retryCount = 0;
                                     }
