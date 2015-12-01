@@ -4,15 +4,11 @@ package com.example.andrzej.audiocontroller.activities;
 import android.app.Activity;
 import android.content.Intent;
 import android.media.AudioManager;
-import android.os.Handler;
-import android.support.v4.view.GravityCompat;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 
 import android.support.v4.view.ViewPager;
 import android.os.Bundle;
 import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 
@@ -20,22 +16,15 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.example.andrzej.audiocontroller.MyApplication;
 import com.example.andrzej.audiocontroller.R;
 import com.example.andrzej.audiocontroller.adapters.SectionsPagerAdapter;
-import com.example.andrzej.audiocontroller.handlers.StreamManager;
 import com.example.andrzej.audiocontroller.interfaces.MediaCallback;
 import com.example.andrzej.audiocontroller.interfaces.MediaCommunicator;
 import com.example.andrzej.audiocontroller.models.Playlist;
 import com.example.andrzej.audiocontroller.models.Track;
-import com.example.andrzej.audiocontroller.models.dbmodels.PlaylistDb;
-import com.example.andrzej.audiocontroller.models.dbmodels.TrackDb;
-import com.example.andrzej.audiocontroller.utils.Converter;
 import com.example.andrzej.audiocontroller.utils.Image;
-import com.example.andrzej.audiocontroller.utils.PlaybackUtils;
-import com.example.andrzej.audiocontroller.utils.SettingsContentObserver;
 import com.example.andrzej.audiocontroller.views.BackHandledFragment;
 import com.example.andrzej.audiocontroller.views.BlankingImageButton;
 import com.squareup.picasso.Picasso;
@@ -44,12 +33,11 @@ import butterknife.Bind;
 import butterknife.ButterKnife;
 import me.relex.circleindicator.CircleIndicator;
 
-public class MainActivity extends AppCompatActivity implements View.OnClickListener, BackHandledFragment.BackHandlerInterface, ViewPager.OnPageChangeListener, MediaCommunicator, MediaCallback, View.OnLongClickListener {
+public class MainActivity extends UnifiedActivity implements View.OnClickListener, BackHandledFragment.BackHandlerInterface, ViewPager.OnPageChangeListener, MediaCommunicator, MediaCallback, View.OnLongClickListener {
 
     //UI
     private SectionsPagerAdapter mSectionsPagerAdapter;
     private BackHandledFragment selectedFragment;
-    private SettingsContentObserver mSettingsContentObserver;
 
     @Bind(R.id.mainTabsPager)
     ViewPager mViewPager;
@@ -89,13 +77,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         //Create section adapter
         mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
 
-        //Volume buttons observer
-        mSettingsContentObserver = new SettingsContentObserver(this, new Handler(), new SettingsContentObserver.VolumeCallback() {
-            @Override
-            public void onVolumeChange(int volume) {
-                MyApplication.volumeManager.setVolume(Converter.androidVolumeToStandard(volume));
-            }
-        });
 
         //Adapter listeners(actions from fragments)
         mSectionsPagerAdapter.registerMediaCommunicator(this);
@@ -117,20 +98,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     protected void onResume() {
         super.onResume();
-        MyApplication.streamManager.registerMediaListener(this);
-        getContentResolver().registerContentObserver(android.provider.Settings.System.CONTENT_URI, true, mSettingsContentObserver);
         updateUI();
-
-        if(PlaybackUtils.useMediaVolumeStream())
-            setVolumeControlStream(AudioManager.STREAM_MUSIC);
-        else
-            setVolumeControlStream(AudioManager.USE_DEFAULT_STREAM_TYPE);
-    }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-        getContentResolver().unregisterContentObserver(mSettingsContentObserver);
     }
 
     @Override
@@ -242,35 +210,38 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     //These ones are fired after successful request
     @Override
     public void onMediaStart() {
+        super.onMediaStart();
         updateUI();
         setVolumeControlStream(AudioManager.STREAM_MUSIC);
     }
 
     @Override
     public void onMediaRewind(float position) {
+        super.onMediaRewind(position);
         updateUI();
     }
 
     @Override
     public void onMediaPause() {
+        super.onMediaPause();
         updateUI();
-        setVolumeControlStream(AudioManager.USE_DEFAULT_STREAM_TYPE);
     }
 
     @Override
     public void onMediaUnpause() {
+        super.onMediaUnpause();
         updateUI();
-        setVolumeControlStream(AudioManager.STREAM_MUSIC);
     }
 
     @Override
     public void onMediaStop() {
-       updateUI();
-        setVolumeControlStream(AudioManager.USE_DEFAULT_STREAM_TYPE);
+        super.onMediaStop();
+        updateUI();
     }
 
     @Override
     public void onMediaUpdate() {
+        super.onMediaUpdate();
         updateUI();
     }
 

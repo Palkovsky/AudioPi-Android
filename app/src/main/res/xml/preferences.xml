@@ -5,4 +5,10 @@
         android:key="@string/shuffle_on_wave_key"
         android:summary="@string/shuffle_on_wave_summary"
         android:title="@string/shuffle_on_wave_title" />
+
+    <CheckBoxPreference
+        android:defaultValue="true"
+        android:key="@string/gesture_navigation"
+        android:summary="@string/gesture_navigation_summary"
+        android:title="@string/gesture_navigation_title" />
 </PreferenceScreen>

@@ -21,6 +21,7 @@ import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -38,6 +39,7 @@ import com.example.andrzej.audiocontroller.utils.Converter;
 import com.example.andrzej.audiocontroller.utils.Image;
 import com.example.andrzej.audiocontroller.utils.PlaybackUtils;
 import com.example.andrzej.audiocontroller.utils.SettingsContentObserver;
+import com.example.andrzej.audiocontroller.utils.listeners.OnSwipeTouchListener;
 import com.example.andrzej.audiocontroller.views.BlankingImageButton;
 import com.squareup.picasso.Picasso;
 
@@ -46,16 +48,20 @@ import org.adw.library.widgets.discreteseekbar.DiscreteSeekBar;
 import butterknife.Bind;
 import butterknife.ButterKnife;
 
-public class AudioActivity extends AppCompatActivity implements MediaCallback, DiscreteSeekBar.OnProgressChangeListener, View.OnClickListener, OnItemClickListener, DrawerLayout.DrawerListener, View.OnLongClickListener {
+public class AudioActivity extends UnifiedActivity implements
+        MediaCallback, DiscreteSeekBar.OnProgressChangeListener,
+        View.OnClickListener, OnItemClickListener, DrawerLayout.
+        DrawerListener, View.OnLongClickListener {
 
     private SharedPreferences prefs;
     private SensorManager mSensorManager;
     private float mAccel; // acceleration apart from gravity
     private float mAccelCurrent; // current acceleration including gravity
     private float mAccelLast; // last acceleration including gravity
-    private SettingsContentObserver mSettingsContentObserver;
 
 
+    @Bind(R.id.cover_container)
+    RelativeLayout swipeArea;
     @Bind(R.id.drawer_layout)
     DrawerLayout mDrawerLayout;
     @Bind(R.id.toolbar)
@@ -117,14 +123,6 @@ public class AudioActivity extends AppCompatActivity implements MediaCallback, D
         mAccelCurrent = SensorManager.GRAVITY_EARTH;
         mAccelLast = SensorManager.GRAVITY_EARTH;
 
-        //Volume buttons observer
-        mSettingsContentObserver = new SettingsContentObserver(this, new Handler(), new SettingsContentObserver.VolumeCallback() {
-            @Override
-            public void onVolumeChange(int volume) {
-                MyApplication.volumeManager.setVolume(Converter.androidVolumeToStandard(volume));
-            }
-        });
-
         setSupportActionBar(toolbar);
         if (getSupportActionBar() != null)
             getSupportActionBar().setTitle(null);
@@ -144,68 +142,102 @@ public class AudioActivity extends AppCompatActivity implements MediaCallback, D
         drawerFragment.setOnClickListener(this);
         playbackModeBtn.setOnClickListener(this);
         toolbarTitle.setOnLongClickListener(this);
+        swipeArea.setOnTouchListener(new OnSwipeTouchListener(this) {
+
+            //Next track
+            @Override
+            public void onSwipeLeft() {
+                super.onSwipeLeft();
+                if (MyApplication.streamManager.getCurrentPlaylist() != null &&
+                        MyApplication.streamManager.getCurrentPlaylist().canGoNext()
+                        && prefs.getBoolean(getApplication().getString(R.string.gesture_navigation), true))
+                    MyApplication.streamManager.nextTrack();
+            }
+
+            //Prev track
+            @Override
+            public void onSwipeRight() {
+                super.onSwipeRight();
+                if (MyApplication.streamManager.getCurrentPlaylist() != null &&
+                        MyApplication.streamManager.getCurrentPlaylist().canGoPrev()
+                        && prefs.getBoolean(getApplication().getString(R.string.gesture_navigation), true))
+                    MyApplication.streamManager.prevTrack();
+            }
+
+            //Restart current track
+            @Override
+            public void onSwipeDown() {
+                super.onSwipeDown();
+                if (MyApplication.streamManager.getCurrentPlaylist() != null
+                        && prefs.getBoolean(getApplication().getString(R.string.gesture_navigation), true))
+                    MyApplication.streamManager.setPosition(MyApplication.streamManager.getCurrentPlaylist().getPosition());
+            }
+
+            //Shuffle playlist
+            @Override
+            public void onSwipeUp() {
+                super.onSwipeUp();
+                if (MyApplication.streamManager.getCurrentPlaylist() != null
+                        && prefs.getBoolean(getApplication().getString(R.string.gesture_navigation), true))
+                    MyApplication.streamManager.shuffle();
+            }
+        });
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        MyApplication.streamManager.registerMediaListener(this);
         MyApplication.streamManager.applyPlaylistPlaybackMethod(prefs.getInt(PrefKeys.KEY_PLAYBACK_PLAYLIST, PlaybackMethods.PLAYLIST_NORMAL));
         MyApplication.streamManager.applyTrackPlaybackMethod(prefs.getInt(PrefKeys.KEY_PLAYBACK_TRACK, PlaybackMethods.TRACK_NORMAL));
-        getContentResolver().registerContentObserver(android.provider.Settings.System.CONTENT_URI, true, mSettingsContentObserver);
         drawerFragment.setCurrentPlaylist(MyApplication.streamManager.getCurrentPlaylist());
         updateUI();
         mSensorManager.registerListener(mSensorListener, mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER), SensorManager.SENSOR_DELAY_NORMAL);
-
-        if(PlaybackUtils.useMediaVolumeStream())
-            setVolumeControlStream(AudioManager.STREAM_MUSIC);
-        else
-            setVolumeControlStream(AudioManager.USE_DEFAULT_STREAM_TYPE);
     }
 
     @Override
     protected void onPause() {
         mSensorManager.unregisterListener(mSensorListener);
-        getContentResolver().unregisterContentObserver(mSettingsContentObserver);
         super.onPause();
     }
 
     @Override
     public void onMediaStart() {
+        super.onMediaStart();
         updateUI();
         drawerFragment.updateUI();
-        setVolumeControlStream(AudioManager.STREAM_MUSIC);
     }
 
     @Override
     public void onMediaRewind(float position) {
+        super.onMediaRewind(position);
         updateUiLight();
     }
 
     @Override
     public void onMediaPause() {
+        super.onMediaPause();
         updateUiLight();
         drawerFragment.updateUI();
-        setVolumeControlStream(AudioManager.USE_DEFAULT_STREAM_TYPE);
     }
 
     @Override
     public void onMediaUnpause() {
+        super.onMediaUnpause();
         updateUiLight();
         drawerFragment.updateUI();
-        setVolumeControlStream(AudioManager.STREAM_MUSIC);
     }
 
     @Override
     public void onMediaStop() {
+        super.onMediaStop();
         drawerFragment.setCurrentPlaylist(MyApplication.streamManager.getCurrentPlaylist());
         drawerFragment.updateUI();
         updateUI();
-        setVolumeControlStream(AudioManager.USE_DEFAULT_STREAM_TYPE);
     }
 
     @Override
     public void onMediaUpdate() {
+        super.onMediaUpdate();
         updateUiLight();
     }
 

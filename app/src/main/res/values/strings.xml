@@ -102,4 +102,7 @@
     <string name="volume_change_error">Volume change error</string>
     <string name="volume">Volume</string>
     <string name="no_while_loading">Not allowed while loading</string>
+    <string name="gesture_navigation">GESTURE_NAVIGATION_KEY</string>
+    <string name="gesture_navigation_summary">UP - Shuffle | DOWN - Restart current track | LEFT - Next track | RIGHT - Previous Track</string>
+    <string name="gesture_navigation_title">Nawigacja gestami</string>
 </resources>

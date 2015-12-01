@@ -24,14 +24,13 @@ import com.example.andrzej.audiocontroller.utils.PlaybackUtils;
 import com.example.andrzej.audiocontroller.utils.SettingsContentObserver;
 import com.example.andrzej.audiocontroller.views.BackHandledFragment;
 
-public class DetalisActivity extends AppCompatActivity implements BackHandledFragment.BackHandlerInterface, FragmentCallback, MediaCallback {
+public class DetalisActivity extends UnifiedActivity implements BackHandledFragment.BackHandlerInterface, FragmentCallback, MediaCallback {
 
     public static final String PLAYLIST_SER_KEY = "PLAYLIST_SERIALIZABLE";
     public static final String TRACK_SER_KEY = "TRACK_SERIALIZABLE";
 
     FragmentManager fragmentManager;
     private BackHandledFragment selectedFragment;
-    private SettingsContentObserver mSettingsContentObserver;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,14 +40,6 @@ public class DetalisActivity extends AppCompatActivity implements BackHandledFra
         //Read extras
         Playlist playlist = (Playlist) getIntent().getSerializableExtra(MediaFragment.SER_KEY);
         Toast.makeText(this, playlist.getName() + " | " + playlist.getTracks().size(), Toast.LENGTH_SHORT).show();
-
-        //Volume buttons observer
-        mSettingsContentObserver = new SettingsContentObserver(this, new Handler(), new SettingsContentObserver.VolumeCallback() {
-            @Override
-            public void onVolumeChange(int volume) {
-                MyApplication.volumeManager.setVolume(Converter.androidVolumeToStandard(volume));
-            }
-        });
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -66,23 +57,6 @@ public class DetalisActivity extends AppCompatActivity implements BackHandledFra
         bundle.putSerializable(PLAYLIST_SER_KEY, playlist);
         fragment.setArguments(bundle);
         putFragment(fragment);
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        MyApplication.streamManager.registerMediaListener(this);
-        getContentResolver().registerContentObserver(android.provider.Settings.System.CONTENT_URI, true, mSettingsContentObserver);
-        if(PlaybackUtils.useMediaVolumeStream())
-            setVolumeControlStream(AudioManager.STREAM_MUSIC);
-        else
-            setVolumeControlStream(AudioManager.USE_DEFAULT_STREAM_TYPE);
-    }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-        getContentResolver().unregisterContentObserver(mSettingsContentObserver);
     }
 
     @Override
@@ -124,29 +98,6 @@ public class DetalisActivity extends AppCompatActivity implements BackHandledFra
     @Override
     public void onNewFragmentStart(BackHandledFragment fragment) {
         putFragment(fragment);
-    }
-
-    @Override
-    public void onMediaStart() {
-        setVolumeControlStream(AudioManager.STREAM_MUSIC);
-    }
-
-    @Override
-    public void onMediaRewind(float position) {}
-
-    @Override
-    public void onMediaPause() {
-        setVolumeControlStream(AudioManager.USE_DEFAULT_STREAM_TYPE);
-    }
-
-    @Override
-    public void onMediaUnpause() {
-        setVolumeControlStream(AudioManager.STREAM_MUSIC);
-    }
-
-    @Override
-    public void onMediaStop() {
-        setVolumeControlStream(AudioManager.USE_DEFAULT_STREAM_TYPE);
     }
 
     @Override
