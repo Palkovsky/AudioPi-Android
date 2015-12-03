@@ -190,6 +190,8 @@ public class StreamManager extends MediaSessionCompat.Callback implements Stream
                 metadata.setLength(info.getInt("length"));
                 track.setMetadata(metadata);
                 setCurrentTrack(track);
+                serviceManager.stop();
+                serviceManager.start();
             }
         } catch (JSONException e) {
             e.printStackTrace();
