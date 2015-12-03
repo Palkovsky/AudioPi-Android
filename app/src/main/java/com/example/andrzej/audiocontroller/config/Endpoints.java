@@ -24,6 +24,7 @@ public class Endpoints {
     public static String URL_STOP = IP + "/flush";
     public static String URL_VOLUME = IP + "/volume";
     public static String URL_ALIVE = IP + "/track/alive";
+    public static String URL_FIND = IP + "/track/online";
 
     //Query Params
     public static final String Q_PATH = "path=";
@@ -61,6 +62,10 @@ public class Endpoints {
 
     public static String getAliveUrl() {
         return URL_ALIVE;
+    }
+
+    public static String getFindUrl() {
+        return URL_FIND;
     }
 
     public static String getPauseUrl() {
@@ -145,6 +150,7 @@ public class Endpoints {
         URL_STOP = IP + "/flush";
         URL_VOLUME = IP + "/volume";
         URL_ALIVE = IP + "/track/alive";
+        URL_FIND = IP + "/track/online";
     }
 
     public static String getTestUrl(String ip, String port) {

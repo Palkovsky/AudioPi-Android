@@ -22,6 +22,7 @@ public class StreamService extends AbstractService {
     public static final int MSG_VALUE = 1;
     public static final int MSG_POS_UPDATE = 2;
     public static final int SERVER_ERROR = 3;
+    public static final int MSG_OTHER_TRACK = 4;
     private static final int REFRESH_INTERVAL = 1000;
 
     final Handler handler = new Handler();
@@ -60,7 +61,11 @@ public class StreamService extends AbstractService {
                                 } else {
                                     retryCount = 0;
                                     int curTime = response.getJSONObject("playback").getJSONObject("position").getInt("millis");
-                                    send(Message.obtain(null, MSG_POS_UPDATE, curTime, 0));
+                                    String path = response.getJSONObject("playback").getString("path");
+                                    if (MyApplication.streamManager.getCurrentTrack().getPath().equals(path))
+                                        send(Message.obtain(null, MSG_POS_UPDATE, curTime, 0));
+                                    else
+                                        send(Message.obtain(null, MSG_OTHER_TRACK, curTime, 0));
                                 }
                             } catch (JSONException e) {
                                 e.printStackTrace();

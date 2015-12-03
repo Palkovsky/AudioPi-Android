@@ -27,6 +27,7 @@ public class StreamRequester {
     public static final int FLUSH_ERROR = 0x04;
     public static final int PAUSE_ERROR = 0x05;
     public static final int UNPAUSE_ERROR = 0x06;
+    public static final int RESUME_ERROR = 0x07;
 
     private RequestQueue requestQueue;
     private StreamListener streamListener;
@@ -177,6 +178,27 @@ public class StreamRequester {
         });
 
         request.setTag(TAG + "_UNPAUSE");
+        requestQueue.add(request);
+    }
+
+    public void findStream(){
+        String queryUrl = Endpoints.getFindUrl();
+
+        JsonObjectRequest request = new JsonObjectRequest(Request.Method.GET, queryUrl, new Response.Listener<JSONObject>() {
+            @Override
+            public void onResponse(JSONObject response) {
+                if (streamListener != null)
+                    streamListener.onStreamResume(response);
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                if (streamListener != null)
+                    streamListener.onQueryError(RESUME_ERROR, error);
+            }
+        });
+
+        request.setTag(TAG + "_PLAYBACK");
         requestQueue.add(request);
     }
 

@@ -49,23 +49,39 @@ public class StreamManager extends MediaSessionCompat.Callback implements Stream
         serviceManager = new ServiceManager(context, StreamService.class, new Handler() {
             @Override
             public void handleMessage(Message msg) {
-                if (msg.what == StreamService.MSG_VALUE) {
-                    Toast.makeText(context, "Koniec", Toast.LENGTH_SHORT).show();
-                    serviceManager.stop();
-                    handleTrackEnd();
-                } else if (msg.what == StreamService.SERVER_ERROR) {
-                    if (Network.isNetworkAvailable(context)) {
-                        currentPlaylist = null;
-                        currentTrack = null;
-                        if (mediaCallback != null)
-                            mediaCallback.onMediaStop();
-                    }
-                } else {
-                    if (currentTrack != null) {
-                        currentTrack.setMilliPosSecs(msg.arg1);
-                        if (mediaCallback != null)
-                            mediaCallback.onMediaUpdate();
-                    }
+
+                switch (msg.what){
+                    case StreamService.MSG_VALUE:
+                        Toast.makeText(context, "Koniec", Toast.LENGTH_SHORT).show();
+                        serviceManager.stop();
+                        handleTrackEnd();
+                        break;
+                    case StreamService.SERVER_ERROR:
+                        if (Network.isNetworkAvailable(context)) {
+                            currentPlaylist = null;
+                            currentTrack = null;
+                            if (mediaCallback != null)
+                                mediaCallback.onMediaStop();
+                        }
+                        break;
+                    case StreamService.MSG_OTHER_TRACK:
+                        if(Network.isNetworkAvailable(context)) {
+                            Toast.makeText(context, "Other track" , Toast.LENGTH_SHORT).show();
+                            currentTrack = null;
+                            currentPlaylist = null;
+                            if (mediaCallback != null)
+                                mediaCallback.onMediaStop();
+                            findTrack();
+                        }
+                        break;
+
+                    default:
+                        if (currentTrack != null) {
+                            currentTrack.setMilliPosSecs(msg.arg1);
+                            if (mediaCallback != null)
+                                mediaCallback.onMediaUpdate();
+                        }
+                        break;
                 }
             }
         });
@@ -153,6 +169,33 @@ public class StreamManager extends MediaSessionCompat.Callback implements Stream
         }
     }
 
+
+    @Override
+    public void onStreamResume(JSONObject response) {
+        try {
+            if (response.getInt("code") == Codes.SUCCESFULL) {
+                Track track = new Track();
+                Metadata metadata = new Metadata();
+                JSONObject playback = response.getJSONObject("playback");
+                JSONObject info = response.getJSONObject("info");
+                track.setPath(playback.getString("path"));
+                track.setMilliTotalSecs(playback.getJSONObject("total").getInt("millis"));
+                track.setPaused(playback.getBoolean("paused"));
+                track.setName(info.getString("name"));
+                metadata.setAlbum(info.getString("album"));
+                metadata.setArtist(info.getString("artist"));
+                metadata.setCoverUrl(info.getString("cover"));
+                metadata.setFilesize(info.getDouble("filesize"));
+                metadata.setGenre(info.getString("genre"));
+                metadata.setLength(info.getInt("length"));
+                track.setMetadata(metadata);
+                setCurrentTrack(track);
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+    }
+
     @Override
     public void onQueryError(int type, VolleyError error) {
         if (!Network.isNetworkAvailable(context)) {
@@ -164,6 +207,12 @@ public class StreamManager extends MediaSessionCompat.Callback implements Stream
                     mediaCallback.onMediaStop();
             }
         }
+    }
+
+    //This method checks if any track is currently playing
+    public void findTrack() {
+        if (currentTrack == null)
+            streamRequester.findStream();
     }
 
     private void handleTrackEnd() {

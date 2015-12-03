@@ -122,6 +122,7 @@ public class MainFragment extends BackHandledFragment implements View.OnClickLis
                         prefs.edit().putString(PrefKeys.KEY_IP, ip).apply();
                         prefs.edit().putString(PrefKeys.KEY_PORT, port).apply();
                         Endpoints.reInit(ip, port);
+                        MyApplication.streamManager.findTrack();
                         if (statusCallback != null) {
                             statusCallback.onConnect();
                             Toast.makeText(getActivity(), "Connected to " + ip + ":" + port, Toast.LENGTH_SHORT).show();

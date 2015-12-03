@@ -12,5 +12,6 @@ public interface StreamListener {
     void onStreamPause(JSONObject response);
     void onStreamUnpause(JSONObject response);
     void onStreamRewind(JSONObject response);
+    void onStreamResume(JSONObject response);
     void onQueryError(int type, VolleyError error);
 }
