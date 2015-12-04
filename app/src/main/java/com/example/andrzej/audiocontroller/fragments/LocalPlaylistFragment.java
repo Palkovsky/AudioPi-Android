@@ -201,11 +201,13 @@ public class LocalPlaylistFragment extends BackHandledFragment implements View.O
             mRecyclerViewTouchActionGuardManager = null;
         }
 
+
+        /*
         if (mRecyclerView != null) {
             mRecyclerView.setItemAnimator(null);
             mRecyclerView.setAdapter(null);
             mRecyclerView = null;
-        }
+        }*/
 
         if (mWrappedAdapter != null) {
             WrapperAdapterUtils.releaseAll(mWrappedAdapter);
@@ -215,6 +217,8 @@ public class LocalPlaylistFragment extends BackHandledFragment implements View.O
         mLayoutManager = null;
 
         super.onDestroyView();
+
+
     }
 
     private boolean supportsViewElevation() {

@@ -84,9 +84,12 @@ public class Converter {
         PlaylistDb playlistDb = new PlaylistDb();
         playlistDb.name = playlist.getName();
         playlistDb.coverUrl = playlist.getCoverUrl();
+        playlistDb.createdAt = System.currentTimeMillis();
+        playlistDb.save();
 
-        for (Track track : playlist.getTracks()) {
-            TrackDb trackDb = standardToDb(track);
+        for(int i = 0; i<playlist.getTracks().size(); i++){
+            TrackDb trackDb = standardToDb(playlist.getTracks().get(i));
+            trackDb.position = i;
             trackDb.playlist = playlistDb;
             trackDb.save();
         }

@@ -1,17 +1,12 @@
 package com.example.andrzej.audiocontroller.activities;
 
-import android.media.AudioManager;
 import android.os.Bundle;
-import android.os.Handler;
-import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 import android.widget.Toast;
 
-import com.example.andrzej.audiocontroller.MyApplication;
 import com.example.andrzej.audiocontroller.R;
 import com.example.andrzej.audiocontroller.fragments.AutoPlaylistFragment;
 import com.example.andrzej.audiocontroller.fragments.MediaFragment;
@@ -19,12 +14,10 @@ import com.example.andrzej.audiocontroller.fragments.LocalPlaylistFragment;
 import com.example.andrzej.audiocontroller.interfaces.FragmentCallback;
 import com.example.andrzej.audiocontroller.interfaces.MediaCallback;
 import com.example.andrzej.audiocontroller.models.Playlist;
-import com.example.andrzej.audiocontroller.utils.Converter;
-import com.example.andrzej.audiocontroller.utils.PlaybackUtils;
-import com.example.andrzej.audiocontroller.utils.SettingsContentObserver;
 import com.example.andrzej.audiocontroller.views.BackHandledFragment;
 
-public class DetalisActivity extends UnifiedActivity implements BackHandledFragment.BackHandlerInterface, FragmentCallback, MediaCallback {
+public class DetalisActivity extends UnifiedActivity implements BackHandledFragment.BackHandlerInterface,
+        FragmentCallback, MediaCallback {
 
     public static final String PLAYLIST_SER_KEY = "PLAYLIST_SERIALIZABLE";
     public static final String TRACK_SER_KEY = "TRACK_SERIALIZABLE";
@@ -56,7 +49,7 @@ public class DetalisActivity extends UnifiedActivity implements BackHandledFragm
         Bundle bundle = new Bundle();
         bundle.putSerializable(PLAYLIST_SER_KEY, playlist);
         fragment.setArguments(bundle);
-        putFragment(fragment);
+        putFragment(fragment, true);
     }
 
     @Override
@@ -74,8 +67,14 @@ public class DetalisActivity extends UnifiedActivity implements BackHandledFragm
     }
 
     private void putFragment(BackHandledFragment fragment) {
+        putFragment(fragment, false);
+    }
+
+    private void putFragment(BackHandledFragment fragment, boolean animation) {
         fragment.registerFragmentCallback(this);
         FragmentTransaction transaction = fragmentManager.beginTransaction();
+        if (!animation)
+            transaction.setCustomAnimations(R.anim.slide_in_right, R.anim.slide_in_left, R.anim.slide_in_left_pop, R.anim.slide_in_right_pop);
         transaction.replace(R.id.fragment_container, fragment);
         transaction.addToBackStack(fragment.getTagText());
         transaction.commit();
@@ -101,5 +100,6 @@ public class DetalisActivity extends UnifiedActivity implements BackHandledFragm
     }
 
     @Override
-    public void onMediaUpdate() {}
+    public void onMediaUpdate() {
+    }
 }
