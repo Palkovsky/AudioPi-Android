@@ -8,6 +8,7 @@ import android.support.v7.widget.Toolbar;
 
 import android.support.v4.view.ViewPager;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -16,6 +17,7 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.andrzej.audiocontroller.MyApplication;
 import com.example.andrzej.audiocontroller.R;
@@ -102,6 +104,12 @@ public class MainActivity extends UnifiedActivity implements View.OnClickListene
     }
 
     @Override
+    protected void onDestroy() {
+        Log.e("andrzej", "APP EXIT");
+        super.onDestroy();
+    }
+
+    @Override
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.miniPlayBtn:
@@ -136,6 +144,7 @@ public class MainActivity extends UnifiedActivity implements View.OnClickListene
                 MyApplication.streamManager.flush();
                 MyApplication.streamManager.setCurrentPlaylist(null);
                 MyApplication.streamManager.setCurrentTrack(null);
+                MyApplication.streamManager.stopService();
                 updateUI();
                 return true;
         }

@@ -2,6 +2,7 @@ package com.example.andrzej.audiocontroller.services;
 
 import android.app.ActivityManager;
 import android.app.ActivityManager.RunningServiceInfo;
+import android.app.Service;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -132,5 +133,9 @@ public class ServiceManager {
             //textStatus.setText("Unbinding.");
             Log.i("ServiceHandler", "Unbinding.");
         }
+    }
+
+    public Class<? extends AbstractService> getService(){
+        return mServiceClass;
     }
 }

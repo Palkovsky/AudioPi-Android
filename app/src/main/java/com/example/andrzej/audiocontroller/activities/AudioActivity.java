@@ -148,20 +148,25 @@ public class AudioActivity extends UnifiedActivity implements
             @Override
             public void onSwipeLeft() {
                 super.onSwipeLeft();
-                if (MyApplication.streamManager.getCurrentPlaylist() != null &&
-                        MyApplication.streamManager.getCurrentPlaylist().canGoNext()
-                        && prefs.getBoolean(getApplication().getString(R.string.gesture_navigation), true))
-                    MyApplication.streamManager.nextTrack();
+                if (MyApplication.streamManager.getCurrentPlaylist() != null
+                        && prefs.getBoolean(getApplication().getString(R.string.gesture_navigation), true)) {
+                    if (MyApplication.streamManager.getCurrentPlaylist().canGoNext())
+                        MyApplication.streamManager.nextTrack();
+                    else
+                        MyApplication.streamManager.setPosition(0);
+                }
             }
 
             //Prev track
             @Override
             public void onSwipeRight() {
                 super.onSwipeRight();
-                if (MyApplication.streamManager.getCurrentPlaylist() != null &&
-                        MyApplication.streamManager.getCurrentPlaylist().canGoPrev()
+                if (MyApplication.streamManager.getCurrentPlaylist() != null
                         && prefs.getBoolean(getApplication().getString(R.string.gesture_navigation), true))
-                    MyApplication.streamManager.prevTrack();
+                    if (MyApplication.streamManager.getCurrentPlaylist().canGoPrev())
+                        MyApplication.streamManager.prevTrack();
+                    else
+                        MyApplication.streamManager.setPosition(MyApplication.streamManager.getCurrentPlaylist().getTracks().size() - 1);
             }
 
             //Restart current track
@@ -247,6 +252,7 @@ public class AudioActivity extends UnifiedActivity implements
         MyApplication.streamManager.flush();
         MyApplication.streamManager.setCurrentPlaylist(null);
         MyApplication.streamManager.setCurrentTrack(null);
+        MyApplication.streamManager.stopService();
         updateUI();
         return false;
     }

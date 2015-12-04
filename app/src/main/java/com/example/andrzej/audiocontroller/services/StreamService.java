@@ -51,9 +51,9 @@ public class StreamService extends AbstractService {
                             try {
                                 int code = response.getInt("code");
                                 Log.e("andrzej", "code: " + code);
-                                if (code == 1015 && MyApplication.streamManager.getCurrentTrack() != null) {
+                                if (code == 1015 && MyApplication.streamManager != null && MyApplication.streamManager.getCurrentTrack() != null) {
                                     retryCount++;
-                                    if ((retryCount >= 2 && MyApplication.streamManager.getCurrentTrack().getMilliPosSecs() == 0)
+                                    if ((retryCount >= 3 && MyApplication.streamManager.getCurrentTrack().getMilliPosSecs() == 0)
                                             || MyApplication.streamManager.getCurrentTrack().getMilliPosSecs() > 0) {
                                         send(Message.obtain(null, MSG_VALUE, -1, 0));
                                         retryCount = 0;
@@ -61,11 +61,7 @@ public class StreamService extends AbstractService {
                                 } else {
                                     retryCount = 0;
                                     int curTime = response.getJSONObject("playback").getJSONObject("position").getInt("millis");
-                                    String path = response.getJSONObject("playback").getString("path");
-                                    if (MyApplication.streamManager.getCurrentTrack().getPath().equals(path))
-                                        send(Message.obtain(null, MSG_POS_UPDATE, curTime, 0));
-                                    else
-                                        send(Message.obtain(null, MSG_OTHER_TRACK, curTime, 0));
+                                    send(Message.obtain(null, MSG_POS_UPDATE, curTime, 0));
                                 }
                             } catch (JSONException e) {
                                 e.printStackTrace();

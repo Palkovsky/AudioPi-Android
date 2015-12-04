@@ -1,8 +1,12 @@
 package com.example.andrzej.audiocontroller.handlers;
 
+import android.app.job.JobInfo;
+import android.app.job.JobScheduler;
+import android.content.ComponentName;
 import android.content.Context;
 import android.os.Handler;
 import android.os.Message;
+import android.os.PowerManager;
 import android.support.v4.media.MediaMetadataCompat;
 import android.support.v4.media.session.MediaSessionCompat;
 import android.support.v4.media.session.PlaybackStateCompat;
@@ -11,6 +15,7 @@ import android.widget.Toast;
 import com.android.volley.VolleyError;
 import com.example.andrzej.audiocontroller.R;
 import com.example.andrzej.audiocontroller.config.Codes;
+import com.example.andrzej.audiocontroller.config.Endpoints;
 import com.example.andrzej.audiocontroller.config.PlaybackMethods;
 import com.example.andrzej.audiocontroller.interfaces.MediaCallback;
 import com.example.andrzej.audiocontroller.interfaces.StreamListener;
@@ -19,6 +24,7 @@ import com.example.andrzej.audiocontroller.models.Playlist;
 import com.example.andrzej.audiocontroller.models.Track;
 import com.example.andrzej.audiocontroller.services.StreamService;
 import com.example.andrzej.audiocontroller.services.ServiceManager;
+import com.example.andrzej.audiocontroller.utils.Converter;
 import com.example.andrzej.audiocontroller.utils.network.Network;
 
 import org.json.JSONException;
@@ -34,6 +40,8 @@ public class StreamManager extends MediaSessionCompat.Callback implements Stream
     private Context context;
     private ServiceManager serviceManager;
     private MediaCallback mediaCallback;
+    private PowerManager powerManager;
+    PowerManager.WakeLock wakeLock;
 
     private int trackPlaybackMethod;
     private int playlistPlaybackMethod;
@@ -43,6 +51,9 @@ public class StreamManager extends MediaSessionCompat.Callback implements Stream
         applyPlaylistPlaybackMethod(PlaybackMethods.PLAYLIST_NORMAL);
         applyTrackPlaybackMethod(PlaybackMethods.TRACK_NORMAL);
 
+        powerManager = (PowerManager) context.getSystemService(Context.POWER_SERVICE);
+        wakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK,
+                "MyWakelockTag");
         streamRequester = new StreamRequester();
         streamRequester.registerStreamListener(this);
 
@@ -50,10 +61,10 @@ public class StreamManager extends MediaSessionCompat.Callback implements Stream
             @Override
             public void handleMessage(Message msg) {
 
-                switch (msg.what){
+                switch (msg.what) {
                     case StreamService.MSG_VALUE:
                         Toast.makeText(context, "Koniec", Toast.LENGTH_SHORT).show();
-                        serviceManager.stop();
+                        stopService();
                         handleTrackEnd();
                         break;
                     case StreamService.SERVER_ERROR:
@@ -65,8 +76,8 @@ public class StreamManager extends MediaSessionCompat.Callback implements Stream
                         }
                         break;
                     case StreamService.MSG_OTHER_TRACK:
-                        if(Network.isNetworkAvailable(context)) {
-                            Toast.makeText(context, "Other track" , Toast.LENGTH_SHORT).show();
+                        if (Network.isNetworkAvailable(context)) {
+                            Toast.makeText(context, "Other track", Toast.LENGTH_SHORT).show();
                             currentTrack = null;
                             currentPlaylist = null;
                             if (mediaCallback != null)
@@ -105,8 +116,8 @@ public class StreamManager extends MediaSessionCompat.Callback implements Stream
                         float total = response.getInt("total");
                         currentTrack.setMilliTotalSecs(total);
 
-                        serviceManager.stop();
-                        serviceManager.start();
+                        stopService();
+                        startService();
 
                         if (mediaCallback != null)
                             mediaCallback.onMediaStart();
@@ -136,7 +147,7 @@ public class StreamManager extends MediaSessionCompat.Callback implements Stream
     public void onStreamStop(JSONObject response) {
         currentPlaylist = null;
         currentTrack = null;
-        serviceManager.stop();
+        stopService();
         if (mediaCallback != null)
             mediaCallback.onMediaStop();
     }
@@ -144,7 +155,7 @@ public class StreamManager extends MediaSessionCompat.Callback implements Stream
     @Override
     public void onStreamPause(JSONObject response) {
         currentTrack.setPaused(true);
-        serviceManager.stop();
+        stopService();
         if (mediaCallback != null)
             mediaCallback.onMediaPause();
     }
@@ -152,7 +163,7 @@ public class StreamManager extends MediaSessionCompat.Callback implements Stream
     @Override
     public void onStreamUnpause(JSONObject response) {
         currentTrack.setPaused(false);
-        serviceManager.start();
+        startService();
         if (mediaCallback != null)
             mediaCallback.onMediaUnpause();
     }
@@ -184,14 +195,14 @@ public class StreamManager extends MediaSessionCompat.Callback implements Stream
                 track.setName(info.getString("name"));
                 metadata.setAlbum(info.getString("album"));
                 metadata.setArtist(info.getString("artist"));
-                metadata.setCoverUrl(info.getString("cover"));
+                metadata.setCoverUrl(Endpoints.getFileUrl(info.getString("cover")));
                 metadata.setFilesize(info.getDouble("filesize"));
                 metadata.setGenre(info.getString("genre"));
                 metadata.setLength(info.getInt("length"));
                 track.setMetadata(metadata);
                 setCurrentTrack(track);
-                serviceManager.stop();
-                serviceManager.start();
+                stopService();
+                startService();
             }
         } catch (JSONException e) {
             e.printStackTrace();
@@ -205,6 +216,7 @@ public class StreamManager extends MediaSessionCompat.Callback implements Stream
             if (currentTrack != null && !currentTrack.isPlaying()) {
                 currentPlaylist = null;
                 currentTrack = null;
+                stopService();
                 if (mediaCallback != null)
                     mediaCallback.onMediaStop();
             }
@@ -433,5 +445,16 @@ public class StreamManager extends MediaSessionCompat.Callback implements Stream
 
     public void applyPlaylistPlaybackMethod(int playlistPlaybackMethod) {
         this.playlistPlaybackMethod = playlistPlaybackMethod;
+    }
+
+    public void startService() {
+        wakeLock.acquire();
+        serviceManager.start();
+    }
+
+    public void stopService() {
+        serviceManager.stop();
+        if (wakeLock.isHeld())
+            wakeLock.release();
     }
 }
