@@ -10,6 +10,7 @@ import android.os.PowerManager;
 import android.support.v4.media.MediaMetadataCompat;
 import android.support.v4.media.session.MediaSessionCompat;
 import android.support.v4.media.session.PlaybackStateCompat;
+import android.util.Log;
 import android.widget.Toast;
 
 import com.android.volley.VolleyError;
@@ -22,6 +23,7 @@ import com.example.andrzej.audiocontroller.interfaces.StreamListener;
 import com.example.andrzej.audiocontroller.models.Metadata;
 import com.example.andrzej.audiocontroller.models.Playlist;
 import com.example.andrzej.audiocontroller.models.Track;
+import com.example.andrzej.audiocontroller.models.dbmodels.PlaylistDb;
 import com.example.andrzej.audiocontroller.services.StreamService;
 import com.example.andrzej.audiocontroller.services.ServiceManager;
 import com.example.andrzej.audiocontroller.utils.Converter;
@@ -200,9 +202,12 @@ public class StreamManager extends MediaSessionCompat.Callback implements Stream
                 metadata.setGenre(info.getString("genre"));
                 metadata.setLength(info.getInt("length"));
                 track.setMetadata(metadata);
+
+
                 setCurrentTrack(track);
                 stopService();
                 startService();
+
             }
         } catch (JSONException e) {
             e.printStackTrace();

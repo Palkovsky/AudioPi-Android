@@ -80,6 +80,20 @@ public class Converter {
         return playlist;
     }
 
+    public static PlaylistDb standardToDb(Playlist playlist) {
+        PlaylistDb playlistDb = new PlaylistDb();
+        playlistDb.name = playlist.getName();
+        playlistDb.coverUrl = playlist.getCoverUrl();
+
+        for (Track track : playlist.getTracks()) {
+            TrackDb trackDb = standardToDb(track);
+            trackDb.playlist = playlistDb;
+            trackDb.save();
+        }
+
+        return playlistDb;
+    }
+
     public static TrackDb standardToDb(Track track) {
         TrackDb trackDb = new TrackDb();
         Metadata metadata = track.getMetadata();

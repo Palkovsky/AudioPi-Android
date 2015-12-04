@@ -6,6 +6,10 @@
         <item>@color/gplus_color_3</item>
         <item>@color/gplus_color_4</item>
     </integer-array>
+    <integer-array name="rpi_colors">
+        <item>@color/rpi_color_1</item>
+        <item>@color/rpi_color_2</item>
+    </integer-array>
     <string-array name="explore_file_dialog_items">
         <item>@string/download</item>
         <item>@string/addToPlaylist</item>

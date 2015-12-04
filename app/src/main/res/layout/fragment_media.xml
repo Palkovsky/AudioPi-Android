@@ -11,14 +11,15 @@
         android:id="@+id/mediaProgressBar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:indeterminate="true" />
+        android:indeterminate="true"
+        app:spb_colors="@array/rpi_colors"/>
 
     <com.baoyz.widget.PullRefreshLayout
         android:id="@+id/swipeRefreshLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@+id/mediaProgressBar"
-        app:refreshColors="@array/gplus_colors"
+        app:refreshColors="@array/rpi_colors"
         app:refreshType="material">
 
         <android.support.v7.widget.RecyclerView

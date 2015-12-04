@@ -27,6 +27,10 @@
     <color name="gplus_color_3">#427fed</color>
     <color name="gplus_color_4">#b23424</color>
 
+    <color name="rpi_color_1">#c7053d</color>
+    <color name="rpi_color_2">#8cc04b</color>
+    <color name="rpi_color_3">#000000</color>
+
     <color name="bg_item_normal_state">#fff0f0f0</color>
     <color name="bg_item_dragging_state">#ffffdddd</color>
     <color name="bg_item_dragging_active_state">#ffff9999</color>

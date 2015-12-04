@@ -10,10 +10,10 @@
     <android.support.v7.widget.RecyclerView
         android:id="@+id/directoryNavigationRecycler"
         android:layout_width="match_parent"
-        android:background="@color/colorPrimary"
         android:layout_height="22dp"
+        android:background="@color/colorPrimary"
         android:paddingLeft="8dp"
-        android:paddingStart="8dp"/>
+        android:paddingStart="8dp" />
 
 
     <com.baoyz.widget.PullRefreshLayout
@@ -21,7 +21,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@+id/directoryNavigationRecycler"
-        app:refreshColors="@array/gplus_colors"
+        app:refreshColors="@array/rpi_colors"
         app:refreshType="material">
 
         <android.support.v7.widget.RecyclerView
@@ -36,7 +36,8 @@
         android:layout_height="wrap_content"
         android:layout_below="@+id/directoryNavigationRecycler"
         android:indeterminate="true"
-        android:visibility="gone" />
+        android:visibility="gone"
+        app:spb_colors="@array/rpi_colors" />
 
     <LinearLayout
         android:id="@+id/errorContainer"

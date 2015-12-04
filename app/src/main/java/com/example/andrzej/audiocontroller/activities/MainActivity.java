@@ -8,7 +8,6 @@ import android.support.v7.widget.Toolbar;
 
 import android.support.v4.view.ViewPager;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -17,7 +16,6 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.example.andrzej.audiocontroller.MyApplication;
 import com.example.andrzej.audiocontroller.R;
@@ -35,7 +33,9 @@ import butterknife.Bind;
 import butterknife.ButterKnife;
 import me.relex.circleindicator.CircleIndicator;
 
-public class MainActivity extends UnifiedActivity implements View.OnClickListener, BackHandledFragment.BackHandlerInterface, ViewPager.OnPageChangeListener, MediaCommunicator, MediaCallback, View.OnLongClickListener {
+public class MainActivity extends UnifiedActivity implements View.OnClickListener,
+        BackHandledFragment.BackHandlerInterface, ViewPager.OnPageChangeListener,
+        MediaCommunicator, MediaCallback, View.OnLongClickListener {
 
     //UI
     private SectionsPagerAdapter mSectionsPagerAdapter;
@@ -103,31 +103,26 @@ public class MainActivity extends UnifiedActivity implements View.OnClickListene
         updateUI();
     }
 
-    @Override
-    protected void onDestroy() {
-        Log.e("andrzej", "APP EXIT");
-        super.onDestroy();
-    }
 
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.miniPlayBtn:
                 Track currentTrack = MyApplication.streamManager.getCurrentTrack();
-                if(currentTrack != null) {
-                    if(currentTrack.isPaused())
+                if (currentTrack != null) {
+                    if (currentTrack.isPaused())
                         MyApplication.streamManager.unpause();
                     else
                         MyApplication.streamManager.pause();
                 }
                 break;
             case R.id.miniPrevTrackBtn:
-                if(MyApplication.streamManager.getCurrentPlaylist() != null && MyApplication.streamManager.getCurrentPlaylist()
+                if (MyApplication.streamManager.getCurrentPlaylist() != null && MyApplication.streamManager.getCurrentPlaylist()
                         .canGoPrev())
                     MyApplication.streamManager.prevTrack();
                 break;
             case R.id.miniNextTrackBtn:
-                if(MyApplication.streamManager.getCurrentPlaylist() != null && MyApplication.streamManager.getCurrentPlaylist()
+                if (MyApplication.streamManager.getCurrentPlaylist() != null && MyApplication.streamManager.getCurrentPlaylist()
                         .canGoNext())
                     MyApplication.streamManager.nextTrack();
                 break;
@@ -139,7 +134,7 @@ public class MainActivity extends UnifiedActivity implements View.OnClickListene
 
     @Override
     public boolean onLongClick(View v) {
-        switch (v.getId()){
+        switch (v.getId()) {
             case R.id.bottom_toolbar:
                 MyApplication.streamManager.flush();
                 MyApplication.streamManager.setCurrentPlaylist(null);
@@ -254,59 +249,59 @@ public class MainActivity extends UnifiedActivity implements View.OnClickListene
         updateUI();
     }
 
-    private void updateUI(){
+    private void updateUI() {
         Track currentTrack = MyApplication.streamManager.getCurrentTrack();
-        if(currentTrack == null){
+        if (currentTrack == null) {
             Image.setSourceDrawable(this, miniCoverIv, R.drawable.ic_music_note_black_36dp);
             miniArtistName.setText("- - - - - -");
             miniTrackTitle.setText("- - - - - -");
-        }else{
+        } else {
             String artist = currentTrack.getMetadata().getArtist();
             String coverUrl = currentTrack.getMetadata().getCoverUrl();
-            if(artist == null || artist.equals("") || artist.equals("null"))
+            if (artist == null || artist.equals("") || artist.equals("null"))
                 artist = getString(R.string.unknown_simple);
 
             miniArtistName.setText(artist);
             miniTrackTitle.setText(currentTrack.getFormattedName());
-            if(coverUrl == null || coverUrl.equals("") || coverUrl.equals("null"))
+            if (coverUrl == null || coverUrl.equals("") || coverUrl.equals("null"))
                 Image.setSourceDrawable(this, miniCoverIv, R.drawable.ic_music_note_black_36dp);
             else
                 Picasso.with(this)
-                .load(coverUrl)
-                .error(R.drawable.ic_music_note_black_36dp)
-                .placeholder(R.drawable.ic_music_note_black_36dp)
-                .into(miniCoverIv);
+                        .load(coverUrl)
+                        .error(R.drawable.ic_music_note_black_36dp)
+                        .placeholder(R.drawable.ic_music_note_black_36dp)
+                        .into(miniCoverIv);
         }
         setUpButtons();
     }
 
-    private void setUpButtons(){
+    private void setUpButtons() {
         Track currentTrack = MyApplication.streamManager.getCurrentTrack();
         Playlist currentPlaylist = MyApplication.streamManager.getCurrentPlaylist();
-        if(currentTrack == null){
+        if (currentTrack == null) {
             Image.setSourceDrawable(this, playPauseBtn, R.drawable.ic_pause_black_48dp);
             playPauseBtn.setEnabled(false);
             prevTrackBtn.setEnabled(false);
             nextTrackBtn.setEnabled(false);
         }
 
-        if(currentPlaylist == null){
+        if (currentPlaylist == null) {
             prevTrackBtn.setEnabled(false);
             nextTrackBtn.setEnabled(false);
-        }else{
-            if(!currentPlaylist.canGoNext())
+        } else {
+            if (!currentPlaylist.canGoNext())
                 nextTrackBtn.setEnabled(false);
             else
                 nextTrackBtn.setEnabled(true);
-            if(!currentPlaylist.canGoPrev())
+            if (!currentPlaylist.canGoPrev())
                 prevTrackBtn.setEnabled(false);
             else
                 prevTrackBtn.setEnabled(true);
         }
 
-        if(currentTrack != null){
+        if (currentTrack != null) {
             playPauseBtn.setEnabled(true);
-            if(currentTrack.isPaused())
+            if (currentTrack.isPaused())
                 Image.setSourceDrawable(this, playPauseBtn, R.drawable.ic_play_arrow_black_48dp);
             else
                 Image.setSourceDrawable(this, playPauseBtn, R.drawable.ic_pause_black_48dp);
@@ -318,7 +313,7 @@ public class MainActivity extends UnifiedActivity implements View.OnClickListene
         //Find the currently focused view, so we can grab the correct window token from it.
         View view = activity.getCurrentFocus();
         //If no view currently has focus, create a new one, just so we can grab a window token from it
-        if(view == null) {
+        if (view == null) {
             view = new View(activity);
         }
         inputMethodManager.hideSoftInputFromWindow(view.getWindowToken(), 0);
