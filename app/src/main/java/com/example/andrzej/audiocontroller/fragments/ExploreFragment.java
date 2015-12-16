@@ -2,6 +2,7 @@ package com.example.andrzej.audiocontroller.fragments;
 
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.os.Environment;
 import android.preference.PreferenceManager;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
@@ -48,6 +49,7 @@ import com.example.andrzej.audiocontroller.models.Track;
 import com.example.andrzej.audiocontroller.utils.Converter;
 import com.example.andrzej.audiocontroller.utils.Dialog;
 import com.example.andrzej.audiocontroller.utils.Image;
+import com.example.andrzej.audiocontroller.utils.explorer.DialogExplorer;
 import com.example.andrzej.audiocontroller.utils.network.Network;
 import com.example.andrzej.audiocontroller.utils.network.VolleySingleton;
 import com.example.andrzej.audiocontroller.views.BackHandledFragment;
@@ -58,6 +60,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedList;
@@ -228,6 +231,19 @@ public class ExploreFragment extends BackHandledFragment implements OnItemClickL
 
         if (!item.isDirectory())
             showFileDialog(item);
+        else{
+            DialogExplorer dialogExplorer = new DialogExplorer(getActivity(), "/", new DialogExplorer.FileListener() {
+                @Override
+                public void onFileReceive(File file) {
+                    //Send it to API
+                    Toast.makeText(getActivity(), file.getAbsolutePath(), Toast.LENGTH_SHORT).show();
+                }
+            });
+
+            dialogExplorer.setWhitelistedExtensions(Defaults.WHITELISTED_EXTENSIONS);
+
+            dialogExplorer.showDialogPath();
+        }
     }
 
     @Override

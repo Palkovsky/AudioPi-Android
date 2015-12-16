@@ -13,6 +13,8 @@ import com.example.andrzej.audiocontroller.utils.network.VolleySingleton;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.File;
+
 public class FileRequester {
 
     public static final String TAG = "FILE_REQUESTER";
@@ -82,6 +84,10 @@ public class FileRequester {
 
         request.setTag(TAG);
         requestQueue.add(request);
+    }
+
+    public void uploadFile(String path, File file){
+
     }
 
     public interface FileRequesterListener {

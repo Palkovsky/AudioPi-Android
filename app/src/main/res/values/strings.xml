@@ -24,6 +24,7 @@
     <string name="fromZtoAsorting">Alfabetycznie od końca</string>
     <string name="fetching_from_cache">Can\'t connect to server. Fetching from cache.</string>
     <string name="delete">Delete</string>
+    <string name="uploadFile">Upload files</string>
 
     <string name="download">Pobierz</string>
     <string name="addToPlaylist">Dodaj do playlisty</string>
