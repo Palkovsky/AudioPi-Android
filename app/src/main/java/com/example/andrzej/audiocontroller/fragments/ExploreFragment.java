@@ -15,7 +15,9 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.PopupMenu;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.afollestad.materialdialogs.MaterialDialog;
 import com.android.volley.DefaultRetryPolicy;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
@@ -32,6 +34,7 @@ import com.example.andrzej.audiocontroller.config.Endpoints;
 import com.example.andrzej.audiocontroller.config.PrefKeys;
 import com.example.andrzej.audiocontroller.config.Sort;
 import com.example.andrzej.audiocontroller.handlers.ExploreManager;
+import com.example.andrzej.audiocontroller.handlers.FileManager;
 import com.example.andrzej.audiocontroller.interfaces.ExploreFragmentCommunicator;
 import com.example.andrzej.audiocontroller.interfaces.ExploreListener;
 import com.example.andrzej.audiocontroller.interfaces.MediaCommunicator;
@@ -79,6 +82,7 @@ public class ExploreFragment extends BackHandledFragment implements OnItemClickL
     private ExploreManager exploreManager;
     private RequestQueue requestQueue;
     private SharedPreferences prefs;
+    private FileManager fileManager;
 
     //Communicator interface
     private ExploreFragmentCommunicator communicator;
@@ -102,8 +106,8 @@ public class ExploreFragment extends BackHandledFragment implements OnItemClickL
     SmoothProgressBar progressBar;
     @Bind(R.id.expand_fab)
     FloatingActionsMenu parentFabBtn;
-    @Bind(R.id.rootBtn)
-    FloatingActionButton rootBtn;
+    @Bind(R.id.newFolderBtn)
+    FloatingActionButton newFolderBtn;
     @Bind(R.id.sortBtn)
     FloatingActionButton sortBtn;
     @Bind(R.id.changeViewBtn)
@@ -136,6 +140,7 @@ public class ExploreFragment extends BackHandledFragment implements OnItemClickL
         exploreManager = new ExploreManager(Defaults.PATH);
         requestQueue = VolleySingleton.getsInstance().getRequestQueue();
         prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
+        fileManager = new FileManager(getActivity());
 
         isGrid = prefs.getBoolean(PrefKeys.KEY_EXPLORE_VIEW, true);
         sortingMethod = prefs.getInt(PrefKeys.KEY_EXPLORE_SORT, Sort.NONE);
@@ -171,7 +176,7 @@ public class ExploreFragment extends BackHandledFragment implements OnItemClickL
         queryPath(exploreManager.currentPath());
 
         //Listeners
-        rootBtn.setOnClickListener(this);
+        newFolderBtn.setOnClickListener(this);
         changeViewBtn.setOnClickListener(this);
         sortBtn.setOnClickListener(this);
         exploreManager.setExploreListener(this);
@@ -235,9 +240,41 @@ public class ExploreFragment extends BackHandledFragment implements OnItemClickL
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
-            case R.id.rootBtn:
-                exploreManager.goToRoot();
-                parentFabBtn.collapse();
+            case R.id.newFolderBtn:
+                Dialog.showNewFolderDialog(getActivity(), new Dialog.InputListener() {
+                    @Override
+                    public void onFormSubmitted(String text) {
+
+                        final MaterialDialog loadingDialog = Dialog.getLoadingDialog(getActivity(), R.string.please_wait,
+                                R.string.creating_new_folder);
+
+                        if (!Network.isNetworkAvailable(getActivity()))
+                            Toast.makeText(getActivity(), R.string.no_internet_error, Toast.LENGTH_SHORT).show();
+                            //else if (exploreManager.getDepth() <= 1)
+                            //    Toast.makeText(getActivity(), R.string.unable_to_perform_action, Toast.LENGTH_SHORT).show();
+                        else {
+
+                            fileManager.newCatalog(exploreManager.currentPath(), text, new FileManager.NewCatalogListener() {
+                                @Override
+                                public void onQueryStart() {
+                                    loadingDialog.show(); //Show loading dialog
+                                }
+
+                                @Override
+                                public void onQueryFinish() {
+                                    //Hide loading dialog
+                                    loadingDialog.dismiss();
+                                    queryPath(exploreManager.currentPath());
+                                }
+
+                                @Override
+                                public void onQueryError(int errorCode) {
+                                    Toast.makeText(getActivity(), R.string.new_folder_error, Toast.LENGTH_SHORT).show();
+                                }
+                            });
+                        }
+                    }
+                });
                 break;
             case R.id.changeViewBtn:
                 setRecyclerType(!isGrid);
@@ -536,6 +573,38 @@ public class ExploreFragment extends BackHandledFragment implements OnItemClickL
             public void onSuccess() {
                 if (communicator != null)
                     communicator.onCustomPlaylistTrackAppend();
+            }
+        }, new Dialog.OnDelete() {
+            @Override
+            public void onDelete() {
+
+                String queryPath;
+                if(item.isDirectory())
+                    queryPath = exploreManager.currentPath();
+                else
+                    queryPath = item.getPath();
+
+                fileManager.deleteFile(queryPath, new FileManager.DeleteFileListener() {
+
+                    MaterialDialog loadingDialog = Dialog.getLoadingDialog(getActivity(), R.string.please_wait,
+                            R.string.deleting_your_data);
+
+                    @Override
+                    public void onQueryStart() {
+                        loadingDialog.show();
+                    }
+
+                    @Override
+                    public void onQueryFinish() {
+                        loadingDialog.dismiss();
+                        queryPath(exploreManager.currentPath());
+                    }
+
+                    @Override
+                    public void onQueryError(int errorCode) {
+                        Toast.makeText(getActivity(), R.string.deleting_error, Toast.LENGTH_SHORT).show();
+                    }
+                });
             }
         });
     }

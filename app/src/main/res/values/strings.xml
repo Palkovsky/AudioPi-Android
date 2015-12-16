@@ -23,6 +23,7 @@
     <string name="fromAtoZsorting">Alfabetycznie</string>
     <string name="fromZtoAsorting">Alfabetycznie od końca</string>
     <string name="fetching_from_cache">Can\'t connect to server. Fetching from cache.</string>
+    <string name="delete">Delete</string>
 
     <string name="download">Pobierz</string>
     <string name="addToPlaylist">Dodaj do playlisty</string>
@@ -105,4 +106,14 @@
     <string name="gesture_navigation">GESTURE_NAVIGATION_KEY</string>
     <string name="gesture_navigation_summary">UP - Shuffle | DOWN - Restart current track | LEFT - Next track | RIGHT - Previous Track</string>
     <string name="gesture_navigation_title">Nawigacja gestami</string>
+    <string name="create_new_folder">Create new folder</string>
+    <string name="create_new_folder_content">Please, specify your folder name.</string>
+    <string name="create_new_folder_hint">Name</string>
+    <string name="folder_name_too_short">You didn\'t specified folder name.</string>
+    <string name="new_folder_error">Unable to create new folder. An error has occured.</string>
+    <string name="unable_to_perform_action">Unable to perform this action it current directory.</string>
+    <string name="please_wait">Please Wait</string>
+    <string name="creating_new_folder">Creating new folder...</string>
+    <string name="deleting_your_data">Deleting your data...</string>
+    <string name="deleting_error">An error has occured while deleting.</string>
 </resources>

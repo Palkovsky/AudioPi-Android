@@ -14,6 +14,12 @@
         <item>@string/download</item>
         <item>@string/addToPlaylist</item>
         <item>@string/songDetalis</item>
+        <item>@string/delete</item>
+    </string-array>
+    <string-array name="media_file_dialog_items">
+        <item>@string/download</item>
+        <item>@string/addToPlaylist</item>
+        <item>@string/songDetalis</item>
     </string-array>
     <string-array name="explore_file_dialog_items_local">
         <item>@string/download</item>

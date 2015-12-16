@@ -1,8 +1,10 @@
 package com.example.andrzej.audiocontroller.utils;
 
 import android.content.Context;
+import android.text.InputType;
 import android.view.View;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.example.andrzej.audiocontroller.R;
@@ -10,13 +12,11 @@ import com.example.andrzej.audiocontroller.interfaces.OnRemove;
 import com.example.andrzej.audiocontroller.interfaces.OnSuccess;
 import com.example.andrzej.audiocontroller.models.ExploreItem;
 import com.example.andrzej.audiocontroller.models.Metadata;
-import com.example.andrzej.audiocontroller.models.Playlist;
 import com.example.andrzej.audiocontroller.models.Track;
 import com.example.andrzej.audiocontroller.models.dbmodels.PlaylistDb;
 import com.example.andrzej.audiocontroller.models.dbmodels.TrackDb;
 import com.example.andrzej.audiocontroller.utils.network.Downloader;
 
-import java.util.ArrayList;
 import java.util.List;
 
 
@@ -51,7 +51,7 @@ public class Dialog {
         dialog.show();
     }
 
-    public static void showTrackExploreDialog(final Context context, final ExploreItem item, final OnSuccess onSuccess) {
+    public static void showTrackExploreDialog(final Context context, final ExploreItem item, final OnSuccess onSuccess, final OnDelete onDelete) {
 
         new MaterialDialog.Builder(context)
                 .title(item.getName())
@@ -76,6 +76,11 @@ public class Dialog {
                                 break;
                             case 2: //Add to metadata
                                 Dialog.showMetadataDialog(context, item);
+                                break;
+
+                            case 3: //Delete
+                                if(onDelete != null)
+                                    onDelete.onDelete();
                                 break;
                         }
                     }
@@ -114,7 +119,7 @@ public class Dialog {
 
     public static void showTrackMediaDialog(final Context context, final Track track, final OnSuccess onSuccess, final OnRemove onRemove) {
 
-        int items = R.array.explore_file_dialog_items;
+        int items = R.array.media_file_dialog_items;
         if (track.getPlaylist().isLocal())
             items = R.array.explore_file_dialog_items_local;
 
@@ -154,5 +159,38 @@ public class Dialog {
                         }
                     }
                 }).show();
+    }
+
+    public static void showNewFolderDialog(final Context context, final InputListener inputListener) {
+        new MaterialDialog.Builder(context)
+                .title(R.string.create_new_folder)
+                .content(R.string.create_new_folder_content)
+                .inputType(InputType.TYPE_CLASS_TEXT)
+                .input(R.string.create_new_folder_hint, R.string.input_prefill, new MaterialDialog.InputCallback() {
+                    @Override
+                    public void onInput(MaterialDialog materialDialog, CharSequence charSequence) {
+                        String input = charSequence.toString();
+                        if (input.trim().equals(""))
+                            Toast.makeText(context, R.string.folder_name_too_short, Toast.LENGTH_SHORT).show();
+                        else
+                            inputListener.onFormSubmitted(input);
+                    }
+                }).show();
+    }
+
+    public static MaterialDialog getLoadingDialog(Context context, int titleRes, int contentRes) {
+        return new MaterialDialog.Builder(context)
+                .title(titleRes)
+                .content(contentRes)
+                .progress(true, 0)
+                .build();
+    }
+
+    public interface InputListener {
+        void onFormSubmitted(String text);
+    }
+
+    public interface OnDelete {
+        void onDelete();
     }
 }

@@ -25,9 +25,13 @@ public class Endpoints {
     public static String URL_VOLUME = IP + "/volume";
     public static String URL_ALIVE = IP + "/track/alive";
     public static String URL_FIND = IP + "/track/online";
+    public static String URL_NEW_FOLDER = IP + "/file/new_catalog";
+    public static String URL_UPLOAD = IP + "/file/upload";
+    public static String URL_DELETE_FILE = IP + "/file/delete";
 
     //Query Params
     public static final String Q_PATH = "path=";
+    public static final String Q_NAME = "name=";
     public static final String Q_METADATA = "meta=";
     public static final String Q_SORT = "sort=";
     public static final String Q_LOCAL = "local=";
@@ -38,6 +42,21 @@ public class Endpoints {
 
     //Config
     public static final String CHARSET = "UTF-8";
+
+
+    public static String getNewCatalogUrl(String path, String name){
+        return URL_NEW_FOLDER +
+                URL_CHAR_QUESTION +
+                Q_PATH + encodeString(path) +
+                URL_CHAR_AMEPERSAND +
+                Q_NAME + encodeString(name);
+    }
+
+    public static String getDeleteFileUrl(String path){
+        return URL_DELETE_FILE +
+                URL_CHAR_QUESTION +
+                Q_PATH + encodeString(path);
+    }
 
     public static String getPlayUrl(String path, boolean terminate) {
         String encodedPath = encodeString(path);
@@ -151,6 +170,9 @@ public class Endpoints {
         URL_VOLUME = IP + "/volume";
         URL_ALIVE = IP + "/track/alive";
         URL_FIND = IP + "/track/online";
+        URL_NEW_FOLDER = IP + "/file/new_catalog";
+        URL_UPLOAD = IP + "/file/upload";
+        URL_DELETE_FILE = IP + "/file/delete";
     }
 
     public static String getTestUrl(String ip, String port) {
