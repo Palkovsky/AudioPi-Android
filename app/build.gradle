@@ -45,4 +45,5 @@ dependencies {
         transitive=true
     }
 
+    compile 'com.squareup.okhttp:okhttp:2.7.0'
 }

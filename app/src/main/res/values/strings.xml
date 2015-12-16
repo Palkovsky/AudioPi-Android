@@ -117,4 +117,7 @@
     <string name="creating_new_folder">Creating new folder...</string>
     <string name="deleting_your_data">Deleting your data...</string>
     <string name="deleting_error">An error has occured while deleting.</string>
+    <string name="uploading">Uploading...</string>
+    <string name="upload_error">While uploading, an error has occured.</string>
+    <string name="finished_upload">Upload finished!</string>
 </resources>

@@ -9,11 +9,15 @@ import com.android.volley.toolbox.JsonObjectRequest;
 import com.example.andrzej.audiocontroller.config.Codes;
 import com.example.andrzej.audiocontroller.config.Endpoints;
 import com.example.andrzej.audiocontroller.utils.network.VolleySingleton;
+import com.squareup.okhttp.FormEncodingBuilder;
+import com.squareup.okhttp.OkHttpClient;
+import com.squareup.okhttp.RequestBody;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.File;
+import java.io.IOException;
 
 public class FileRequester {
 
@@ -26,6 +30,9 @@ public class FileRequester {
 
     private RequestQueue requestQueue;
     private FileRequesterListener fileRequesterListener;
+
+
+
 
     public FileRequester(FileRequesterListener fileRequesterListener) {
         this.fileRequesterListener = fileRequesterListener;

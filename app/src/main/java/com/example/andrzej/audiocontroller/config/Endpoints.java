@@ -58,6 +58,10 @@ public class Endpoints {
                 Q_PATH + encodeString(path);
     }
 
+    public static String getUrlUpload() {
+        return URL_UPLOAD;
+    }
+
     public static String getPlayUrl(String path, boolean terminate) {
         String encodedPath = encodeString(path);
         return URL_PLAY +

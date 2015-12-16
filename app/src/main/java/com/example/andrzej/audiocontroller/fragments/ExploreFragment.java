@@ -227,16 +227,36 @@ public class ExploreFragment extends BackHandledFragment implements OnItemClickL
 
     @Override
     public void onLongItemClick(View v, int position) {
-        ExploreItem item = mDataset.get(position);
+        final ExploreItem item = mDataset.get(position);
 
         if (!item.isDirectory())
             showFileDialog(item);
-        else{
+        else {
             DialogExplorer dialogExplorer = new DialogExplorer(getActivity(), "/", new DialogExplorer.FileListener() {
                 @Override
                 public void onFileReceive(File file) {
                     //Send it to API
                     Toast.makeText(getActivity(), file.getAbsolutePath(), Toast.LENGTH_SHORT).show();
+
+                    final MaterialDialog loadingDialog = Dialog.getLoadingDialog(getActivity(), R.string.please_wait, R.string.uploading);
+
+                    fileManager.uploadFile(item.getPath(), file, new FileManager.UploadListener() {
+                        @Override
+                        public void onStart() {
+                            loadingDialog.show();
+                        }
+
+                        @Override
+                        public void onFinish() {
+                            loadingDialog.dismiss();
+                            Toast.makeText(getActivity(), R.string.finished_upload, Toast.LENGTH_SHORT).show();
+                        }
+
+                        @Override
+                        public void onError(int errorCode) {
+                            Toast.makeText(getActivity(), "Error code: " + errorCode, Toast.LENGTH_SHORT).show();
+                        }
+                    });
                 }
             });
 
@@ -595,7 +615,7 @@ public class ExploreFragment extends BackHandledFragment implements OnItemClickL
             public void onDelete() {
 
                 String queryPath;
-                if(item.isDirectory())
+                if (item.isDirectory())
                     queryPath = exploreManager.currentPath();
                 else
                     queryPath = item.getPath();

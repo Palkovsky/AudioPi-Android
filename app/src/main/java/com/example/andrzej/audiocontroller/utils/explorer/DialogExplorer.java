@@ -30,7 +30,6 @@ public class DialogExplorer {
 
     public void showDialogPath() {
         File currentPath = new File(exploreManager.currentPath());
-        Log.e("andrzej", currentPath.getAbsolutePath());
         final List<FileItem> files = filterDataset(buildFileList(exploreManager.currentPath()));
 
         new MaterialDialog.Builder(context)
