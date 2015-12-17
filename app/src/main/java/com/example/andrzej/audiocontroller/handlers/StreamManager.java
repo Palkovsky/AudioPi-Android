@@ -73,6 +73,7 @@ public class StreamManager extends MediaSessionCompat.Callback implements Stream
                         if (Network.isNetworkAvailable(context)) {
                             currentPlaylist = null;
                             currentTrack = null;
+                            release();
                             if (mediaCallback != null)
                                 mediaCallback.onMediaStop();
                         }
@@ -82,6 +83,7 @@ public class StreamManager extends MediaSessionCompat.Callback implements Stream
                             Toast.makeText(context, "Other track", Toast.LENGTH_SHORT).show();
                             currentTrack = null;
                             currentPlaylist = null;
+                            release();
                             if (mediaCallback != null)
                                 mediaCallback.onMediaStop();
                             findTrack();
@@ -134,6 +136,7 @@ public class StreamManager extends MediaSessionCompat.Callback implements Stream
                         Toast.makeText(context, R.string.unable_to_find_track, Toast.LENGTH_SHORT).show();
                         currentPlaylist = null;
                         currentTrack = null;
+                        release();
                         if (mediaCallback != null)
                             mediaCallback.onMediaStop();
                         flush();
@@ -150,6 +153,7 @@ public class StreamManager extends MediaSessionCompat.Callback implements Stream
         currentPlaylist = null;
         currentTrack = null;
         stopService();
+        release();
         if (mediaCallback != null)
             mediaCallback.onMediaStop();
     }
@@ -222,6 +226,7 @@ public class StreamManager extends MediaSessionCompat.Callback implements Stream
                 currentPlaylist = null;
                 currentTrack = null;
                 stopService();
+                release();
                 if (mediaCallback != null)
                     mediaCallback.onMediaStop();
             }
@@ -246,12 +251,14 @@ public class StreamManager extends MediaSessionCompat.Callback implements Stream
                     else {
                         currentPlaylist = null;
                         currentTrack = null;
+                        release();
                     }
                     break;
                 case PlaybackMethods.PLAYLIST_REPEAT:
                     if (currentPlaylist.getTracks().size() == 0) {
                         currentPlaylist = null;
                         currentTrack = null;
+                        release();
                     } else if (currentPlaylist.canGoNext())
                         nextTrack();
                     else if (currentPlaylist.getTracks().size() > 0)
@@ -259,6 +266,7 @@ public class StreamManager extends MediaSessionCompat.Callback implements Stream
                     else {
                         currentPlaylist = null;
                         currentTrack = null;
+                        release();
                     }
                     break;
                 case PlaybackMethods.PLAYLIST_TRACK_REPEAT:
@@ -267,6 +275,7 @@ public class StreamManager extends MediaSessionCompat.Callback implements Stream
                     else {
                         currentPlaylist = null;
                         currentTrack = null;
+                        release();
                     }
                     break;
                 case PlaybackMethods.PLAYLIST_SHUFFLE:
@@ -279,6 +288,7 @@ public class StreamManager extends MediaSessionCompat.Callback implements Stream
                 case PlaybackMethods.TRACK_NORMAL:
                     currentPlaylist = null;
                     currentTrack = null;
+                    release();
                     break;
                 case PlaybackMethods.TRACK_REPEAT:
                     start(true);
@@ -288,6 +298,7 @@ public class StreamManager extends MediaSessionCompat.Callback implements Stream
         } else {
             currentPlaylist = null;
             currentTrack = null;
+            release();
         }
         if (mediaCallback != null)
             mediaCallback.onMediaStop();
@@ -308,12 +319,14 @@ public class StreamManager extends MediaSessionCompat.Callback implements Stream
             else {
                 currentPlaylist = null;
                 currentTrack = null;
+                release();
             }
         } else if (currentPlaylist.getTracks().size() == 1)
             setPosition(0);
         else {
             currentPlaylist = null;
             currentTrack = null;
+            release();
         }
     }
 
@@ -340,6 +353,7 @@ public class StreamManager extends MediaSessionCompat.Callback implements Stream
 
     public void flush() {
         streamRequester.stopStream();
+        release();
     }
 
     public void rewind(int seconds, boolean unpause) {
@@ -453,13 +467,23 @@ public class StreamManager extends MediaSessionCompat.Callback implements Stream
     }
 
     public void startService() {
-        wakeLock.acquire();
+        if(!wakeLock.isHeld()) {
+            wakeLock.acquire();
+            Log.e("andrzej", "wake lock acquired");
+        }
         serviceManager.start();
     }
 
     public void stopService() {
         serviceManager.stop();
-        if (wakeLock.isHeld())
+        //if (wakeLock.isHeld())
+        //    wakeLock.release();
+    }
+
+    public void release(){
+        if (wakeLock.isHeld()) {
+            Log.e("andrzej", "wake lock released");
             wakeLock.release();
+        }
     }
 }

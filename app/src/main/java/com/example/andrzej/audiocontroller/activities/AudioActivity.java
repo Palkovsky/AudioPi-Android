@@ -253,6 +253,7 @@ public class AudioActivity extends UnifiedActivity implements
         MyApplication.streamManager.setCurrentPlaylist(null);
         MyApplication.streamManager.setCurrentTrack(null);
         MyApplication.streamManager.stopService();
+        MyApplication.streamManager.release();
         updateUI();
         return false;
     }
