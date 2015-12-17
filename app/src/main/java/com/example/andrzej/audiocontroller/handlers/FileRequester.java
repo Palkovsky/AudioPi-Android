@@ -1,12 +1,14 @@
 package com.example.andrzej.audiocontroller.handlers;
 
 
+import com.android.volley.DefaultRetryPolicy;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.example.andrzej.audiocontroller.config.Codes;
+import com.example.andrzej.audiocontroller.config.Defaults;
 import com.example.andrzej.audiocontroller.config.Endpoints;
 import com.example.andrzej.audiocontroller.utils.network.VolleySingleton;
 import com.squareup.okhttp.FormEncodingBuilder;
@@ -90,6 +92,11 @@ public class FileRequester {
         });
 
         request.setTag(TAG);
+        request.setRetryPolicy(new DefaultRetryPolicy(
+                Defaults.MY_SOCKET_TIMEOUT_MS,
+                DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
+                DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+
         requestQueue.add(request);
     }
 
