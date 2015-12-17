@@ -7,6 +7,7 @@ import android.preference.PreferenceManager;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -225,45 +226,17 @@ public class ExploreFragment extends BackHandledFragment implements OnItemClickL
 
     }
 
+
+
     @Override
     public void onLongItemClick(View v, int position) {
-        final ExploreItem item = mDataset.get(position);
+        ExploreItem item = mDataset.get(position);
 
         if (!item.isDirectory())
             showFileDialog(item);
-        else {
-            DialogExplorer dialogExplorer = new DialogExplorer(getActivity(), "/", new DialogExplorer.FileListener() {
-                @Override
-                public void onFileReceive(File file) {
-                    //Send it to API
-                    Toast.makeText(getActivity(), file.getAbsolutePath(), Toast.LENGTH_SHORT).show();
+        else
+            showDialogExplorer(item);
 
-                    final MaterialDialog loadingDialog = Dialog.getLoadingDialog(getActivity(), R.string.please_wait, R.string.uploading);
-
-                    fileManager.uploadFile(item.getPath(), file, new FileManager.UploadListener() {
-                        @Override
-                        public void onStart() {
-                            loadingDialog.show();
-                        }
-
-                        @Override
-                        public void onFinish() {
-                            loadingDialog.dismiss();
-                            Toast.makeText(getActivity(), R.string.finished_upload, Toast.LENGTH_SHORT).show();
-                        }
-
-                        @Override
-                        public void onError(int errorCode) {
-                            Toast.makeText(getActivity(), "Error code: " + errorCode, Toast.LENGTH_SHORT).show();
-                        }
-                    });
-                }
-            });
-
-            dialogExplorer.setWhitelistedExtensions(Defaults.WHITELISTED_EXTENSIONS);
-
-            dialogExplorer.showDialogPath();
-        }
     }
 
     @Override
@@ -647,5 +620,45 @@ public class ExploreFragment extends BackHandledFragment implements OnItemClickL
 
     public void goRoot() {
         exploreManager.goToRoot();
+    }
+
+    public void showDialogExplorer(final ExploreItem item) {
+        DialogExplorer dialogExplorer = new DialogExplorer(getActivity(), "/", new DialogExplorer.FileListener() {
+            @Override
+            public void onFilesReceive(List<File> files) {
+
+                final MaterialDialog loadingDialog = new MaterialDialog.Builder(getActivity())
+                        .title(R.string.please_wait)
+                        .content(R.string.uploading)
+                        .progress(false, files.size(), true).show();
+
+
+                for (File file : files) {
+                    fileManager.uploadFile(item.getPath(), file, new FileManager.UploadListener() {
+                        @Override
+                        public void onStart() {}
+                        @Override
+                        public void onFinish() {
+                            loadingDialog.incrementProgress(1);
+                            if (loadingDialog.getCurrentProgress() == loadingDialog.getMaxProgress()) {
+                                Toast.makeText(getActivity(), R.string.finished_upload, Toast.LENGTH_SHORT).show();
+                                loadingDialog.dismiss();
+                            }
+                        }
+                        @Override
+                        public void onError(int errorCode) {
+                            loadingDialog.incrementProgress(1);
+                            if (loadingDialog.getCurrentProgress() == loadingDialog.getMaxProgress()) {
+                                Toast.makeText(getActivity(), R.string.finished_upload, Toast.LENGTH_SHORT).show();
+                                loadingDialog.dismiss();
+                            }
+                            Toast.makeText(getActivity(), "Error code: " + errorCode, Toast.LENGTH_SHORT).show();
+                        }
+                    });
+                }
+            }
+        });
+        dialogExplorer.setWhitelistedExtensions(Defaults.WHITELISTED_EXTENSIONS);
+        dialogExplorer.showDialogPath();
     }
 }

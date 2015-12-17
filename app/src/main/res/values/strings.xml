@@ -120,4 +120,10 @@
     <string name="uploading">Uploading...</string>
     <string name="upload_error">While uploading, an error has occured.</string>
     <string name="finished_upload">Upload finished!</string>
+    <string name="add">Add</string>
+
+
+    <string name="lorem_ipsum"> Lorem ipsum dolor sit amet, consectetur adipiscing elit. Fusce tempor metus at ipsum congue, vitae consectetur lectus dignissim. Suspendisse interdum hendrerit tempor. Vivamus quis interdum justo. Morbi aliquam rutrum efficitur. Sed rhoncus ex ex, eget commodo orci porttitor et. Nunc non pellentesque nisl, at laoreet nibh. Maecenas eu congue felis, sed pulvinar augue. Praesent interdum cursus risus et facilisis. Vestibulum elementum dolor tellus. Aenean fermentum venenatis nisl, vel volutpat enim semper et. Nullam erat neque, tempus sed risus eu, sagittis vulputate odio. In urna neque, finibus in sodales sed, faucibus eget lacus. Duis auctor tincidunt justo, et eleifend nisi ultricies sit amet. Donec venenatis augue eget est ullamcorper, vel aliquam ipsum efficitur. Curabitur ut nisl sed libero laoreet ultricies quis sed metus.
+
+Nam ultrices vehicula nibh, at volutpat erat tincidunt quis. Aenean gravida enim in massa malesuada vestibulum. Donec luctus dignissim ex, ut egestas enim placerat mollis. Proin mollis vitae neque ut efficitur. Sed mi nisi, tristique vel diam vitae, vulputate dapibus tellus. Integer et tristique purus, lobortis blandit erat. Integer id tortor eu risus consectetur fringilla vitae ut risus. Nullam dignissim metus vitae lacus imperdiet, nec mattis urna tincidunt. Aliquam quis efficitur lectus. </string>
 </resources>
