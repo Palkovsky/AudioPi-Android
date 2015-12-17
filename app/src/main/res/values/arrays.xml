@@ -10,6 +10,10 @@
         <item>@color/rpi_color_1</item>
         <item>@color/rpi_color_2</item>
     </integer-array>
+    <string-array name="folder_dialog_items">
+        <item>@string/delete</item>
+        <item>@string/uploadFile</item>
+    </string-array>
     <string-array name="explore_file_dialog_items">
         <item>@string/download</item>
         <item>@string/addToPlaylist</item>

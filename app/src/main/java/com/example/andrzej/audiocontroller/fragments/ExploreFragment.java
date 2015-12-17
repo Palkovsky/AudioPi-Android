@@ -227,16 +227,50 @@ public class ExploreFragment extends BackHandledFragment implements OnItemClickL
     }
 
 
-
     @Override
     public void onLongItemClick(View v, int position) {
-        ExploreItem item = mDataset.get(position);
+        final ExploreItem item = mDataset.get(position);
 
         if (!item.isDirectory())
             showFileDialog(item);
-        else
-            showDialogExplorer(item);
+        else {
+            new MaterialDialog.Builder(getActivity())
+                    .title(item.getName())
+                    .items(R.array.folder_dialog_items)
+                    .itemsCallback(new MaterialDialog.ListCallback() {
+                        @Override
+                        public void onSelection(MaterialDialog materialDialog, View view, int i, CharSequence charSequence) {
+                            switch (i) {
+                                case 0: //Delete
+                                    fileManager.deleteFile(item.getPath(), new FileManager.DeleteFileListener() {
 
+                                        MaterialDialog loadingDialog = Dialog.getLoadingDialog(getActivity(), R.string.please_wait,
+                                                R.string.deleting_your_data);
+
+                                        @Override
+                                        public void onQueryStart() {
+                                            loadingDialog.show();
+                                        }
+
+                                        @Override
+                                        public void onQueryFinish() {
+                                            loadingDialog.dismiss();
+                                            queryPath(exploreManager.currentPath());
+                                        }
+
+                                        @Override
+                                        public void onQueryError(int errorCode) {
+                                            Toast.makeText(getActivity(), R.string.deleting_error, Toast.LENGTH_SHORT).show();
+                                        }
+                                    });
+                                    break;
+                                case 1: //Upload
+                                    showDialogExplorer(item);
+                                    break;
+                            }
+                        }
+                    }).show();
+        }
     }
 
     @Override
@@ -587,11 +621,7 @@ public class ExploreFragment extends BackHandledFragment implements OnItemClickL
             @Override
             public void onDelete() {
 
-                String queryPath;
-                if (item.isDirectory())
-                    queryPath = exploreManager.currentPath();
-                else
-                    queryPath = item.getPath();
+                String queryPath = item.getPath();
 
                 fileManager.deleteFile(queryPath, new FileManager.DeleteFileListener() {
 
@@ -636,7 +666,9 @@ public class ExploreFragment extends BackHandledFragment implements OnItemClickL
                 for (File file : files) {
                     fileManager.uploadFile(item.getPath(), file, new FileManager.UploadListener() {
                         @Override
-                        public void onStart() {}
+                        public void onStart() {
+                        }
+
                         @Override
                         public void onFinish() {
                             loadingDialog.incrementProgress(1);
@@ -645,6 +677,7 @@ public class ExploreFragment extends BackHandledFragment implements OnItemClickL
                                 loadingDialog.dismiss();
                             }
                         }
+
                         @Override
                         public void onError(int errorCode) {
                             loadingDialog.incrementProgress(1);
