@@ -77,14 +77,14 @@ public class Playlist implements ParentListItem, Serializable {
     }
 
     public void next() {
-            tracks.get(position).setPlaying(false);
-            position++;
-            tracks.get(position).setPlaying(true);
+        tracks.get(position).setPlaying(false);
+        position++;
+        tracks.get(position).setPlaying(true);
 
     }
 
     public void prev() {
-        if(position < tracks.size()) {
+        if (position < tracks.size()) {
             tracks.get(position).setPlaying(false);
             position--;
             tracks.get(position).setPlaying(true);
@@ -105,5 +105,9 @@ public class Playlist implements ParentListItem, Serializable {
 
     public void setDbId(long dbId) {
         this.dbId = dbId;
+    }
+
+    public Track currentTrack() {
+        return getTracks().get(position());
     }
 }

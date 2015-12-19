@@ -1,12 +1,11 @@
 package com.example.andrzej.audiocontroller.handlers;
 
-import android.app.job.JobInfo;
-import android.app.job.JobScheduler;
-import android.content.ComponentName;
+
 import android.content.Context;
 import android.os.Handler;
 import android.os.Message;
 import android.os.PowerManager;
+import android.os.RemoteException;
 import android.support.v4.media.MediaMetadataCompat;
 import android.support.v4.media.session.MediaSessionCompat;
 import android.support.v4.media.session.PlaybackStateCompat;
@@ -23,15 +22,15 @@ import com.example.andrzej.audiocontroller.interfaces.StreamListener;
 import com.example.andrzej.audiocontroller.models.Metadata;
 import com.example.andrzej.audiocontroller.models.Playlist;
 import com.example.andrzej.audiocontroller.models.Track;
-import com.example.andrzej.audiocontroller.models.dbmodels.PlaylistDb;
 import com.example.andrzej.audiocontroller.services.StreamService;
 import com.example.andrzej.audiocontroller.services.ServiceManager;
-import com.example.andrzej.audiocontroller.utils.Converter;
 import com.example.andrzej.audiocontroller.utils.network.Network;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 
 public class StreamManager extends MediaSessionCompat.Callback implements StreamListener {
@@ -43,6 +42,7 @@ public class StreamManager extends MediaSessionCompat.Callback implements Stream
     private ServiceManager serviceManager;
     private MediaCallback mediaCallback;
     private PowerManager powerManager;
+    private MediaSessionManager mediaSessionManager;
     PowerManager.WakeLock wakeLock;
 
     private int trackPlaybackMethod;
@@ -66,8 +66,9 @@ public class StreamManager extends MediaSessionCompat.Callback implements Stream
                 switch (msg.what) {
                     case StreamService.MSG_VALUE:
                         Toast.makeText(context, "Koniec", Toast.LENGTH_SHORT).show();
-                        stopService();
+                        stopService(false);
                         handleTrackEnd();
+                        Log.e("andrzej", "handle track end!");
                         break;
                     case StreamService.SERVER_ERROR:
                         if (Network.isNetworkAvailable(context)) {
@@ -101,6 +102,41 @@ public class StreamManager extends MediaSessionCompat.Callback implements Stream
             }
         });
 
+        mediaSessionManager = new MediaSessionManager(context, new MediaSessionCallback() {
+            @Override
+            public void onPause() {
+                if (currentTrack != null)
+                    pause();
+            }
+
+            @Override
+            public void onPlay() {
+                if (currentTrack != null)
+                    unpause();
+            }
+
+            @Override
+            public void onNext() {
+                if (currentPlaylist != null)
+                    nextTrack();
+            }
+
+            @Override
+            public void onPrev() {
+                if (currentPlaylist != null)
+                    prevTrack();
+            }
+
+            @Override
+            public void onFlush() {
+                currentPlaylist = null;
+                currentTrack = null;
+                release();
+                if (mediaCallback != null)
+                    mediaCallback.onMediaStop();
+                flush();
+            }
+        });
     }
 
     @Override
@@ -120,7 +156,7 @@ public class StreamManager extends MediaSessionCompat.Callback implements Stream
                         float total = response.getInt("total");
                         currentTrack.setMilliTotalSecs(total);
 
-                        stopService();
+                        stopService(false);
                         startService();
 
                         if (mediaCallback != null)
@@ -152,7 +188,7 @@ public class StreamManager extends MediaSessionCompat.Callback implements Stream
     public void onStreamStop(JSONObject response) {
         currentPlaylist = null;
         currentTrack = null;
-        stopService();
+        stopService(true);
         release();
         if (mediaCallback != null)
             mediaCallback.onMediaStop();
@@ -160,18 +196,22 @@ public class StreamManager extends MediaSessionCompat.Callback implements Stream
 
     @Override
     public void onStreamPause(JSONObject response) {
-        currentTrack.setPaused(true);
-        stopService();
-        if (mediaCallback != null)
-            mediaCallback.onMediaPause();
+        if (currentTrack != null) {
+            currentTrack.setPaused(true);
+            stopService(false);
+            if (mediaCallback != null)
+                mediaCallback.onMediaPause();
+        }
     }
 
     @Override
     public void onStreamUnpause(JSONObject response) {
-        currentTrack.setPaused(false);
-        startService();
-        if (mediaCallback != null)
-            mediaCallback.onMediaUnpause();
+        if (currentTrack != null) {
+            currentTrack.setPaused(false);
+            startService();
+            if (mediaCallback != null)
+                mediaCallback.onMediaUnpause();
+        }
     }
 
     @Override
@@ -207,9 +247,14 @@ public class StreamManager extends MediaSessionCompat.Callback implements Stream
                 metadata.setLength(info.getInt("length"));
                 track.setMetadata(metadata);
 
+                Playlist playlist = new Playlist();
+                List<Track> tracks = new ArrayList<>();
+                tracks.add(track);
+                playlist.setTracks(tracks);
+                playlist.setName(track.getName());
 
-                setCurrentTrack(track);
-                stopService();
+                setCurrentPlaylist(playlist, 0);
+                stopService(false);
                 startService();
 
             }
@@ -225,7 +270,7 @@ public class StreamManager extends MediaSessionCompat.Callback implements Stream
             if (currentTrack != null && !currentTrack.isPlaying()) {
                 currentPlaylist = null;
                 currentTrack = null;
-                stopService();
+                stopService(true);
                 release();
                 if (mediaCallback != null)
                     mediaCallback.onMediaStop();
@@ -339,9 +384,6 @@ public class StreamManager extends MediaSessionCompat.Callback implements Stream
         streamRequester.startStream(track, terminate);
     }
 
-    public void smartpause() {
-        streamRequester.smartpauseStream();
-    }
 
     public void pause() {
         streamRequester.pauseStream();
@@ -365,6 +407,8 @@ public class StreamManager extends MediaSessionCompat.Callback implements Stream
         if (currentPlaylist != null && currentPlaylist.canGoNext()) {
             currentPlaylist.next();
             currentTrack = currentPlaylist.getTracks().get(currentPlaylist.position());
+            currentTrack.setMilliPosSecs(0);
+            currentTrack.setPauseStartTime(System.currentTimeMillis());
             start(true);
         }
     }
@@ -378,6 +422,8 @@ public class StreamManager extends MediaSessionCompat.Callback implements Stream
         } else if (currentPlaylist != null && currentPlaylist.canGoPrev()) {
             currentPlaylist.prev();
             currentTrack = currentPlaylist.getTracks().get(currentPlaylist.position());
+            currentTrack.setMilliPosSecs(0);
+            currentTrack.setPauseStartTime(System.currentTimeMillis());
             start(true);
         }
     }
@@ -427,29 +473,6 @@ public class StreamManager extends MediaSessionCompat.Callback implements Stream
         }
     }
 
-    private MediaMetadataCompat grabMetadata() {
-        if (currentTrack != null) {
-            Metadata metadata = currentTrack.getMetadata();
-            return new MediaMetadataCompat.Builder()
-                    .putString(MediaMetadataCompat.METADATA_KEY_ALBUM, metadata.getAlbum())
-                    .putString(MediaMetadataCompat.METADATA_KEY_ALBUM_ART_URI, metadata.getCoverUrl())
-                    .putString(MediaMetadataCompat.METADATA_KEY_ARTIST, metadata.getArtist())
-                    .putString(MediaMetadataCompat.METADATA_KEY_GENRE, metadata.getGenre())
-                    .build();
-
-        }
-        return null;
-    }
-
-    private PlaybackStateCompat getStateCompat() {
-        return new PlaybackStateCompat.Builder()
-                .setActions(
-                        PlaybackStateCompat.ACTION_SKIP_TO_PREVIOUS |
-                                PlaybackStateCompat.ACTION_PAUSE |
-                                PlaybackStateCompat.ACTION_SKIP_TO_NEXT)
-                .build();
-    }
-
     public int getTrackPlaybackMethod() {
         return trackPlaybackMethod;
     }
@@ -467,23 +490,38 @@ public class StreamManager extends MediaSessionCompat.Callback implements Stream
     }
 
     public void startService() {
-        if(!wakeLock.isHeld()) {
+        if (!wakeLock.isHeld()) {
             wakeLock.acquire();
             Log.e("andrzej", "wake lock acquired");
         }
         serviceManager.start();
+        if (currentPlaylist != null)
+            mediaSessionManager.start();
     }
 
-    public void stopService() {
+    public void stopService(boolean flush) {
         serviceManager.stop();
+        mediaSessionManager.stop(flush);
         //if (wakeLock.isHeld())
         //    wakeLock.release();
     }
 
-    public void release(){
+    public void release() {
         if (wakeLock.isHeld()) {
             Log.e("andrzej", "wake lock released");
             wakeLock.release();
         }
+    }
+
+    public interface MediaSessionCallback {
+        void onPause();
+
+        void onPlay();
+
+        void onNext();
+
+        void onPrev();
+
+        void onFlush();
     }
 }

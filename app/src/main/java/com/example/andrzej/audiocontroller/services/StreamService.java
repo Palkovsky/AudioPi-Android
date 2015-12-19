@@ -49,19 +49,23 @@ public class StreamService extends AbstractService {
                         @Override
                         public void onResponse(JSONObject response) {
                             try {
-                                int code = response.getInt("code");
-                                Log.e("andrzej", "code: " + code);
-                                if (code == 1015 && MyApplication.streamManager != null && MyApplication.streamManager.getCurrentTrack() != null) {
-                                    retryCount++;
-                                    if ((retryCount >= 3 && MyApplication.streamManager.getCurrentTrack().getMilliPosSecs() == 0)
-                                            || MyApplication.streamManager.getCurrentTrack().getMilliPosSecs() > 0) {
-                                        send(Message.obtain(null, MSG_VALUE, -1, 0));
+                                if (MyApplication.streamManager != null && MyApplication.streamManager.getCurrentTrack() != null) {
+                                    int code = response.getInt("code");
+                                    Log.e("andrzej", "code: " + code);
+                                    if (code == 1015) {
+                                        retryCount++;
+                                        Log.e("andrzej", "POS: " + MyApplication.streamManager.getCurrentTrack().getMilliPosSecs());
+                                        if ((retryCount >= 3 && MyApplication.streamManager.getCurrentTrack().sinceLastPause() <= 3000)
+                                                || ( MyApplication.streamManager.getCurrentTrack().sinceLastPause() > 3000 &&
+                                                MyApplication.streamManager.getCurrentTrack().getMilliPosSecs() > 3000)) {
+                                            send(Message.obtain(null, MSG_VALUE, -1, 0));
+                                            retryCount = 0;
+                                        }
+                                    } else {
                                         retryCount = 0;
+                                        int curTime = response.getJSONObject("playback").getJSONObject("position").getInt("millis");
+                                        send(Message.obtain(null, MSG_POS_UPDATE, curTime, 0));
                                     }
-                                } else {
-                                    retryCount = 0;
-                                    int curTime = response.getJSONObject("playback").getJSONObject("position").getInt("millis");
-                                    send(Message.obtain(null, MSG_POS_UPDATE, curTime, 0));
                                 }
                             } catch (JSONException e) {
                                 e.printStackTrace();

@@ -26,7 +26,7 @@ public class ServiceManager {
         @Override
         public void handleMessage(Message msg) {
             if (mIncomingHandler != null) {
-                Log.i("ServiceHandler", "Incoming message. Passing to handler: "+msg);
+                Log.i("ServiceHandler", "Incoming message. Passing to handler: " + msg);
                 mIncomingHandler.handleMessage(msg);
             }
         }
@@ -69,6 +69,11 @@ public class ServiceManager {
         doBindService();
     }
 
+    public void start(Intent intent){
+        doStartService(intent);
+        doBindService();
+    }
+
     public void stop() {
         doUnbindService();
         doStopService();
@@ -105,6 +110,10 @@ public class ServiceManager {
         mActivity.startService(new Intent(mActivity, mServiceClass));
     }
 
+    private void doStartService(Intent intent) {
+        mActivity.startService(intent);
+    }
+
     private void doStopService() {
         mActivity.stopService(new Intent(mActivity, mServiceClass));
     }
@@ -135,7 +144,7 @@ public class ServiceManager {
         }
     }
 
-    public Class<? extends AbstractService> getService(){
+    public Class<? extends AbstractService> getService() {
         return mServiceClass;
     }
 }

@@ -139,7 +139,7 @@ public class MainActivity extends UnifiedActivity implements View.OnClickListene
                 MyApplication.streamManager.flush();
                 MyApplication.streamManager.setCurrentPlaylist(null);
                 MyApplication.streamManager.setCurrentTrack(null);
-                MyApplication.streamManager.stopService();
+                MyApplication.streamManager.stopService(true);
                 MyApplication.streamManager.release();
                 updateUI();
                 return true;

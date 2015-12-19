@@ -1,7 +1,6 @@
 package com.example.andrzej.audiocontroller.models;
 
 
-
 public class Track extends ExploreItem {
     private boolean playing;
     private boolean paused;
@@ -9,6 +8,7 @@ public class Track extends ExploreItem {
     private float posMiliSecs;
     private float totalMiliSecs;
     private long dbId;
+    private long pauseStartTime;
     private int playlistPosition;
 
     public Track() {
@@ -18,6 +18,11 @@ public class Track extends ExploreItem {
     public Track(Playlist playlist) {
         super(playlist);
         setDirectory(false);
+        pauseStartTime = System.currentTimeMillis();
+    }
+
+    public long sinceLastPause() {
+        return System.currentTimeMillis() - pauseStartTime;
     }
 
     public boolean isPlaying() {
@@ -33,6 +38,8 @@ public class Track extends ExploreItem {
     }
 
     public void setPaused(boolean paused) {
+        if (!paused)
+            pauseStartTime = System.currentTimeMillis();
         this.paused = paused;
     }
 
@@ -74,5 +81,9 @@ public class Track extends ExploreItem {
 
     public void setPlaylistPosition(int playlistPosition) {
         this.playlistPosition = playlistPosition;
+    }
+
+    public void setPauseStartTime(long pauseStartTime) {
+        this.pauseStartTime = pauseStartTime;
     }
 }
