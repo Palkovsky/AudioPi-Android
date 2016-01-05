@@ -5,10 +5,7 @@ import android.content.Context;
 import android.os.Handler;
 import android.os.Message;
 import android.os.PowerManager;
-import android.os.RemoteException;
-import android.support.v4.media.MediaMetadataCompat;
 import android.support.v4.media.session.MediaSessionCompat;
-import android.support.v4.media.session.PlaybackStateCompat;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -111,8 +108,9 @@ public class StreamManager extends MediaSessionCompat.Callback implements Stream
 
             @Override
             public void onPlay() {
-                if (currentTrack != null)
+                if (currentTrack != null) {
                     unpause();
+                }
             }
 
             @Override
@@ -511,6 +509,10 @@ public class StreamManager extends MediaSessionCompat.Callback implements Stream
             Log.e("andrzej", "wake lock released");
             wakeLock.release();
         }
+    }
+
+    public MediaSessionManager getMediaSessionManager() {
+        return mediaSessionManager;
     }
 
     public interface MediaSessionCallback {

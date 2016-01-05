@@ -1,10 +1,13 @@
 package com.example.andrzej.audiocontroller.services;
 
+import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
-import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.drawable.Drawable;
 import android.media.AudioManager;
 import android.os.IBinder;
 import android.os.Message;
@@ -19,6 +22,8 @@ import com.example.andrzej.audiocontroller.R;
 import com.example.andrzej.audiocontroller.handlers.MediaSessionManager;
 import com.example.andrzej.audiocontroller.models.Playlist;
 import com.example.andrzej.audiocontroller.models.Track;
+import com.squareup.picasso.Picasso;
+import com.squareup.picasso.Target;
 
 public class MediaPlayerService extends AbstractService implements AudioManager.OnAudioFocusChangeListener {
 
@@ -28,6 +33,7 @@ public class MediaPlayerService extends AbstractService implements AudioManager.
     private MediaControllerCompat m_objMediaController;
 
     private Playlist playlist;
+    private Target target;
 
     public static final String ACTION_PLAY = "action_play";
     public static final String ACTION_PAUSE = "action_pause";
@@ -56,9 +62,23 @@ public class MediaPlayerService extends AbstractService implements AudioManager.
 
     @Override
     public void onReceiveMessage(Message msg) {
-        if (msg.what == MediaSessionManager.MSG_SEND) {
-            playlist = (Playlist) msg.obj;
-            initMediaSessions();
+        switch (msg.what) {
+            case MediaSessionManager.MSG_SEND:
+                playlist = (Playlist) msg.obj;
+                initMediaSessions();
+                break;
+            case MediaSessionManager.MSG_RECEIVE:
+                Intent intent = (Intent) msg.obj;
+                handleIntent(intent);
+                break;
+            case MediaSessionManager.MSH_PAUSED:
+                Log.e("andrzej", "paused");
+                buildNotification(generateAction(android.R.drawable.ic_media_play, "Play", ACTION_PLAY));
+                break;
+            case MediaSessionManager.MSG_UNPAUSED:
+                Log.e("andrzej", "unpaused");
+                buildNotification(generateAction(android.R.drawable.ic_media_pause, "Pause", ACTION_PAUSE));
+                break;
         }
     }
 
@@ -85,37 +105,73 @@ public class MediaPlayerService extends AbstractService implements AudioManager.
         }
     }
 
-    private void buildNotification(android.support.v4.app.NotificationCompat.Action action) {
+    private void buildNotification(final android.support.v4.app.NotificationCompat.Action action) {
 
-        NotificationCompat.MediaStyle style = new NotificationCompat.MediaStyle();
-        style.setMediaSession(m_objMediaSession.getSessionToken());
-
-        Intent intent = new Intent(getApplicationContext(), MediaPlayerService.class);
-        intent.setAction(ACTION_STOP);
 
         if (playlist != null) {
-            Track currentTrack = playlist.currentTrack();
+            final Track currentTrack = playlist.currentTrack();
 
-            PendingIntent pendingIntent = PendingIntent.getService(getApplicationContext(), 1, intent, 0);
-            android.support.v4.app.NotificationCompat.Builder builder = new NotificationCompat.Builder(this)
-                    .setSmallIcon(R.drawable.ic_music_note_black_36dp)
-                    .setContentTitle(currentTrack.getFormattedName())
-                    .setContentText(currentTrack.getMetadata().getArtist())
-                    .setDeleteIntent(pendingIntent)
-                    .setStyle(style);
+            if (target != null)
+                Picasso.with(getBaseContext()).cancelRequest(target);
 
-            if (playlist.canGoPrev())
-                builder.addAction(generateAction(android.R.drawable.ic_media_previous, "Previous", ACTION_PREVIOUS));
-            builder.addAction(action);
-            if (playlist.canGoNext())
-                builder.addAction(generateAction(android.R.drawable.ic_media_next, "Next", ACTION_NEXT));
+            target = new Target() {
+                @Override
+                public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
+                    buildNotification(currentTrack, action, bitmap);
+                }
 
-            //final TransportControls controls = m_objMediaSession.getController().getTransportControls();
-            NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-            notificationManager.notify(1, builder.build());
+                @Override
+                public void onBitmapFailed(Drawable errorDrawable) {
+                }
+
+                @Override
+                public void onPrepareLoad(Drawable placeHolderDrawable) {
+                }
+            };
+
+            String queryUrl = currentTrack.getMetadata().getCoverUrl();
+            if (queryUrl != null && !queryUrl.trim().equals(""))
+                Picasso.with(getApplicationContext()).load(currentTrack.getMetadata().getCoverUrl()).into(target);
+            else {
+                Bitmap icon = BitmapFactory.decodeResource(getBaseContext().getResources(), R.drawable.ic_music_note_white_48dp);
+                buildNotification(currentTrack, action, icon);
+            }
         }
 
     }
+
+    private void buildNotification(Track currentTrack, android.support.v4.app.NotificationCompat.Action action, Bitmap largeImage) {
+        final Intent intent = new Intent(getApplicationContext(), MediaPlayerService.class);
+        intent.setAction(ACTION_STOP);
+        final NotificationCompat.MediaStyle style = new NotificationCompat.MediaStyle();
+
+        String artist = currentTrack.getMetadata().getArtist();
+        if (artist == null || artist.equals("") || artist.equals("null"))
+            artist = "";
+
+        style.setMediaSession(m_objMediaSession.getSessionToken());
+        PendingIntent pendingIntent = PendingIntent.getService(getApplicationContext(), 1, intent, 0);
+        android.support.v4.app.NotificationCompat.Builder builder = new NotificationCompat.Builder(getApplicationContext())
+                .setSmallIcon(R.drawable.ic_music_note_white_36dp)
+                .setLargeIcon(largeImage)
+                .setContentTitle(currentTrack.getFormattedName())
+                .setContentText(artist)
+                .setDeleteIntent(pendingIntent)
+                .setStyle(style);
+
+        if (playlist.canGoPrev())
+            builder.addAction(generateAction(android.R.drawable.ic_media_previous, "Previous", ACTION_PREVIOUS));
+        builder.addAction(action);
+        if (playlist.canGoNext())
+            builder.addAction(generateAction(android.R.drawable.ic_media_next, "Next", ACTION_NEXT));
+
+
+        //final TransportControls controls = m_objMediaSession.getController().getTransportControls();
+        Notification notification = builder.build();
+        NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+        notificationManager.notify(1, notification);
+    }
+
 
     private android.support.v4.app.NotificationCompat.Action generateAction(int icon, String title, String intentAction) {
         Intent intent = new Intent(getApplicationContext(), MediaPlayerService.class);
@@ -151,13 +207,14 @@ public class MediaPlayerService extends AbstractService implements AudioManager.
         m_objMediaSession.setActive(true);
         m_objMediaSession.setFlags(MediaSessionCompat.FLAG_HANDLES_MEDIA_BUTTONS | MediaSessionCompat.FLAG_HANDLES_TRANSPORT_CONTROLS);
 
-
         m_objMediaSession.setCallback(new android.support.v4.media.session.MediaSessionCompat.Callback() {
             @Override
             public void onPlay() {
                 super.onPlay();
                 Log.e(LOG_TAG, "onPlay");
                 //send(Message.obtain(null, MediaSessionManager.MSG_PLAY, MediaSessionManager.MSG_PLAY, -1));
+
+                Track currentTrack = playlist.currentTrack();
 
                 buildNotification(generateAction(android.R.drawable.ic_media_pause, "Pause", ACTION_PAUSE));
                 if (MyApplication.streamManager.getCurrentPlaylist() != null)
@@ -183,6 +240,8 @@ public class MediaPlayerService extends AbstractService implements AudioManager.
                 buildNotification(generateAction(android.R.drawable.ic_media_pause, "Pause", ACTION_PAUSE));
                 if (MyApplication.streamManager.getCurrentPlaylist() != null)
                     MyApplication.streamManager.nextTrack();
+                if (target != null)
+                    Picasso.with(getApplicationContext()).cancelRequest(target);
             }
 
             @Override
@@ -194,6 +253,8 @@ public class MediaPlayerService extends AbstractService implements AudioManager.
                 buildNotification(generateAction(android.R.drawable.ic_media_pause, "Pause", ACTION_PAUSE));
                 if (MyApplication.streamManager.getCurrentPlaylist() != null)
                     MyApplication.streamManager.prevTrack();
+                if (target != null)
+                    Picasso.with(getApplicationContext()).cancelRequest(target);
             }
 
             @Override
@@ -209,6 +270,8 @@ public class MediaPlayerService extends AbstractService implements AudioManager.
                 MyApplication.streamManager.setCurrentTrack(null);
                 MyApplication.streamManager.stopService(true);
                 MyApplication.streamManager.release();
+                if (target != null)
+                    Picasso.with(getApplicationContext()).cancelRequest(target);
             }
 
             @Override

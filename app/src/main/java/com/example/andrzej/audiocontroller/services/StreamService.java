@@ -55,7 +55,7 @@ public class StreamService extends AbstractService {
                                     if (code == 1015) {
                                         retryCount++;
                                         Log.e("andrzej", "POS: " + MyApplication.streamManager.getCurrentTrack().getMilliPosSecs());
-                                        if ((retryCount >= 3 && MyApplication.streamManager.getCurrentTrack().sinceLastPause() <= 3000)
+                                        if ((retryCount > 7 && MyApplication.streamManager.getCurrentTrack().sinceLastPause() <= 3000)
                                                 || ( MyApplication.streamManager.getCurrentTrack().sinceLastPause() > 3000 &&
                                                 MyApplication.streamManager.getCurrentTrack().getMilliPosSecs() > 3000)) {
                                             send(Message.obtain(null, MSG_VALUE, -1, 0));
