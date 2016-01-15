@@ -19,6 +19,7 @@ import android.util.Log;
 
 import com.example.andrzej.audiocontroller.MyApplication;
 import com.example.andrzej.audiocontroller.R;
+import com.example.andrzej.audiocontroller.activities.AudioActivity;
 import com.example.andrzej.audiocontroller.handlers.MediaSessionManager;
 import com.example.andrzej.audiocontroller.models.Playlist;
 import com.example.andrzej.audiocontroller.models.Track;
@@ -122,6 +123,8 @@ public class MediaPlayerService extends AbstractService implements AudioManager.
 
                 @Override
                 public void onBitmapFailed(Drawable errorDrawable) {
+                        Bitmap icon = BitmapFactory.decodeResource(getBaseContext().getResources(), R.drawable.ic_music_note_white_48dp);
+                        buildNotification(currentTrack, action, icon);
                 }
 
                 @Override
@@ -149,13 +152,22 @@ public class MediaPlayerService extends AbstractService implements AudioManager.
         if (artist == null || artist.equals("") || artist.equals("null"))
             artist = "";
 
+
+
         style.setMediaSession(m_objMediaSession.getSessionToken());
+
         PendingIntent pendingIntent = PendingIntent.getService(getApplicationContext(), 1, intent, 0);
+        Intent notificationIntent = new Intent(getApplicationContext(), AudioActivity.class);
+        notificationIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+        PendingIntent contentIntent = PendingIntent.getActivity(getApplicationContext(), 0, notificationIntent, 0);
+
+
         android.support.v4.app.NotificationCompat.Builder builder = new NotificationCompat.Builder(getApplicationContext())
                 .setSmallIcon(R.drawable.ic_music_note_white_36dp)
                 .setLargeIcon(largeImage)
                 .setContentTitle(currentTrack.getFormattedName())
                 .setContentText(artist)
+                .setContentIntent(contentIntent)
                 .setDeleteIntent(pendingIntent)
                 .setStyle(style);
 
