@@ -4,7 +4,7 @@ Android app consuming this https://github.com/Palkovsky/AudioPi API. This is ver
 
 ## What does it do?
 
-The API allowed to explore USBs drives plugged to RespberryPi. It exposed endpoints for controling playback. The app was basically minimalistic audio player, but it allowed to control stream on remote machine. You can see how app looked and worked on high-quality video included below.
+The API allowed to explore USBs drives plugged to RaspberryPi (actually it could've been any machine with Linux). It exposed endpoints for controling playback. The app was basically minimalistic audio player, but it allowed to control stream remotely. You can see how app looked and worked on high-quality video included below.
 
 ## Video
 
